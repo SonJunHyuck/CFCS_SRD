@@ -1,0 +1,10 @@
+#Folder
+
+Debug/
+
+Release/
+
+.vs/
+
+#solution
+*.sln

@@ -1,14 +1,9 @@
 #Folder
-
-Debug/*
-
-Release/*
-
-.vs/*
-
-PBD/Models/*
-
-PBD/Release/*
+Debug/
+Release/
+.vs/
+PBD/Models/
+PBD/Release/
 
 #solution
 *.sln

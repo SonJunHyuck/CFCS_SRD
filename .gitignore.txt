@@ -13,3 +13,5 @@ PBD/Models/
 
 PBD/Release/
 
+PBD/out
+

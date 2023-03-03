@@ -3,13 +3,13 @@
 
 #Folder
 
-/Debug/
+Debug/
 
-/Release/
+Release/
 
-/.vs/
+.vs/
 
-/PBD/Models/
+PBD/Models/
 
-/PBD/Release/
+PBD/Release/
 

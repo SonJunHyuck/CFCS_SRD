@@ -1,0 +1,16 @@
+#solution
+*.sln
+
+#Folder
+
+Debug/
+
+Release/
+
+.vs/
+
+PBD/Models/
+
+PBD/Release/
+
+PBD/out

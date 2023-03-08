@@ -64,11 +64,15 @@ public:
 
 	void dummy_init(Simulation* sim);
 
+	void create_station(glm::vec3 pos);
+	void send_ray(glm::vec4 ray_clip);
+
 private:
 	int width;
 	int height;
 
 	int tracking_particle;
+	glm::vec3 tracking_particle_last_pos;
 	
 	ShaderProgram* shader_cube;
 	ShaderProgram* shader_sphere;

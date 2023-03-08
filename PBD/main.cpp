@@ -95,6 +95,20 @@ void mouseDragging(double width, double height)
 	last_mouse_X = cx;
 	last_mouse_Y = cy;
 }
+void send_mouse_cursor_pos()
+{
+	if (mouse_button_down_left) 
+	{
+		float x = ((2.0f * cx) / WINDOW_WIDTH) - 1.0f;
+		float y = 1.0f - ((2.0f * cy) / WINDOW_HEIGHT);
+		float z = 1.0f;
+		glm::vec3 ray_nds = glm::vec3(x, y, z);
+		glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0f, 1.0f);
+
+		//gl_window->update_cursor_pos(x, y);
+		gl_window->send_ray(ray_clip);
+	}
+}
 
 void Init() {
 	glfwInit();
@@ -201,6 +215,11 @@ int main()
 		glfwPollEvents();
 
 		mouseDragging(display_w, display_h);
+
+		if (stop)
+		{
+			send_mouse_cursor_pos();
+		}
 	}
 
 	glfwDestroyWindow(window);

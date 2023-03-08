@@ -48,16 +48,20 @@ void PathPlanner::calc_velocity(const int& particle_id) // returns velocity
 
 	if (IS_FORMATION)
 	{
+		p->goal = p->final_goal;
+		
 		if (p->is_leader)
 		{
 			// Virtual Pointer 갱신
-			p->goal = p->final_goal;
-			unit_group->update_short_range_goal();
+			//p->goal = p->final_goal;
+
+			// station은 std::vector로 가지고 있고, top을 계속해서 꺼내면서 final_goal에 집어넣어주기
+			// unit_group->check_goal_arrive();  // p->final_goal change
+			// 모든 파티클이 short-range-goal에 위치한지 파악한 후 다음 위치로 이동
 		}
 		else
 		{
 			//p->goal = p->is_link ? p->offset : p->final_goal;
-			p->goal = p->final_goal;
 		}
 	}
 

@@ -4,7 +4,6 @@ layout (location = 0) in vec3 VertexPosition;
 layout (location = 3) in mat4 modelMatrix;
 layout (location = 7) in vec4 ka;
 
-uniform mat4 ModelMatrix;
 uniform mat4 viewMatrix;
 uniform mat4 projectionMatrix;
 

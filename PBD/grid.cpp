@@ -146,6 +146,7 @@ void Grid::update(Particle** particles) // this is a kernel function
 std::vector<glm::vec3> Grid::insert_station()
 {
 	std::vector<glm::vec3> out = std::vector<glm::vec3>();
+
 	// Cell 크기 배수
 	float multi = 3.0f;  // 3.0f;
 	float new_cell_size = cell_size * multi;
@@ -165,5 +166,6 @@ std::vector<glm::vec3> Grid::insert_station()
 			out.push_back(station_pos);
 		}
 	}
+
 	return out;
 }

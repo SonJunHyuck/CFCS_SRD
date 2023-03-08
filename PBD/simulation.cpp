@@ -558,6 +558,11 @@ void Simulation::do_time_step()
 		particles[i]->X_pred += time_step * particles[i]->V;
 	}
 
+	for (int i = 0; i < num_groups; i++)
+	{
+		groups[i]->update_short_range_goal();
+	}
+
 	// 2. searching neighboring
 	grid->update(particles);
 

@@ -198,8 +198,10 @@ void GL_Window::draw(Simulation* sim)
 
 	for (int i = 0; i < sim->num_particles; i++)
 	{
+		float angle = deg_to_rad( acosf( dot( glm::normalize(sim->particles[i]->V), glm::vec3(1, 0, 0) ) ) );
+
 		// model matrix
-		mat_sphere_instancing[i] = glm::translate(identity, sim->particles[i]->X);
+		mat_sphere_instancing[i] = glm::translate(identity, sim->particles[i]->X) * glm::rotate(identity, angle, VEC_UP);
 
 		ka_instancing[i] = glm::vec4(sim->particles[i]->color, 1);
 	}
@@ -288,41 +290,6 @@ void GL_Window::draw(Simulation* sim)
 	
 #pragma endregion
 
-	ka = glm::vec3(0.081745, 0.081175, 0.07175);
-	kd = glm::vec3(0.081424, 0.084136, 0.07136);
-	ks = glm::vec3(0.0627811, 0.0826959, 0.0726959);
-
-	for (int i = 0; i < sim->num_groups; i++)
-	{
-		glm::mat4 model = identity;
-		model = glm::translate(identity, sim->groups[i]->pos) * rotate * scale;
-
-		glm::mat4 mvp = projection * view * model;
-		glm::mat4 model_View_Matrix = view * model;
-		glm::mat3 normal_Matrix = glm::mat3(glm::transpose(glm::inverse(model_View_Matrix)));
-
-		shader_cube->use();
-
-		glUniformMatrix4fv(shader_cube->uniform("ViewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
-		glUniformMatrix4fv(shader_cube->uniform("ModelViewMatrix"), 1, GL_FALSE, glm::value_ptr(model_View_Matrix));
-		glUniformMatrix3fv(shader_cube->uniform("NormalMatrix"), 1, GL_FALSE, glm::value_ptr(normal_Matrix));
-		glUniformMatrix4fv(shader_cube->uniform("MVP"), 1, GL_FALSE, glm::value_ptr(mvp));
-
-		glUniform3fv(shader_cube->uniform("LightIntensity"), 1, glm::value_ptr(lightIntensity));
-		glUniform4fv(shader_cube->uniform("LightPosition"), 1, glm::value_ptr(lightLocation));
-
-		glUniform3fv(shader_cube->uniform("Ka"), 1, glm::value_ptr(ka));
-		glUniform3fv(shader_cube->uniform("Kd"), 1, glm::value_ptr(kd));
-		glUniform3fv(shader_cube->uniform("Ks"), 1, glm::value_ptr(ks));
-
-		glUniform3fv(shader_cube->uniform("CamPos"), 1, glm::value_ptr(camPos));
-		glUniform1f(shader_cube->uniform("Shiness"), shiness);
-
-		if (sphere)
-			sphere->draw();
-
-		shader_cube->disable();
-	}
 #pragma region Wall
 
 	ka = glm::vec3(0.081745, 0.081175, 0.07175);
@@ -414,11 +381,10 @@ void GL_Window::draw(Simulation* sim)
 		if (!sim->stop)
 		{
 			tracking_particle = 300; //713; //300;   // 빨간색 첫열 가운데
-			float fractionChangeX = static_cast<float>(sim->particles[tracking_particle]->X.x - last_X) / static_cast<float>(width);
-			float fractionChangeY = static_cast<float>(last_Z - sim->particles[tracking_particle]->X.z) / static_cast<float>(height);
+			float fractionChangeX = static_cast<float>(sim->particles[tracking_particle]->X.x - tracking_particle_last_pos.x) / static_cast<float>(width);
+			float fractionChangeY = static_cast<float>(tracking_particle_last_pos.z - sim->particles[tracking_particle]->X.z) / static_cast<float>(height);
 
-			last_X = sim->particles[tracking_particle]->X.x;
-			last_Z = sim->particles[tracking_particle]->X.z;
+			tracking_particle_last_pos = sim->particles[tracking_particle]->X;
 
 			viewer->centerAt(sim->particles[tracking_particle]->X);
 			viewer->translate(-fractionChangeX, -fractionChangeY, 1);
@@ -987,18 +953,6 @@ void GL_Window::dummy_init(Simulation* sim)
 		}
 	}
 
-	//for (int i = 0; i < planner->groups.size(); i++)
-	//{
-	//	auto path = a_star(sim->stations, planner->groups[i].station_start_id, planner->groups[i].station_end_id);
-
-	//	for (int j = 0; j < path.size(); j++)
-	//	{
-	//		int station_index = path[j];
-	//		station = sim->stations[station_index];
-	//		planner->groups[i].path.push_back(station);
-	//	}
-	//}
-
 	// 6. A* 적용, 각 agent가 path를 가짐
 	for (auto group : planner->map_groups)
 	{
@@ -1036,4 +990,37 @@ void GL_Window::dummy_init(Simulation* sim)
 
 	change_particle_color(sim);
 #pragma endregion
+}
+
+void GL_Window::create_station(glm::vec3 pos)
+{
+	printv(pos);
+}
+// 마우스 위치를 받아서, 클릭했을 때, 3차원 좌표를 printf
+// 정상 포지션이면 station을 생성
+// station에 인덱싱을 부여하고 인덱싱을 따라가기
+
+void GL_Window::send_ray(glm::vec4 ray_clip)
+{
+	glm::vec3 eye = viewer->getViewPoint();
+	glm::vec3 look = viewer->getViewCenter();
+	glm::vec3 up = viewer->getUpVector();
+
+	glm::mat4 view = LookAt(eye, look, up);  // view
+	glm::mat4 projection = Perspective(45.0f, width / height, 0.1f, 500.0f);  //projection matrix
+
+	glm::vec4 ray_eye = glm::inverse(projection) * ray_clip;
+	ray_eye = glm::vec4(ray_eye.x, ray_eye.y, -1.0f, 0);
+	
+	glm::vec3 ray_world = (glm::vec3)(glm::inverse(view) * ray_eye);
+	ray_world = glm::normalize(ray_world);
+
+	float t;
+	float plane_distance = 0;
+
+	t = -(dot(eye, up) + plane_distance) / (dot(ray_world, up));
+
+	glm::vec3 ray_final = eye + ray_world * t;
+	
+	create_station(ray_final);
 }

@@ -8,7 +8,6 @@
 class ColorCube
 {
 private:
-	GLuint vaoHandle;
 	GLuint vaoHandle2;
 	GLuint vbo_vertex_cube_positions;
 	GLuint vbo_vertex_cube_normals;
@@ -19,6 +18,7 @@ private:
 	void setup(float width, float height, float length);
 
 public:
+	GLuint vaoHandle;
 	ColorCube();
 	ColorCube(float width, float height, float length);
 	~ColorCube();

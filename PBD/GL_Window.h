@@ -64,8 +64,8 @@ public:
 
 	void dummy_init(Simulation* sim);
 
-	void create_station(glm::vec3 pos);
-	void send_ray(glm::vec4 ray_clip);
+	void create_station(glm::vec3 pos, Simulation* sim, int group_id);
+	void send_ray(glm::vec4 ray_clip, Simulation* sim, int group_id);
 
 private:
 	int width;

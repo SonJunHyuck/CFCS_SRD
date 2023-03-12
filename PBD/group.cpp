@@ -9,7 +9,7 @@ Group::Group(int id, glm::vec3 start, glm::vec3 end)
 	this->end = end;
 
 	this->path = std::vector<Station>();
-	this->path_ptr = 1;
+	this->path_ptr = 0;
 	this->path_counter = 0;
 
 	this->pos = start;
@@ -91,16 +91,16 @@ void Group::set_center()
 
 void Group::re_select_leader()
 {
-	float min = distance(leader->X, end);
+	float min = distance(leader->X, path[path_ptr].pos);
 	int new_id = leader_id;
 
 	// 파티클들이 이동할 거리 갱신
 	for (auto particle : map_particles)
 	{
 		Particle* p = particle.second;
-		float dist = distance(p->X, end);
+		float dist = distance(p->X, path[path_ptr].pos);
 		
-		if (min - dist < -0.1f)
+		if (min - dist > 0.1f)
 		{
 			min = dist;
 			new_id = particle.first;

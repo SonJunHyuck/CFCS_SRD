@@ -48,11 +48,11 @@ void PathPlanner::calc_velocity(const int& particle_id) // returns velocity
 
 	if (IS_FORMATION)
 	{
-		p->goal = p->final_goal;
-		
 		if (p->is_leader)
 		{
-			// Virtual Pointer 갱신
+			p->goal = unit_group->path[unit_group->path_ptr].pos;
+
+			//p->final_goal = unit_group->path[unit_group->path_ptr].pos;
 			//p->goal = p->final_goal;
 
 			// station은 std::vector로 가지고 있고, top을 계속해서 꺼내면서 final_goal에 집어넣어주기
@@ -61,7 +61,7 @@ void PathPlanner::calc_velocity(const int& particle_id) // returns velocity
 		}
 		else
 		{
-			//p->goal = p->is_link ? p->offset : p->final_goal;
+			p->goal = p->is_link ? p->offset : p->final_goal;
 		}
 	}
 
@@ -78,5 +78,14 @@ void PathPlanner::calc_velocity(const int& particle_id) // returns velocity
 
 		this->velocity_buffer[particle_id] /= length;  // normalize
 		this->velocity_buffer[particle_id] *= V_pref;
+	}
+
+	if (p->is_leader)
+	{
+		if (length < 1.0f)
+		{
+			unit_group->path_ptr++;
+			unit_group->re_select_leader();
+		}
 	}
 }

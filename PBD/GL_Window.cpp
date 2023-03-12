@@ -244,50 +244,102 @@ void GL_Window::draw(Simulation* sim)
 #pragma endregion
 
 #pragma region SHORT_RANGE_GOAL
+	/* {
+		for (int i = 0; i < sim->num_particles; i++)
+		{
+			// model matrix
+			mat_sphere_instancing[i] = glm::translate(identity, sim->particles[i]->offset);
+			ka_instancing[i] = glm::vec4(glm::vec3(1, 1, 0), 1);
+		}
 
-	for (int i = 0; i < sim->num_particles; i++)
+		// VBO_mat_sphere_instancing에 작업을 할 것이다.
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_mat_sphere_instancing);
+
+		// VBO를 가리키는 포인터를 획득
+		pointer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+
+		// 포인터에 해당하는 곳에 실질적 데이터를 채워줌 (pointer, data, size)
+		memcpy(pointer, &mat_sphere_instancing[0], sim->num_particles * sizeof(glm::mat4));
+
+		// 버퍼 채우기 종료
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+
+		change_particle_color(sim);
+
+		shader_sphere->use();
+
+		glUniformMatrix4fv(shader_sphere->uniform("viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(shader_sphere->uniform("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
+
+		if (sphere)
+		{
+			glBindVertexArray(sphere->VAO);
+
+			int size;
+			glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+			glDrawElementsInstanced(GL_TRIANGLES, size / sizeof(GLuint), GL_UNSIGNED_INT, 0, sim->num_particles);
+
+			glEnable(GL_CULL_FACE);  // Cull face을 켬
+			glCullFace(GL_BACK); // 오브젝트의 back 부분을 Culling
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+
+		shader_sphere->disable();
+	}*/
+#pragma endregion
+
+#pragma region STATION
 	{
-		// model matrix
-		mat_sphere_instancing[i] = glm::translate(identity, sim->particles[i]->final_goal);
-		ka_instancing[i] = glm::vec4(glm::vec3(1, 1, 0), 1);
+		for (int j = 0; j < sim->num_groups; j++)
+		{
+
+		for (int i = 0; i < sim->groups[j]->path.size(); i++)
+		{
+			// model matrix
+			mat_sphere_instancing[i] = glm::translate(identity, sim->groups[j]->path[i].pos);
+			ka_instancing[i] = glm::vec4(glm::vec3(0, 1, j), 1);
+		}
+
+		// VBO_mat_sphere_instancing에 작업을 할 것이다.
+		glBindBuffer(GL_ARRAY_BUFFER, VBO_mat_sphere_instancing);
+
+		// VBO를 가리키는 포인터를 획득
+		pointer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
+
+		// 포인터에 해당하는 곳에 실질적 데이터를 채워줌 (pointer, data, size)
+		memcpy(pointer, &mat_sphere_instancing[0], sim->groups[j]->path.size() * sizeof(glm::mat4));
+
+		// 버퍼 채우기 종료
+		glUnmapBuffer(GL_ARRAY_BUFFER);
+
+		change_particle_color(sim);
+
+		shader_sphere->use();
+
+		glUniformMatrix4fv(shader_sphere->uniform("viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
+		glUniformMatrix4fv(shader_sphere->uniform("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
+
+		if (sphere)
+		{
+			glBindVertexArray(sphere->VAO);
+
+			int size;
+			glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
+			glDrawElementsInstanced(GL_TRIANGLES, size / sizeof(GLuint), GL_UNSIGNED_INT, 0, sim->groups[j]->path.size());
+
+			glEnable(GL_CULL_FACE);  // Cull face을 켬
+			glCullFace(GL_BACK); // 오브젝트의 back 부분을 Culling
+
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+
+		shader_sphere->disable();
+
+		}
 	}
-
-	// VBO_mat_sphere_instancing에 작업을 할 것이다.
-	glBindBuffer(GL_ARRAY_BUFFER, VBO_mat_sphere_instancing);
-
-	// VBO를 가리키는 포인터를 획득
-	pointer = glMapBuffer(GL_ARRAY_BUFFER, GL_WRITE_ONLY);
-
-	// 포인터에 해당하는 곳에 실질적 데이터를 채워줌 (pointer, data, size)
-	memcpy(pointer, &mat_sphere_instancing[0], sim->num_particles * sizeof(glm::mat4));
-
-	// 버퍼 채우기 종료
-	glUnmapBuffer(GL_ARRAY_BUFFER);
-
-	change_particle_color(sim);
-
-	shader_sphere->use();
-
-	glUniformMatrix4fv(shader_sphere->uniform("viewMatrix"), 1, GL_FALSE, glm::value_ptr(view));
-	glUniformMatrix4fv(shader_sphere->uniform("projectionMatrix"), 1, GL_FALSE, glm::value_ptr(projection));
-
-	if (sphere)
-	{
-		glBindVertexArray(sphere->VAO);
-
-		int size;
-		glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-		glDrawElementsInstanced(GL_TRIANGLES, size / sizeof(GLuint), GL_UNSIGNED_INT, 0, sim->num_particles);
-
-		glEnable(GL_CULL_FACE);  // Cull face을 켬
-		glCullFace(GL_BACK); // 오브젝트의 back 부분을 Culling
-
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	}
-
-	shader_sphere->disable();
-	
 #pragma endregion
 
 #pragma region Wall
@@ -530,6 +582,7 @@ void GL_Window::set_formation(Simulation* sim)
 
 	Group* group = new Group(group_id, pos_init, pos_goal);
 	sim->groups[0] = group;
+	sim->planner->map_groups.insert({ 0, group });
 
 	switch (type)
 	{
@@ -631,6 +684,7 @@ void GL_Window::set_formation(Simulation* sim)
 
 		Group* group = new Group(group_id, pos_init, pos_goal);
 		sim->groups[1] = group;
+		sim->planner->map_groups.insert({ 1, group });
 
 		switch (type)
 		{
@@ -756,8 +810,8 @@ void GL_Window::dummy_init(Simulation* sim)
 		}
 
 		g->init_group();
-		g->set_center();
-		g->re_select_leader();
+		//g->set_center();
+		//g->re_select_leader();
 	}
 
 #pragma endregion
@@ -846,118 +900,113 @@ void GL_Window::dummy_init(Simulation* sim)
 #pragma endregion
 
 #pragma region INIT_STATION
-	int station_id = 0;
-	Station station;
-	PathPlanner* planner = sim->planner;
+	//{
+	//	int station_id = 0;
+	//	Station station;
+	//	PathPlanner* planner = sim->planner;
 
-	// 0. Planner 안에 있는 Group 초기화
-	for (int i = 0; i < sim->num_groups; i++)
-	{
-		Group* g = sim->groups[i];
-		planner->map_groups.insert({ i, g });
-	}
+	//	// 1. Start Station, End Station ref Group
+	//	for (auto group : planner->map_groups)
+	//	{
+	//		station = Station(station_id, group.second->start);
+	//		sim->stations.push_back(station);
+	//		group.second->station_start_id = station_id;
+	//		station_id++;
 
-	// 1. Start Station, End Station ref Group
-	for (auto group : planner->map_groups)
-	{
-		station = Station(station_id, group.second->start);
-		sim->stations.push_back(station);
-		group.second->station_start_id = station_id;
-		station_id++;
+	//		station = Station(station_id, group.second->end);
+	//		sim->stations.push_back(station);
+	//		group.second->station_end_id = station_id;
+	//		station_id++;
+	//	}
 
-		station = Station(station_id, group.second->end);
-		sim->stations.push_back(station);
-		group.second->station_end_id = station_id;
-		station_id++;
-	}
+	//	// 2. Wall Stations (모든 벽은 4개의 vertices을 가지고 있다.)
+	//	for (int i = 0; i < sim->num_walls; i++)
+	//	{
+	//		// 4개의 vertices
+	//		for (int j = 0; j < 4; j++)
+	//		{
+	//			station = Station(station_id, sim->walls[i]->vertices[j]);
+	//			sim->stations.push_back(station);
+	//			station_id++;
+	//		}
+	//	}
 
-	// 2. Wall Stations (모든 벽은 4개의 vertices을 가지고 있다.)
-	for (int i = 0; i < sim->num_walls; i++)
-	{
-		// 4개의 vertices
-		for (int j = 0; j < 4; j++)
-		{
-			station = Station(station_id, sim->walls[i]->vertices[j]);
-			sim->stations.push_back(station);
-			station_id++;
-		}
-	}
+	//	// 3-1. Random Stations
+	//	/*
+	//	{
+	//	for (int i = 0; i < STATION_RANDOM_COUNT; i++)
+	//	{
+	//		int shrink_x = 200;
+	//		int shrink_y = 200;
+	//		glm::vec2 pos_random = rand_glm::vec2(
+	//			GRID_MIN_X + shrink_x, GRID_MAX_X - shrink_x,
+	//			GRID_MIN_Y + shrink_y * 2, GRID_MAX_Y - shrink_y * 0.5f);
 
-	// 3-1. Random Stations
-	/*
-	{
-	for (int i = 0; i < STATION_RANDOM_COUNT; i++)
-	{
-		int shrink_x = 200;
-		int shrink_y = 200;
-		glm::vec2 pos_random = rand_glm::vec2(
-			GRID_MIN_X + shrink_x, GRID_MAX_X - shrink_x,
-			GRID_MIN_Y + shrink_y * 2, GRID_MAX_Y - shrink_y * 0.5f);
+	//		// 장애물과 겹치면 다시 생성
+	//		for (int j = 0; j < sim->num_walls; j++)
+	//		{
+	//			if (sim->walls[j]->is_intersect_point(pos_random))
+	//			{
+	//				j--;
+	//				pos_random = rand_glm::vec2(
+	//					GRID_MIN_X + shrink_x, GRID_MAX_X - shrink_x,
+	//					GRID_MIN_Y + shrink_y * 2, GRID_MAX_Y - shrink_y * 0.5f);
+	//			}
+	//		}
 
-		// 장애물과 겹치면 다시 생성
-		for (int j = 0; j < sim->num_walls; j++)
-		{
-			if (sim->walls[j]->is_intersect_point(pos_random))
-			{
-				j--;
-				pos_random = rand_glm::vec2(
-					GRID_MIN_X + shrink_x, GRID_MAX_X - shrink_x,
-					GRID_MIN_Y + shrink_y * 2, GRID_MAX_Y - shrink_y * 0.5f);
-			}
-		}
+	//		station = Station(station_id, pos_random);
+	//		sim->stations.push_back(station);
+	//		station_id++;
+	//	}
+	//	}*/
 
-		station = Station(station_id, pos_random);
-		sim->stations.push_back(station);
-		station_id++;
-	}
-	}*/
+	//	// 3-2. Grid 형태로 Station 생성
+	//	auto list = sim->grid->insert_station();
+	//	for (auto i : list)
+	//	{
+	//		bool is_intersect = false;
+	//		for (int j = 0; j < sim->num_walls; j++)
+	//		{
+	//			if (sim->walls[j]->is_intersect_point(i))
+	//			{
+	//				is_intersect = true;
+	//				break;
+	//			}
+	//		}
 
-	// 3-2. Grid 형태로 Station 생성
-	auto list = sim->grid->insert_station();
-	for (auto i : list)
-	{
-		bool is_intersect = false;
-		for (int j = 0; j < sim->num_walls; j++)
-		{
-			if (sim->walls[j]->is_intersect_point(i))
-			{
-				is_intersect = true;
-				break;
-			}
-		}
+	//		if (!is_intersect)
+	//		{
+	//			station = Station(station_id, i);
+	//			sim->stations.push_back(station);
+	//			station_id++;
+	//		}
+	//	}
 
-		if (!is_intersect)
-		{
-			station = Station(station_id, i);
-			sim->stations.push_back(station);
-			station_id++;
-		}
-	}
+	//	// 4. Link each Station
+	//	for (int i = 0; i < sim->stations.size(); i++)
+	//	{
+	//		sim->stations[i].search(sim->stations, sim->walls, sim->num_walls);
+	//	}
 
-	// 4. Link each Station
-	for (int i = 0; i < sim->stations.size(); i++)
-	{
-		sim->stations[i].search(sim->stations, sim->walls, sim->num_walls);
-	}
+	//	// 5. a_star
+	//	for (auto group : planner->map_groups)
+	//	{
+	//		std::vector<int> path = a_star(sim->stations, group.second->station_start_id, group.second->station_end_id);
 
-	// 5. a_star
-	for (auto group : planner->map_groups)
-	{
-		std::vector<int> path = a_star(sim->stations, group.second->station_start_id, group.second->station_end_id);
+	//		for (int j = 0; j < path.size(); j++)
+	//		{
+	//			int station_index = path[j];
+	//			station = sim->stations[station_index];
+	//			group.second->path.push_back(station);
+	//		}
+	//	}
 
-		for (int j = 0; j < path.size(); j++)
-		{
-			int station_index = path[j];
-			station = sim->stations[station_index];
-			group.second->path.push_back(station);
-		}
-	}
-
-	// 6. A* 적용, 각 agent가 path를 가짐
-	for (auto group : planner->map_groups)
-	{
-		group.second->init_particles_goal();
-	}
+	//	// 6. A* 적용, 각 agent가 path를 가짐
+	//	for (auto group : planner->map_groups)
+	//	{
+	//		group.second->init_particles_goal();
+	//	}
+	//}
 #pragma endregion
 
 #pragma region INIT_PARTICLE_VELOCITY
@@ -992,15 +1041,19 @@ void GL_Window::dummy_init(Simulation* sim)
 #pragma endregion
 }
 
-void GL_Window::create_station(glm::vec3 pos)
+void GL_Window::create_station(glm::vec3 pos, Simulation* sim, int group_id)
 {
-	printv(pos);
-}
-// 마우스 위치를 받아서, 클릭했을 때, 3차원 좌표를 printf
-// 정상 포지션이면 station을 생성
-// station에 인덱싱을 부여하고 인덱싱을 따라가기
+	// station에 인덱싱을 부여하고 인덱싱을 따라가기
 
-void GL_Window::send_ray(glm::vec4 ray_clip)
+	// 마우스 위치를 받아서, 클릭했을 때, 3차원 좌표를 printf
+	printv(pos);
+
+	// 정상 포지션이면 station을 생성
+	Station st = Station(sim->groups[group_id]->path_counter++, pos);
+	sim->groups[group_id]->path.push_back(st);
+}
+
+void GL_Window::send_ray(glm::vec4 ray_clip, Simulation* sim, int group_id)
 {
 	glm::vec3 eye = viewer->getViewPoint();
 	glm::vec3 look = viewer->getViewCenter();
@@ -1022,5 +1075,5 @@ void GL_Window::send_ray(glm::vec4 ray_clip)
 
 	glm::vec3 ray_final = eye + ray_world * t;
 	
-	create_station(ray_final);
+	create_station(ray_final, sim, group_id);
 }

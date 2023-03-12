@@ -566,19 +566,18 @@ void Simulation::do_time_step()
 	// 2. searching neighboring
 	grid->update(particles);
 
-	// init to 0
-	//for (int i = 0; i < num_particles; i++)
-	//{
-	//	// 위험지역에서 대열 해제
-	//	if (grid->grid_safty[particles[i]->cell_id] == -1)
-	//	{
-	//		particles[i]->is_link = false;
-	//	}
-	//	else
-	//	{
-	//		particles[i]->is_link = true;
-	//	}
-	//}
+	for (int i = 0; i < num_particles; i++)
+	{
+		// 위험지역에서 대열 해제
+		if (grid->grid_safty[particles[i]->cell_id] == -1)
+		{
+			particles[i]->is_link = false;
+		}
+		else
+		{
+			particles[i]->is_link = true;
+		}
+	}
 
 	// 3. long_range constraint (4.4, 4.5)
 	project_longrange_constraints();

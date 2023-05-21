@@ -12,13 +12,13 @@ Group::Group(int id, glm::vec3 start, glm::vec3 end)
 	this->path_ptr = 0;
 	this->path_counter = 0;
 
-	this->pos = start;
-	this->short_goals = std::vector<glm::vec3>();
+	this->position = start;
+	this->short_goals = std::map<int, glm::vec3>();
 
 	this->is_linked = false;
 }
 
-void Group::init_group()
+void Group::init()
 {
 	num_particles = map_particles.size();
 
@@ -28,7 +28,7 @@ void Group::init_group()
 	{
 		glm::vec3 short_range_goal_pos = particle.second->X;
 		particle.second->offset = short_range_goal_pos;
-		short_goals.push_back(short_range_goal_pos);
+		short_goals.insert({ particle.first, short_range_goal_pos });
 
 		counter--;
 		if (counter == 0)
@@ -36,19 +36,6 @@ void Group::init_group()
 			int particle_id = particle.first;
 			set_leader(particle_id);
 		}
-	}
-}
-
-void Group::init_particles_goal()
-{
-	if (!IS_FORMATION)
-		return;
-
-	glm::vec3 goal_pos = path[0].pos;
-
-	for (auto particle : map_particles)
-	{
-		particle.second->goal = goal_pos;
 	}
 }
 
@@ -65,16 +52,16 @@ void Group::set_leader(int id)
 	}
 
 	particle->is_leader = true;
-	particle->color = glm::vec3(1, 1, 1);
+	//particle->color = glm::vec3(1, 1, 1);
 	particle->goal = particle->final_goal;
 	leader_id = id;
 	leader = particle;
-	pos = leader->X;
+	position = leader->X;
 }
 
 void Group::set_center()
 {
-	glm::vec3 center = VEC_ZERO; //  = map_particles.begin()->second->X;
+	glm::vec3 center = VEC_ZERO;
 	
 	for (auto p : map_particles)
 	{
@@ -83,22 +70,20 @@ void Group::set_center()
 
 	center /= num_particles;
 
-	glm::vec3 diff = end - start;
-	start = center;
-	pos = center;
-	end = start + diff;
+	select_leader_closest(center);
 }
 
-void Group::re_select_leader()
+void Group::select_leader_closest(glm::vec3 pos)
 {
-	float min = distance(leader->X, path[path_ptr].pos);
+	float min = distance(leader->X, pos);
 	int new_id = leader_id;
 
-	// 파티클들이 이동할 거리 갱신
+	// pos와 가장 가까운 파티클이 리더
 	for (auto particle : map_particles)
 	{
 		Particle* p = particle.second;
-		float dist = distance(p->X, path[path_ptr].pos);
+
+		float dist = distance(p->X, pos);
 		
 		if (min - dist > 0.1f)
 		{
@@ -115,19 +100,66 @@ void Group::re_select_leader()
 	}
 }
 
+void Group::update_start_end()
+{
+	start = path[0].pos;
+	end = path[path_counter - 1].pos;
+}
+
 void Group::update_short_range_goal()
 {
 	// 그룹의 미래위치 : Leader 현재 위치
 	// 그룹의 과거위치 : group 현재 위치
 	// Leader pos - group pos = 이동한 방향
-	glm::vec3 offset = leader->X - pos;
+	glm::vec3 diff = leader->X - position;
 
 	// 파티클들이 이동할 거리 갱신
 	for (auto particle : map_particles)
 	{
-		particle.second->offset += offset;
+		particle.second->offset += diff;
 	}
 
 	// 위치 갱신
-	pos = leader->X;
+	position = leader->X;
+}
+
+void Group::update_short_range_goal(glm::vec3 vel)
+{
+	// 파티클들이 이동할 거리 갱신
+	for (auto particle : map_particles)
+	{
+		particle.second->offset += vel;
+	}
+}
+
+void Group::update_path()
+{
+	// CORE Velocity
+	glm::vec3 goal = path[path_ptr].pos;
+
+	// 현재 위치에서 goal 까지 거리
+	glm::vec3 velocity = goal - position;
+	float dist = norm(velocity);
+
+	if (dist != 0)
+	{
+		float V_pref = dist > V_PREF_ACCEL ? V_PREF_ACCEL : dist;
+		float blending = leader->is_link ? 0.5f : 0.1f;
+
+		velocity /= dist;
+		velocity *= V_pref;
+
+		velocity = blending * leader->V + (1.0f - blending) * velocity;
+		velocity *= MS_PER_UPDATE;
+
+		update_short_range_goal(velocity);
+
+		position += velocity;
+	}
+
+	if (dist < DENSITY)
+	{
+		if (path_ptr < path_counter - 1)
+			path_ptr++;
+	}
 }

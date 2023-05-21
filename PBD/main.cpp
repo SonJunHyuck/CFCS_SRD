@@ -19,8 +19,8 @@ GLFWwindow* window;
 GL_Window* gl_window;
 
 bool stop = true;
-bool left_control_button_down;
-bool right_control_button_down;
+bool A_button_down;
+bool S_button_down;
 
 bool mouse_button_down_left;
 bool mouse_button_down_right;
@@ -37,20 +37,20 @@ static void key_callback(GLFWwindow* window, int key, int scancode, int action, 
 	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
 		stop = !stop;
 
-	if (key == GLFW_KEY_LEFT_CONTROL)
+	if (key == GLFW_KEY_A)
 	{
 		if (action == GLFW_PRESS)
-			left_control_button_down = true;
+			A_button_down = true;
 		else if(action == GLFW_RELEASE)
-			left_control_button_down = false;
+			A_button_down = false;
 	}
 
-	if (key == GLFW_KEY_RIGHT_CONTROL)
+	if (key == GLFW_KEY_S)
 	{
 		if (action == GLFW_PRESS)
-			right_control_button_down = true;
+			S_button_down = true;
 		else if (action == GLFW_RELEASE)
-			right_control_button_down = false;
+			S_button_down = false;
 	}
 
 }
@@ -95,7 +95,7 @@ void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
 }
 void mouseDragging(double width, double height)
 {
-	if (mouse_button_down_left && (!left_control_button_down && !right_control_button_down)) {
+	if (mouse_button_down_left && (!A_button_down && !S_button_down)) {
 		float fractionChangeX = static_cast<float>(cx - last_mouse_X) / static_cast<float>(width);
 		float fractionChangeY = static_cast<float>(last_mouse_Y - cy) / static_cast<float>(height);
 		gl_window->viewer->rotate(fractionChangeX, fractionChangeY);
@@ -122,12 +122,12 @@ void send_mouse_cursor_pos(Simulation* sim)
 	glm::vec3 ray_nds = glm::vec3(x, y, z);
 	glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0f, 1.0f);
 
-	if (mouse_button_down_left && left_control_button_down)
+	if (mouse_button_down_left && A_button_down)
 	{
 		gl_window->send_ray(ray_clip, sim, 0);
 	}
 
-	if (mouse_button_down_left && right_control_button_down)
+	if (mouse_button_down_left && S_button_down)
 	{
 		gl_window->send_ray(ray_clip, sim, 1);
 	}
@@ -182,7 +182,6 @@ int main()
 	double frameCount = 0;
 	int min_frame = 10000;
 	int max_frame = 0;
-
 	int num_particles = ROWS * COLS;
 	char* output = (char*)"blender.txt";
 	Simulation sim(num_particles, 0, MS_PER_UPDATE, output);

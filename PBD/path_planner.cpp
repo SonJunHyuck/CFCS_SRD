@@ -40,52 +40,32 @@ void PathPlanner::calc_pref_v_force(const int& particle_id) // returns velocity
 }
 
 // normalize + clamping
-void PathPlanner::calc_velocity(const int& particle_id) // returns velocity
+void PathPlanner::calc_velocity(const int& particle_id)
 {
-	// CORE Velocity
 	Particle* p = this->particles[particle_id];
-	Group* unit_group = map_groups[p->group_id];
+	Group* g = map_groups[p->group_id];
 
-	if (IS_FORMATION)
-	{
-		if (p->is_leader)
-		{
-			p->goal = unit_group->path[unit_group->path_ptr].pos;
-
-			//p->final_goal = unit_group->path[unit_group->path_ptr].pos;
-			//p->goal = p->final_goal;
-
-			// station은 std::vector로 가지고 있고, top을 계속해서 꺼내면서 final_goal에 집어넣어주기
-			// unit_group->check_goal_arrive();  // p->final_goal change
-			// 모든 파티클이 short-range-goal에 위치한지 파악한 후 다음 위치로 이동
-		}
-		else
-		{
-			p->goal = p->is_link ? p->offset : p->final_goal;
-		}
-	}
+	float blending = p->is_link ? 1.0f : 0.5f;
+	glm::vec3 pred = p->offset - p->X;
 
 	// 현재 위치에서 goal 까지 거리
-	this->velocity_buffer[particle_id] = p->goal - p->X;
+	//this->velocity_buffer[particle_id] = p->offset - p->X;
+	//this->velocity_buffer[particle_id] = p->is_link ? p->offset - p->X : p->V;
+	
+	if (IS_FORMATION)
+		this->velocity_buffer[particle_id] = blending * pred + (1.0f - blending) * (p->X_pred * p->V_pref);
+	else
+		this->velocity_buffer[particle_id] = p->final_goal - p->X;
+
 	float length = norm(velocity_buffer[particle_id]);
 
 	// 최종목적지에 도달하지 못했다면? -> Normalize
 	if (length != 0)
 	{
 		// 목적지에서 관성 줄이기
-		float V_pref;
-		V_pref = length > p->V_pref ? p->V_pref : length;
+		float V_pref = length > p->V_pref ? p->V_pref : length;
 
 		this->velocity_buffer[particle_id] /= length;  // normalize
 		this->velocity_buffer[particle_id] *= V_pref;
-	}
-
-	if (p->is_leader)
-	{
-		if (length < 1.0f)
-		{
-			unit_group->path_ptr++;
-			unit_group->re_select_leader();
-		}
 	}
 }

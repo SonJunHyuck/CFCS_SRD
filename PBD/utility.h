@@ -57,8 +57,10 @@
 #define HEIGHT 720
 #define ROWS 30
 #define COLS 40
-//#define ROWS 40
-//#define COLS 50
+//#define ROWS 30  // for Circle (Large)
+//#define COLS 25
+//#define ROWS 2  // for Circle (Small)
+//#define COLS 11
 #define GROUND_HEIGHT 45.0
 #define GRID_UP_BOUND -436.0
 #define GRID_LOW_BOUND GROUND_HEIGHT + 50
@@ -71,7 +73,7 @@
 
 /* ========================= */
 /* Custom Group Params: */
-#define CAMERA_TRACKING false
+#define CAMERA_TRACKING true
 #define CAMERA_VIEW 84.0f
 #define COHESION true
 #define FTL false
@@ -94,6 +96,7 @@
 #define GRID_MIN_Z (GRID_UP_BOUND - 10)
 #define GRID_MAX_X (RIGHT_BOUND_X + 50)
 #define GRID_MAX_Z (GRID_LOW_BOUND)
+#define MIXED_AREA -1
 
 static float CELL_SIZE = floor(DENSITY + 3);
 /* ========================= */

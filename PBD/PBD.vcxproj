@@ -159,6 +159,7 @@
     <ClCompile Include="GL_Window.cpp" />
     <ClCompile Include="grid.cpp" />
     <ClCompile Include="group.cpp" />
+    <ClCompile Include="Line.cpp" />
     <ClCompile Include="Loader.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Mesh.cpp" />
@@ -181,6 +182,7 @@
     <ClInclude Include="GL_Window.h" />
     <ClInclude Include="grid.h" />
     <ClInclude Include="group.h" />
+    <ClInclude Include="Line.h" />
     <ClInclude Include="Loader.h" />
     <ClInclude Include="Mesh.h" />
     <ClInclude Include="particle.h" />

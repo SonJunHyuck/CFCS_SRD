@@ -35,6 +35,7 @@ void Line::setup(glm::vec3 pos1, glm::vec3 pos2)
 void Line::draw()
 {
 	glBindVertexArray(vaoHandle);
+	glLineWidth(5.0f);
 	glDrawArrays(
 		GL_LINES,  // primitive,
 		0,  // Ω√¿€ vertex

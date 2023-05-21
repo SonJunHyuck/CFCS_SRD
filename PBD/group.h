@@ -12,42 +12,50 @@ class Group
 public:
 	int id;
 
+	// status
+	glm::vec3 position;
+	glm::vec3 velocity;
+
+	// station 
 	glm::vec3 start;
 	glm::vec3 end;
-
-	glm::vec3 pos;
-	std::vector<glm::vec3> short_goals;
 
 	int station_start_id;
 	int station_end_id;
 
-	std::map<int, Particle*> map_particles;  // int array
-	int* particles_id;
-	Particle** Particles;
-
-	int num_particles;
-	int leader_id;
-	Particle* leader;
-	glm::vec3 leader_pos;
-
+	// path
 	std::vector<Station> path;
-	int path_ptr;  // 일괄 조정용 변수, 모든 파티클이 이 ptr을 지나야 다음 ptr로 이동 가능
+	int path_ptr;
 	int path_counter;
 
+	// short_rage_goal
+	std::map<int, glm::vec3> short_goals;
+
+	// particle
+	int num_particles;
+	std::map<int, Particle*> map_particles;  // int array
+
+	// leader
+	int leader_id;
+	Particle* leader;
 	bool is_linked;
 
 	Group();
 	Group(int id, glm::vec3 start, glm::vec3 end);
 
-	void init_group();
-
-	void init_particles_goal();
+	void init();
 
 	void set_leader(int id);
 
 	void set_center();
 
-	void re_select_leader();
+	void select_leader_closest(glm::vec3 pos);
+
+	void update_start_end();
 
 	void update_short_range_goal();
+
+	void update_short_range_goal(glm::vec3 vel);
+
+	void update_path();
 };

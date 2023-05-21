@@ -138,7 +138,8 @@ void Grid::update(Particle** particles) // this is a kernel function
 
 		// 비어있지 않고, 다른 그룹의 particle이 이미 점령했을 때
 		grid_safty[cell_id] =
-			(grid_safty[cell_id] == empty || grid_safty[cell_id] == particles[i]->group_id) ? particles[i]->group_id : -1;
+			(grid_safty[cell_id] == empty || grid_safty[cell_id] == particles[i]->group_id) ? 
+			particles[i]->group_id : MIXED_AREA;
 	}
 }
 

@@ -451,7 +451,7 @@ void Simulation::project_distance_constraints()
 		particles[i]->Delta_x_ctr = 0;
 
 		// 위험지역에서 대열 해제
-		if (grid->grid_safty[particles[i]->cell_id] == -1)
+		if (grid->grid_safty[particles[i]->cell_id] == MIXED_AREA)
 		{
 			particles[i]->is_link = false;
 		}
@@ -544,9 +544,13 @@ void Simulation::project_distance_constraints()
 	}
 }
 
-// CORE update
 void Simulation::do_time_step()
 {
+	for (int i = 0; i < num_groups; i++)
+	{
+		groups[i]->update_path();
+	}
+
 	// 1. (init Pos, blending velocity) -> 4.1
 	for (int i = 0; i < num_particles; i++)
 	{
@@ -558,24 +562,21 @@ void Simulation::do_time_step()
 		particles[i]->X_pred += time_step * particles[i]->V;
 	}
 
-	for (int i = 0; i < num_groups; i++)
-	{
-		groups[i]->update_short_range_goal();
-	}
-
 	// 2. searching neighboring
 	grid->update(particles);
 
 	for (int i = 0; i < num_particles; i++)
 	{
+		Particle* p = particles[i];
+
 		// 위험지역에서 대열 해제
-		if (grid->grid_safty[particles[i]->cell_id] == -1)
+		if (grid->grid_safty[p->cell_id] == MIXED_AREA)
 		{
-			particles[i]->is_link = false;
+			p->is_link = false;
 		}
 		else
 		{
-			particles[i]->is_link = true;
+			p->is_link = true;
 		}
 	}
 

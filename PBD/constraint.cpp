@@ -197,6 +197,9 @@ Powerlaw_Constraint::Powerlaw_Constraint(Simulation* sim, int i, int j) : Constr
 }
 void Powerlaw_Constraint::project(Particle** particles)
 {
+	if (particles[i]->is_leader || particles[j]->is_leader)
+		return;
+
 	// we don't want to use the bad old values
 	delta_X[0] = glm::vec3(0, 0, 0);
 	delta_X[1] = glm::vec3(0, 0, 0);
@@ -760,7 +763,7 @@ Mesh_Constraint::Mesh_Constraint(Simulation* sim, int i) : Constraint(sim, 1)
 		-sim->particles[i]->inv_mass /
 		(sim->particles[i]->inv_mass + sim->particles[i]->inv_mass);
 	this->indicies[0] = i;
-	this->dist = 0.2f;
+	this->dist = 2.2f;
 	this->contact_normal = glm::vec3(0.0, 0.0, 0.0);
 	this->delta_t = sim->time_step;
 	this->accel_limit = MAX_ACCEL * delta_t * delta_t;
@@ -774,8 +777,8 @@ void Mesh_Constraint::project(Particle** particles)
 
 	Particle* particle = particles[i];
 
-	if (particle->is_leader)
-		return;
+	/*if (particle->is_leader)
+		return;*/
 
 	/*if (!particle->is_link)
 	{

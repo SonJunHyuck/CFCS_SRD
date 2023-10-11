@@ -35,6 +35,4 @@ public:
 	bool is_colliding(Particle** particles, int i, int j) const;
 
 	void update(Particle** particles);
-
-	std::vector<glm::vec3> insert_station();
 };

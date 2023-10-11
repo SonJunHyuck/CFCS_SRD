@@ -6,14 +6,13 @@
 class Wall
 {
 public:
-	glm::vec3 x0;  // 좌 상
-	glm::vec3 x1;  // 우 하
+	glm::vec3 x0;
+	glm::vec3 x1;
 	glm::vec3 center;
 
 	float width;
 	float height;
 
-	// 4개의 vertices;
 	glm::vec3 directions[4];
 	glm::vec3 vertices[4];
 

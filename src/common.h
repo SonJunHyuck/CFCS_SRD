@@ -74,7 +74,7 @@
 /* Particle Group Params: */
 #define GROUP_COUNT 2
 
-#define IS_SINGLE GROUP_COUNT < 2
+#define IS_SINGLE (GROUP_COUNT < 2)
 #define IS_FORMATION true
 #define IS_AVOIDANCE false
 /* ========================= */
@@ -118,69 +118,6 @@ static float CELL_SIZE = floor(DENSITY + 3);
 
 typedef unsigned char BYTE;
 typedef unsigned int uint;
-
-// Vec2
-struct float2 {
-	float x, y;
-	float operator[](int i) const { return *(&x + i); }
-	float& operator[](int i) { return *(&x + i); }
-	float2 operator+ (float2 a)
-	{
-		return { x + a.x, y + a.y };
-	}
-	float2& operator+= (const float2& a)
-	{
-		*this = *this + a;
-		return *this;
-	}
-	float2 operator- (float2 a)
-	{
-		return { x - a.x, y - a.y };
-	}
-	float2& operator-= (const float2& a)
-	{
-		*this = *this - a;
-		return *this;
-	}
-	float2 operator* (float t)
-	{
-		return { x * t, y * t };
-	}
-	float operator* (float2 a)
-	{
-		return { x * a.x + y };
-	}
-	float2 operator/ (float t)
-	{
-		return { x / t, y / t };
-	}
-};
-
-__device float2 make_float2(float x, float y)
-{
-	float2 a = { x, y };
-	return a;
-}
-
-// Vec3
-struct float3 {
-	float x, y, z;
-#ifdef WITH_OPENCL
-	float w;
-#endif
-	float operator[](int i) const { return *(&x + i); }
-	float& operator[](int i) { return *(&x + i); }
-};
-
-__device float3 make_float3(float x, float y, float z)
-{
-#ifdef WITH_OPENCL
-	float3 a = { x, y, z, 0.0f };
-#else
-	float3 a = { x, y, z };
-#endif
-	return a;
-}
 
 static uint iDivUp(uint a, uint b)
 {

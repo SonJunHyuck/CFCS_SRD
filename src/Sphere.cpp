@@ -49,37 +49,29 @@ void Sphere::setup(float* verts, float* norms, unsigned int* el)
 {
 	// Setup a VAO (Vertex Array Object)
 	glGenVertexArrays(1, &VAO);  // (create count, hander variable)
-	glBindVertexArray(VAO);  // activate VAO (VAO에 작업 시작을 알림)
+	glBindVertexArray(VAO);  // activate VAO
 
+	int attribute_index = 0;
+	int vertex_count = 3;
 	glGenBuffers(1, &VBO_position);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_position);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (nVerts) * 3, verts, GL_STATIC_DRAW);
-	glVertexAttribPointer(
-		0, // attribute number (atti 위치 지정)
-		3, // data count of each vertex
-		GL_FLOAT, // data type
-		GL_FALSE, // is normalized data?
-		0, // 하나의 vertex와 다음 vertex 데이터 간의 사이 offset
-		0); // offset of Starting reference
+	glVertexAttribPointer(attribute_index, vertex_count, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(0);  // no. 0 attribute enable
 
+	attribute_index = 1;
+	vertex_count = 3;
 	glGenBuffers(1, &VBO_normal);
 	glBindBuffer(GL_ARRAY_BUFFER, VBO_normal);
 	glBufferData(GL_ARRAY_BUFFER, sizeof(float) * (nVerts) * 3, norms, GL_STATIC_DRAW);
-	glVertexAttribPointer(
-		1, // attribute number (atti 위치 지정)
-		3, // data count of each vertex
-		GL_FLOAT, // data type
-		GL_FALSE, // is normalized data?
-		0, // 하나의 vertex와 다음 vertex 데이터 간의 사이 offset
-		0); // offset of Starting reference
+	glVertexAttribPointer(attribute_index, vertex_count, GL_FLOAT, GL_FALSE, 0, 0);
 	glEnableVertexAttribArray(1);  // no. 0 attribute enable
 
 	glGenBuffers(1, &IBO);
 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, IBO);
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int) * elements, el, GL_STATIC_DRAW);
 
-	// Close VAO (VAO에 작업 끝)
+	// Close VAO
 	glBindVertexArray(0);
 }
 
@@ -90,8 +82,8 @@ void Sphere::draw()
 	glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
 	glDrawElements(GL_TRIANGLES, size / sizeof(GLuint), GL_UNSIGNED_INT, 0);
 
-	glEnable(GL_CULL_FACE);  // Cull face을 켬
-	glCullFace(GL_BACK); // 오브젝트의 back 부분을 Culling
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_BACK);
 
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);

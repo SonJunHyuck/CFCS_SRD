@@ -40,7 +40,6 @@ Grid::~Grid()
 	free(grid_cells);
 }
 
-// ���� ��ġ ���
 void Grid::update_stability(Particle** particles) // this is a kernel function
 {
 	// reset\update grid counters
@@ -108,7 +107,6 @@ bool Grid::is_colliding(Particle** particles, int i, int j) const {
 	return res;
 }
 
-// Pred_X Based + grid �� �ش��ϴ� �� cell�� � ��ƼŬ�� ��� �����ϴ��� update
 void Grid::update(Particle** particles) // this is a kernel function
 {
 	int empty = -2;
@@ -135,41 +133,13 @@ void Grid::update(Particle** particles) // this is a kernel function
 		particles[i]->cell_id = cell_id;
 		particles[i]->cell_x = x;
 		particles[i]->cell_z = z;
-		int tmp = grid_counters[cell_id];  // �ش� counter ĭ�� ��� ��ƼŬ�� �ִ���
-		grid_cells[cell_id][tmp] = i;  // �ش� grid_cell�� Particle���� index�� ����
-		grid_counters[cell_id] += 1;  // counter increment
+		int tmp = grid_counters[cell_id];
+		grid_cells[cell_id][tmp] = i;
+		grid_counters[cell_id] += 1;
 
-		// ������� �ʰ�, �ٸ� �׷��� particle�� �̹� �������� ��
+		// to search particle mixed zone;
 		grid_safty[cell_id] =
 			(grid_safty[cell_id] == empty || grid_safty[cell_id] == particles[i]->group_id) ? 
 			particles[i]->group_id : MIXED_AREA;
 	}
-}
-
-// Station ���� (Grid ���·�)
-std::vector<glm::vec3> Grid::insert_station()
-{
-	std::vector<glm::vec3> out = std::vector<glm::vec3>();
-
-	// Cell ũ�� ���
-	float multi = 3.0f;  // 3.0f;
-	float new_cell_size = cell_size * multi;
-	float new_cell_half = new_cell_size * 0.5f;
-
-	int cols = (max_.x - min_.x) / new_cell_size;
-	int rows = (max_.z - min_.z) / new_cell_size;
-
-	for (int i = 0; i < rows; i++)
-	{
-		for (int j = 0; j < cols; j++)
-		{
-			glm::vec3 station_pos = glm::vec3(
-				min_.x + (float)i * new_cell_size + new_cell_half,
-				0,
-				min_.z + (float)j * new_cell_size + new_cell_half);
-			out.push_back(station_pos);
-		}
-	}
-
-	return out;
 }

@@ -1,6 +1,8 @@
 #include "station.h"
 
 #include "common.h"
+#include "wall.h"
+
 
 Station::Station() { }
 Station::Station(int id, float x, float y)

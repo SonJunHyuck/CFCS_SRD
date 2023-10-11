@@ -43,9 +43,7 @@ add_executable(${PROJECT_NAME}
     src/main.cpp
     src/Mesh.cpp
     src/particle.cpp
-    src/particle_tuple.cpp
     src/path_planner.cpp
-    src/Shader.cpp
     src/simulation.cpp
     src/Sphere.cpp
     src/station.cpp

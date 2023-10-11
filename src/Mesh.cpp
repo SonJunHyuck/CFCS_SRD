@@ -7,6 +7,8 @@
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
 
+#include "Loader.h"
+
 //#include <SOIL/SOIL.h>
 
 /**

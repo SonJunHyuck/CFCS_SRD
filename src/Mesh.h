@@ -9,7 +9,7 @@
 #include <assimp/mesh.h>
 #include <assimp/scene.h>
 
-#include "Loader.h"
+class ShaderProgram;
 
 class Mesh
 {

@@ -1,5 +1,9 @@
 #include "path_planner.h"
 
+#include "common.h"
+#include "particle.h"
+#include "group.h"
+
 PathPlanner::PathPlanner(int num_particles, Particle** particles)
 {
 	this->num_particles = num_particles;
@@ -48,7 +52,7 @@ void PathPlanner::calc_velocity(const int& particle_id)
 	float blending = p->is_link ? 1.0f : 0.5f;
 	glm::vec3 pred = p->offset - p->X;
 
-	// ÇöÀç À§Ä¡¿¡¼­ goal ±îÁö °Å¸®
+	// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ goal ï¿½ï¿½ï¿½ï¿½ ï¿½Å¸ï¿½
 	//this->velocity_buffer[particle_id] = p->offset - p->X;
 	//this->velocity_buffer[particle_id] = p->is_link ? p->offset - p->X : p->V;
 	
@@ -59,10 +63,10 @@ void PathPlanner::calc_velocity(const int& particle_id)
 
 	float length = norm(velocity_buffer[particle_id]);
 
-	// ÃÖÁ¾¸ñÀûÁö¿¡ µµ´ÞÇÏÁö ¸øÇß´Ù¸é? -> Normalize
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ß´Ù¸ï¿½? -> Normalize
 	if (length != 0)
 	{
-		// ¸ñÀûÁö¿¡¼­ °ü¼º ÁÙÀÌ±â
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½Ì±ï¿½
 		float V_pref = length > p->V_pref ? p->V_pref : length;
 
 		this->velocity_buffer[particle_id] /= length;  // normalize

@@ -1,10 +1,10 @@
 #pragma once
+#include <vector>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "common.h"
-#include "particle.h"
+class Particle;
 
 class Grid
 {
@@ -20,8 +20,8 @@ public:
 	int* grid_counters; // stores num of particles in each cell
 	int** grid_cells;   // stores the particles indicies for each cell
 						// has a maximum number of particles per cell
-	uint num_blocks;
-	uint num_threads;
+	int num_blocks;
+	int num_threads;
 
 	int* grid_safty;
 

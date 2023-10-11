@@ -1,11 +1,10 @@
 #pragma once
 #include <iostream>
+#include <vector>
+
 #include <glad/glad.h>
 #include "glm/glm.hpp"
 #include "glm/gtc/matrix_transform.hpp"
-#include <vector>
-
-#include "common.h"
 
 using namespace std;
 
@@ -30,6 +29,5 @@ public:
 	CheckerdBoard(glm::vec2 size, std::vector<glm::vec3> colors, glm::vec2 slices);
 	~CheckerdBoard();
 	void draw();
-
 };
 

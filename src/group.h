@@ -3,9 +3,9 @@
 
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
-
-#include "particle.h"
 #include "station.h"
+
+class Particle;
 
 class Group
 {

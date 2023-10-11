@@ -1,12 +1,9 @@
-#ifndef ___SPHERE_H
-#define ___SPHERE_H
+#pragma once
 
 #include <glad/glad.h>
 #include <glm/mat4x4.hpp>
 
 #include <vector>
-
-#include "Loader.h"
 
 class Sphere
 {
@@ -28,6 +25,3 @@ private:
 
 	void generateVerts(float *, float *, float *, GLuint *);
 };
-
-
-#endif

@@ -8,7 +8,7 @@ public:
 	int i;
 	int j;
 
-	particle_tuple(int i, int j);
+	particle_tuple(int i, int j) { this->i = i; this->j = j; }
 };
 
 

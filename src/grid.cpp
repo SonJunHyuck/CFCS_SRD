@@ -1,5 +1,8 @@
 #include "grid.h"
 
+#include "common.h"
+#include "particle.h"
+
 Grid::Grid(int num_particles, float dummy_cell_size, glm::vec3 min_, glm::vec3 max_)
 {
 	this->num_particles = num_particles;
@@ -37,7 +40,7 @@ Grid::~Grid()
 	free(grid_cells);
 }
 
-// ÇöÀç À§Ä¡ ±â¹Ý
+// ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½Ä¡ ï¿½ï¿½ï¿½
 void Grid::update_stability(Particle** particles) // this is a kernel function
 {
 	// reset\update grid counters
@@ -98,14 +101,14 @@ bool Grid::is_colliding(Particle** particles, int i, int j) const {
 	int is_x_neighbour = xi - xj;
 	int is_z_neighbour = zi - zj;
 
-	// ÀÌ¿ôÇÑ 3x3¿¡ À§Ä¡ÇÏÁö ¾Ê´Â´Ù¸é Ãæµ¹ÇÒ ÀÏÀÌ ¾ø´Ù.
+	// ï¿½Ì¿ï¿½ï¿½ï¿½ 3x3ï¿½ï¿½ ï¿½ï¿½Ä¡ï¿½ï¿½ï¿½ï¿½ ï¿½Ê´Â´Ù¸ï¿½ ï¿½æµ¹ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½.
 	bool res = is_x_neighbour >= -3 && is_x_neighbour <= 3 &&
 		is_z_neighbour >= -3 && is_z_neighbour <= 3;
 
 	return res;
 }
 
-// Pred_X Based + grid ¿¡ ÇØ´çÇÏ´Â °¢ cell¿¡ ¾î¶² ÆÄÆ¼Å¬ÀÌ ¸î°³³ª Á¸ÀçÇÏ´ÂÁö update
+// Pred_X Based + grid ï¿½ï¿½ ï¿½Ø´ï¿½ï¿½Ï´ï¿½ ï¿½ï¿½ cellï¿½ï¿½ ï¿½î¶² ï¿½ï¿½Æ¼Å¬ï¿½ï¿½ ï¿½î°³ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½Ï´ï¿½ï¿½ï¿½ update
 void Grid::update(Particle** particles) // this is a kernel function
 {
 	int empty = -2;
@@ -132,23 +135,23 @@ void Grid::update(Particle** particles) // this is a kernel function
 		particles[i]->cell_id = cell_id;
 		particles[i]->cell_x = x;
 		particles[i]->cell_z = z;
-		int tmp = grid_counters[cell_id];  // ÇØ´ç counter Ä­¿¡ ¸î°³ÀÇ ÆÄÆ¼Å¬ÀÌ ÀÖ´ÂÁö
-		grid_cells[cell_id][tmp] = i;  // ÇØ´ç grid_cell¿¡ ParticleµéÀÇ index¸¦ ÀúÀå
+		int tmp = grid_counters[cell_id];  // ï¿½Ø´ï¿½ counter Ä­ï¿½ï¿½ ï¿½î°³ï¿½ï¿½ ï¿½ï¿½Æ¼Å¬ï¿½ï¿½ ï¿½Ö´ï¿½ï¿½ï¿½
+		grid_cells[cell_id][tmp] = i;  // ï¿½Ø´ï¿½ grid_cellï¿½ï¿½ Particleï¿½ï¿½ï¿½ï¿½ indexï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½
 		grid_counters[cell_id] += 1;  // counter increment
 
-		// ºñ¾îÀÖÁö ¾Ê°í, ´Ù¸¥ ±×·ìÀÇ particleÀÌ ÀÌ¹Ì Á¡·ÉÇßÀ» ¶§
+		// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½Ê°ï¿½, ï¿½Ù¸ï¿½ ï¿½×·ï¿½ï¿½ï¿½ particleï¿½ï¿½ ï¿½Ì¹ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½
 		grid_safty[cell_id] =
 			(grid_safty[cell_id] == empty || grid_safty[cell_id] == particles[i]->group_id) ? 
 			particles[i]->group_id : MIXED_AREA;
 	}
 }
 
-// Station »ý¼º (Grid ÇüÅÂ·Î)
+// Station ï¿½ï¿½ï¿½ï¿½ (Grid ï¿½ï¿½ï¿½Â·ï¿½)
 std::vector<glm::vec3> Grid::insert_station()
 {
 	std::vector<glm::vec3> out = std::vector<glm::vec3>();
 
-	// Cell Å©±â ¹è¼ö
+	// Cell Å©ï¿½ï¿½ ï¿½ï¿½ï¿½
 	float multi = 3.0f;  // 3.0f;
 	float new_cell_size = cell_size * multi;
 	float new_cell_half = new_cell_size * 0.5f;

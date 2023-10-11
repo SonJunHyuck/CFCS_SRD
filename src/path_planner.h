@@ -4,9 +4,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "particle.h"
-#include "grid.h"
-#include "group.h"
+class Particle;
+class Group;
 
 class PathPlanner
 {

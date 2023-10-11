@@ -1,6 +1,8 @@
 #include "group.h"
 #include "common.h"
 
+#include "particle.h"
+
 Group::Group() {};
 Group::Group(int id, glm::vec3 start, glm::vec3 end)
 {

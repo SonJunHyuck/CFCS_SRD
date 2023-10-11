@@ -6,12 +6,12 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-#include "wall.h"
-
 /* ========================= */
 #define STATION_RANDOM_COUNT 100
 #define STATION_LINK_RANGE 24
 /* ========================= */
+
+class Wall;
 
 class Station
 {

@@ -1,25 +1,20 @@
 #pragma once
+#include <vector>
 
 #include <glad/glad.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
 
-#include "Loader.h"
-#include "Viewer.h"
+class Viewer;
+class ShaderProgram;
 
-#include "CheckerdBoard.h"
-#include "Sphere.h"
-#include "Line.h"
-#include "Mesh.h"
+class Sphere;
+class CheckerdBoard;
+class Line;
+class Mesh; 
 
-#include "common.h"
-#include "simulation.h"
-#include "constraint.h"
-#include "particle.h"
-#include "path_planner.h"
-#include "wall.h"
-#include "particle_tuple.h"
+class Simulation;
 
 static float DEFAULT_VIEW_POINT[3] = { 0, 15, 1 };
 static float DEFAULT_VIEW_CENTER[3] = { 0, 0, 0 };

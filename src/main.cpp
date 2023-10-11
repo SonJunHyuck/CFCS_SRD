@@ -15,6 +15,7 @@
 #include "particle.h"
 #include "path_planner.h"
 #include "wall.h"
+#include "Viewer.h"
 
 GLFWwindow* window;
 GL_Window* gl_window;
@@ -166,7 +167,6 @@ void Init()
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
     SPDLOG_INFO("Create window!");
-    // GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, nullptr, nullptr);
     window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, nullptr, nullptr);
 
     if (!window)
@@ -177,10 +177,10 @@ void Init()
         abort();
     }
 
-	// window context    context 
+	// window context
 	glfwMakeContextCurrent(window);
 
-	// glfw ݹԼ 
+	// set callback
 	glfwSetWindowSizeCallback(window, window_size_callback);
 	glfwSetMouseButtonCallback(window, mouse_button_callback);
 	glfwSetCursorPosCallback(window, cursor_pos_callback);
@@ -188,7 +188,7 @@ void Init()
 
 	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
-	// GLAD Loader ȰϿ, OpenGL Լ 
+	// GLAD Loader
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
 		SPDLOG_ERROR("Failed to initilize GLAD");
@@ -196,6 +196,7 @@ void Init()
 		abort();
 	}
 
+	// complete OpenGL init
 	printf("OpenGL %s, GLSL %s\n", glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
 }
 
@@ -205,37 +206,34 @@ int main()
 
 	gl_window = new GL_Window(WINDOW_WIDTH, WINDOW_HEIGHT);
 
-	double lastTime = glfwGetTime();
-	double frameCount = 0;
-	int min_frame = 10000;
-	int max_frame = 0;
 	int num_particles = ROWS * COLS;
 	char* output = (char*)"blender.txt";
+
 	Simulation sim(num_particles, 0, MS_PER_UPDATE, output);
 
 	gl_window->dummy_init(&sim);
 
 	while (!glfwWindowShouldClose(window))
 	{
-		int display_w, display_h;
-
-		//   
-		glfwGetFramebufferSize(window, &display_w, &display_h);
-
 		if (!stop)
 			sim.do_time_step();
 
 		sim.stop = stop;
 
-		// ׸
+		// process : rendering
 		gl_window->draw(&sim);
 
-		//  ü ( )
+		// process : buffer swap
 		glfwSwapBuffers(window);
-		glfwPollEvents();
 
+		// process : event callback
+		glfwPollEvents();
+		
+		int display_w, display_h;
+		glfwGetFramebufferSize(window, &display_w, &display_h);
 		mouseDragging(display_w, display_h);
 
+		// if use path drawing, must stop program
 		if (stop)
 		{
 			send_mouse_cursor_pos(&sim);

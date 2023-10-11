@@ -1,6 +1,7 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <iostream>
+#include <spdlog/spdlog.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -147,23 +148,35 @@ void send_mouse_cursor_pos(Simulation* sim)
 	}
 }
 
-void Init() {
-	glfwInit();
-
-	// using glfw 4.3
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-
-	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-
-	// GLFW Ȱ window 
-	window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "OpenGL", NULL, NULL);
-	if (window == NULL) {
-		std::cout << "Failed to create GLFW window" << std::endl;
-		glfwTerminate();
+void Init() 
+{
+	SPDLOG_INFO("Initialize glfw");
+    if (!glfwInit())
+    {
+        const char *description = nullptr;
+        glfwGetError(&description);
+        SPDLOG_ERROR("failed to initialize glfw: {}", description);
 
 		abort();
-	}
+    }
+
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+    glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+    SPDLOG_INFO("Create window!");
+    // GLFWwindow* window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, nullptr, nullptr);
+    window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, nullptr, nullptr);
+
+    if (!window)
+    {
+        SPDLOG_ERROR("failed to create glfw window");
+        glfwTerminate();
+
+        abort();
+    }
+
 	// window context    context 
 	glfwMakeContextCurrent(window);
 
@@ -178,7 +191,7 @@ void Init() {
 	// GLAD Loader ȰϿ, OpenGL Լ 
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		std::cout << "Failed to initilize GLAD" << std::endl;
+		SPDLOG_ERROR("Failed to initilize GLAD");
 
 		abort();
 	}
@@ -204,35 +217,6 @@ int main()
 
 	while (!glfwWindowShouldClose(window))
 	{
-#pragma region FRAME_COUNT
-		/*
-		double currentTime = glfwGetTime();
-		frameCount++;
-
-		if (currentTime - lastTime >= 1.0) 
-		{ // If last prinf() was more than 1 sec ago
-			// previousTime and reset timer
-
-			if (frameCount > 10 && frameCount < min_frame)
-			{
-				min_frame = frameCount;
-				cout << min_frame << " : min_frame / ";
-				cout << max_frame << " : MAX_FRAME" << std::endl;
-			}
-			if (frameCount < 60 && frameCount > max_frame)
-			{
-				max_frame = frameCount;
-				cout << min_frame << " : min_frame / ";
-				cout << max_frame << " : MAX_FRAME" << std::endl;
-			}
-			
-			printf("%f ms/frame\n", 1000.0 / double(frameCount));
-			
-			frameCount = 0;
-			lastTime += 1.0;
-		}
-		*/
-#pragma endregion
 		int display_w, display_h;
 
 		//   

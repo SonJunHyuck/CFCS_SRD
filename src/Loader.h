@@ -23,8 +23,10 @@ version : 0.3 - 15 / 01 / 2014
 #include <map>
 
 #include <glad/glad.h>
-#include <GL/gl.h>
 
+#ifdef __APPLE__
+#include <OpenGL/gl.h>
+#endif
 
 class ShaderProgram
 {

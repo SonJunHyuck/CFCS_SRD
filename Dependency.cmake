@@ -82,6 +82,7 @@ else()
     set(DEP_LIBS ${DEP_LIBS} glad$<$<CONFIG:Debug>:d>)
 endif()
 
+
 # ==================== stb  ====================
 # Build가 필요 없음 -> 바로 인스톨 커맨드로 설치하고, 헤더파일 하나를 우리 프로젝트에 복사
 # cmake -E copy build/dep_stb-prefix/src/dep_stb/stb_image.h install/include/stb/stb_image.h
@@ -102,6 +103,7 @@ ExternalProject_Add(
 )
 set(DEP_LIST ${DEP_LIST} dep_stb)
 
+
 # ==================== glm  ====================
 ExternalProject_Add(
   dep_glm
@@ -118,6 +120,7 @@ ExternalProject_Add(
     ${DEP_INSTALL_DIR}/include/glm
 )
 set(DEP_LIST ${DEP_LIST} dep_glm)
+
 
 # ==================== assimp ====================
 ExternalProject_Add(

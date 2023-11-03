@@ -1,7 +1,6 @@
 #define STB_IMAGE_IMPLEMENTATION
 
 #include <iostream>
-#include <spdlog/spdlog.h>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -151,12 +150,12 @@ void send_mouse_cursor_pos(Simulation* sim)
 
 void Init() 
 {
-	SPDLOG_INFO("Initialize glfw");
+	std::cout << "Initialize glfw" << std::endl;
     if (!glfwInit())
     {
         const char *description = nullptr;
         glfwGetError(&description);
-        SPDLOG_ERROR("failed to initialize glfw: {}", description);
+        std::cout << "failed to initialize glfw: {" <<  description << " }" << std::endl; 
 
 		abort();
     }
@@ -166,12 +165,12 @@ void Init()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    SPDLOG_INFO("Create window!");
+    std::cout << "Create window!" << std::endl;
     window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, nullptr, nullptr);
 
     if (!window)
     {
-        SPDLOG_ERROR("failed to create glfw window");
+        std::cout << "failed to create glfw window" << std::endl;
         glfwTerminate();
 
         abort();
@@ -191,7 +190,7 @@ void Init()
 	// GLAD Loader
 	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
 	{
-		SPDLOG_ERROR("Failed to initilize GLAD");
+		std::cout << "Failed to initilize GLAD" << std::endl;
 
 		abort();
 	}

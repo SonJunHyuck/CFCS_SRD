@@ -102,7 +102,7 @@ void GL_Window::setup_shader()
 
 	shader_mesh->addUniform("Shiness");
 
-	mesh = new Mesh("Bird.obj", shader_mesh);
+	//mesh = new Mesh("bird.obj", shader_mesh);
 }
 
 void GL_Window::setup_instance_buffer(int num_particles)
@@ -243,7 +243,6 @@ void GL_Window::set_formation(Simulation* sim)
 		}
 		break;
 	}
-
 	if (!IS_SINGLE)
 	{
 		// Red
@@ -745,6 +744,8 @@ void GL_Window::dummy_init(Simulation* sim)
 	set_formation(sim);
 #pragma endregion
 
+std::cout << "complete INIT_PARTICLE" << std::endl;
+
 #pragma region INIT_GROUP
 	for (int i = 0; i < sim->num_groups; i++)
 	{
@@ -760,11 +761,13 @@ void GL_Window::dummy_init(Simulation* sim)
 			if (g->id == p->group_id)
 				g->map_particles.insert({ j, p });
 		}
-
 		g->init();
 		g->set_center();
+
 	}
 #pragma endregion
+
+std::cout << "complete INIT_GROUP" << std::endl;
 
 #pragma region INIT_CONSTRAINT
 	std::vector<particle_tuple*> friction_pairs = get_tuples(sim->num_particles);
@@ -802,6 +805,8 @@ void GL_Window::dummy_init(Simulation* sim)
 	}
 #pragma endregion
 
+std::cout << "complete INIT_CONSTRAINT" << std::endl;
+
 #pragma region INIT_WALL
 	sim->num_walls = 0;
 	sim->walls = (Wall**)malloc(sizeof(void*) * sim->num_walls);
@@ -831,6 +836,8 @@ void GL_Window::dummy_init(Simulation* sim)
 	}
 
 #pragma endregion
+
+std::cout << "complete INIT_WALL" << std::endl;
 
 #pragma region INIT_STATION
 	//{
@@ -942,6 +949,8 @@ void GL_Window::dummy_init(Simulation* sim)
 	//}
 #pragma endregion
 
+std::cout << "complete INIT_STATION" << std::endl;
+
 #pragma region INIT_PARTICLE_VELOCITY
 	for (int i = 0; i < sim->num_particles; i++)
 	{
@@ -962,6 +971,8 @@ void GL_Window::dummy_init(Simulation* sim)
 		sim->particles[i]->V.y = sim->planner->velocity_buffer[i].y;
 	}
 #pragma endregion
+
+std::cout << "complete INIT_PARTICLE_VELOCITY" << std::endl;
 
 #pragma region SHADER_INSTANCING
 
@@ -1082,7 +1093,7 @@ glm::mat4 GL_Window::Perspective(float fovy, float aspect, float near_, float fa
 
 std::vector<glm::vec3> GL_Window::set_mesh(int num_particle, int r_x, int r_y, int r_z, float s)
 {
-	std::vector<glm::vec3> formation;
+	std::vector<glm::vec3> formation = std::vector<glm::vec3>();
 	std::vector<glm::vec3> dummy_mesh = mesh->meshEntries[0]->vertices;
 
 	// setup
@@ -1112,6 +1123,7 @@ std::vector<glm::vec3> GL_Window::set_mesh(int num_particle, int r_x, int r_y, i
 	// ߺ  :  1  ġ ʰ 
 	dummy_mesh = unique_vec3(dummy_mesh);
 	int num_vertices = dummy_mesh.size();
+
 	int div = num_vertices / num_particle;
 	std::cout << "mesh vertices count : " << num_vertices << std::endl;
 	std::cout << "div : " << div << std::endl;
@@ -1125,6 +1137,7 @@ std::vector<glm::vec3> GL_Window::set_mesh(int num_particle, int r_x, int r_y, i
 		{
 			formation.push_back(pos);
 		}
+
 	}
 
 	return formation;

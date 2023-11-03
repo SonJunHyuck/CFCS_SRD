@@ -36,7 +36,6 @@ Group::Group(int id, glm::vec3 start, glm::vec3 end, glm::vec3 color)
 	this->is_linked = false;
 }
 
-
 void Group::init()
 {
 	num_particles = map_particles.size();

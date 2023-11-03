@@ -26,6 +26,8 @@ version : 0.3 - 15 / 01 / 2014
 
 #ifdef __APPLE__
 #include <OpenGL/gl.h>
+else
+#include <GL/gl.h>
 #endif
 
 class ShaderProgram

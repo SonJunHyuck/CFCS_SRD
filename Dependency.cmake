@@ -53,12 +53,7 @@ ExternalProject_Add(
 
 # Dependency 리스트에 dep_glfw추가
 set(DEP_LIST ${DEP_LIST} dep_glfw)
-
-if(APPLE OR MINGW)
-    set(DEP_LIBS ${DEP_LIBS} glfw3)
-else()
-    set(DEP_LIBS ${DEP_LIBS} glfw3$<$<CONFIG:Debug>:d>)
-endif()
+set(DEP_LIBS ${DEP_LIBS} glfw3)
 
 
 # ==================== glad ====================
@@ -75,12 +70,7 @@ ExternalProject_Add(
 
 # Dependency 리스트에 dep_glfw추가
 set(DEP_LIST ${DEP_LIST} dep_glad)
-
-if(APPLE OR MINGW)
-    set(DEP_LIBS ${DEP_LIBS} glad)
-else()
-    set(DEP_LIBS ${DEP_LIBS} glad$<$<CONFIG:Debug>:d>)
-endif()
+set(DEP_LIBS ${DEP_LIBS} glad)
 
 
 # ==================== stb  ====================
@@ -149,7 +139,7 @@ set(DEP_LIBS ${DEP_LIBS}
   else()
   set(DEP_LIBS ${DEP_LIBS}
   assimp-vc143-mt.lib
-  zlibstatic.lib)
+  zlibstaticd.lib)
   endif()
 
 # if(APPLE OR MINGW)

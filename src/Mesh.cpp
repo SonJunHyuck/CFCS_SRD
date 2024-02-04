@@ -1,238 +1,111 @@
+#include "mesh.h"
 
-#include <iostream>
-#include "Mesh.h"
-
-#include <glm/vec3.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <assimp/Importer.hpp>
-#include <assimp/postprocess.h>
-
-#include "Loader.h"
-
-//#include <SOIL/SOIL.h>
-
-/**
-*	Constructor, loading the specified aiMesh
-**/
-
-Mesh::MeshEntry::MeshEntry(aiMesh *mesh, const aiScene* scene, Mesh * m)
+MeshUPtr Mesh::Create(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, uint32_t primitiveType)
 {
-	parent = m;
-
-	vbo[VERTEX_BUFFER] = NULL;
-	vbo[TEXCOORD_BUFFER] = NULL;
-	vbo[NORMAL_BUFFER] = NULL;
-	vbo[INDEX_BUFFER] = NULL;
-
-	glGenVertexArrays(1, &vao);
-	glBindVertexArray(vao);
-
-	elementCount = mesh->mNumFaces * 3;
-
-	if (mesh->HasPositions()) 
-	{
-		float *vertices = new float[mesh->mNumVertices * 3];
-		for (int i = 0; i < mesh->mNumVertices; ++i) 
-		{
-			vertices[i * 3] = mesh->mVertices[i].x;
-			vertices[i * 3 + 1] = mesh->mVertices[i].y;
-			vertices[i * 3 + 2] = mesh->mVertices[i].z;
-			glm::vec3 vertex = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
-			this->vertices.push_back(vertex);
-		}
-
-		glGenBuffers(1, &vbo[VERTEX_BUFFER]);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[VERTEX_BUFFER]);
-		glBufferData(GL_ARRAY_BUFFER, 3 * mesh->mNumVertices * sizeof(GLfloat), vertices, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray(0);
-
-		delete[] vertices;
-	}
-
-
-	if (mesh->HasTextureCoords(0)) {
-		float *texCoords = new float[mesh->mNumVertices * 2];
-		for (int i = 0; i < mesh->mNumVertices; ++i) {
-			texCoords[i * 2] = mesh->mTextureCoords[0][i].x;
-			texCoords[i * 2 + 1] = mesh->mTextureCoords[0][i].y;
-		}
-
-		glGenBuffers(1, &vbo[TEXCOORD_BUFFER]);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[TEXCOORD_BUFFER]);
-		glBufferData(GL_ARRAY_BUFFER, 2 * mesh->mNumVertices * sizeof(GLfloat), texCoords, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray(2);
-
-		delete[] texCoords;
-	}
-
-
-	if (mesh->HasNormals()) {
-		float *normals = new float[mesh->mNumVertices * 3];
-		for (int i = 0; i < mesh->mNumVertices; ++i) {
-			normals[i * 3] = mesh->mNormals[i].x;
-			normals[i * 3 + 1] = mesh->mNormals[i].y;
-			normals[i * 3 + 2] = mesh->mNormals[i].z;
-		}
-
-		glGenBuffers(1, &vbo[NORMAL_BUFFER]);
-		glBindBuffer(GL_ARRAY_BUFFER, vbo[NORMAL_BUFFER]);
-		glBufferData(GL_ARRAY_BUFFER, 3 * mesh->mNumVertices * sizeof(GLfloat), normals, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray(1);
-
-		delete[] normals;
-	}
-
-
-	if (mesh->HasFaces()) {
-		unsigned int *indices = new unsigned int[mesh->mNumFaces * 3];
-		for (int i = 0; i < mesh->mNumFaces; ++i) {
-			indices[i * 3] = mesh->mFaces[i].mIndices[0];
-			indices[i * 3 + 1] = mesh->mFaces[i].mIndices[1];
-			indices[i * 3 + 2] = mesh->mFaces[i].mIndices[2];
-		}
-
-		glGenBuffers(1, &vbo[INDEX_BUFFER]);
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, vbo[INDEX_BUFFER]);
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, 3 * mesh->mNumFaces * sizeof(GLuint), indices, GL_STATIC_DRAW);
-
-		glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, 0, NULL);
-		glEnableVertexAttribArray(3);
-
-		delete[] indices;
-	}
-
-	if (mesh->mMaterialIndex >= 0) {
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-		
-		material->Get(AI_MATKEY_SHININESS, shininessStrength);
-		material->Get(AI_MATKEY_COLOR_DIFFUSE, dcolor);
-		material->Get(AI_MATKEY_COLOR_AMBIENT, acolor);
-		material->Get(AI_MATKEY_COLOR_SPECULAR, scolor);
-	}
-
-	glBindBuffer(GL_ARRAY_BUFFER, 0);
-	glBindVertexArray(0);
+    auto mesh = MeshUPtr(new Mesh());
+    mesh->Init(vertices, indices, primitiveType);
+    return std::move(mesh);
 }
 
-/**
-*	Deletes the allocated OpenGL buffers
-**/
-Mesh::MeshEntry::~MeshEntry() {
-	if (vbo[VERTEX_BUFFER]) {
-		glDeleteBuffers(1, &vbo[VERTEX_BUFFER]);
-	}
-
-	if (vbo[TEXCOORD_BUFFER]) {
-		glDeleteBuffers(1, &vbo[TEXCOORD_BUFFER]);
-	}
-
-	if (vbo[NORMAL_BUFFER]) {
-		glDeleteBuffers(1, &vbo[NORMAL_BUFFER]);
-	}
-
-	if (vbo[INDEX_BUFFER]) {
-		glDeleteBuffers(1, &vbo[INDEX_BUFFER]);
-	}
-
-	glDeleteVertexArrays(1, &vao);
-
-	
-}
-
-/**
-*	Renders this MeshEntry
-**/
-void Mesh::MeshEntry::render() 
-{	
-	glBindVertexArray(vao);
-		int size;
-		glGetBufferParameteriv(GL_ELEMENT_ARRAY_BUFFER, GL_BUFFER_SIZE, &size);
-		glDrawElements(GL_TRIANGLES, size/ sizeof(unsigned int), GL_UNSIGNED_INT, NULL);
-	glBindVertexArray(0);
-}
-
-/**
-*	Mesh constructor, loads the specified filename if supported by Assimp
-**/
-Mesh::Mesh(const char *filename, ShaderProgram * sh)
+MeshUPtr Mesh::CreateBox() 
 {
-	shader = sh;
+  std::vector<Vertex> vertices = {
+    Vertex { glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec2(0.0f, 0.0f) },
+    Vertex { glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec2(1.0f, 0.0f) },
+    Vertex { glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec2(1.0f, 1.0f) },
+    Vertex { glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3( 0.0f,  0.0f, -1.0f), glm::vec2(0.0f, 1.0f) },
 
-	std::string fullname;
-	fullname = std::string("./Models/")+ std::string(filename);
+    Vertex { glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec2(0.0f, 0.0f) },
+    Vertex { glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec2(1.0f, 0.0f) },
+    Vertex { glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec2(1.0f, 1.0f) },
+    Vertex { glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3( 0.0f,  0.0f,  1.0f), glm::vec2(0.0f, 1.0f) },
 
-	Assimp::Importer importer;   //aiProcessPreset_TargetRealtime_Fast
-	const aiScene* scene = importer.ReadFile(fullname.c_str(), aiProcess_Triangulate | aiProcess_FlipUVs | aiProcess_GenSmoothNormals | aiProcess_OptimizeMeshes);
+    Vertex { glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec2(1.0f, 0.0f) },
+    Vertex { glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec2(1.0f, 1.0f) },
+    Vertex { glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec2(0.0f, 1.0f) },
+    Vertex { glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3(-1.0f,  0.0f,  0.0f), glm::vec2(0.0f, 0.0f) },
 
-	// Check for errors
-	if (!scene || scene->mFlags == AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
-	{
-		std::cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << std::endl;
-		return;
-	}
+    Vertex { glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec2(1.0f, 0.0f) },
+    Vertex { glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec2(1.0f, 1.0f) },
+    Vertex { glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec2(0.0f, 1.0f) },
+    Vertex { glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3( 1.0f,  0.0f,  0.0f), glm::vec2(0.0f, 0.0f) },
 
-	for (int i = 0; i < scene->mNumMeshes; ++i) 
-	{
-		Mesh::MeshEntry* m = new Mesh::MeshEntry(scene->mMeshes[i], scene, this);
-		std::cout << "Import Mesh Name:: " << scene->mMeshes[i]->mName.C_Str() << std::endl;
-		std::cout << "Vertices Count : " << scene->mMeshes[i]->mNumVertices << std::endl;
-		meshEntries.push_back(m);
-	}
+    Vertex { glm::vec3(-0.5f, -0.5f, -0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec2(0.0f, 1.0f) },
+    Vertex { glm::vec3( 0.5f, -0.5f, -0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec2(1.0f, 1.0f) },
+    Vertex { glm::vec3( 0.5f, -0.5f,  0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec2(1.0f, 0.0f) },
+    Vertex { glm::vec3(-0.5f, -0.5f,  0.5f), glm::vec3( 0.0f, -1.0f,  0.0f), glm::vec2(0.0f, 0.0f) },
+
+    Vertex { glm::vec3(-0.5f,  0.5f, -0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec2(0.0f, 1.0f) },
+    Vertex { glm::vec3( 0.5f,  0.5f, -0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec2(1.0f, 1.0f) },
+    Vertex { glm::vec3( 0.5f,  0.5f,  0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec2(1.0f, 0.0f) },
+    Vertex { glm::vec3(-0.5f,  0.5f,  0.5f), glm::vec3( 0.0f,  1.0f,  0.0f), glm::vec2(0.0f, 0.0f) },
+  };
+
+  std::vector<uint32_t> indices = {
+     0,  2,  1,  2,  0,  3,
+     4,  5,  6,  6,  7,  4,
+     8,  9, 10, 10, 11,  8,
+    12, 14, 13, 14, 12, 15,
+    16, 17, 18, 18, 19, 16,
+    20, 22, 21, 22, 20, 23,
+  };
+
+  return Create(vertices, indices, GL_TRIANGLES);
 }
 
-/**
-*	Clears all loaded MeshEntries
-**/
-Mesh::~Mesh(void)
+MeshUPtr Mesh::CreatePlane() 
 {
-	for (int i = 0; i < meshEntries.size(); ++i) {
+  std::vector<Vertex> vertices = {
+    Vertex { glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3( 0.0f,  0.0f, 1.0f), glm::vec2(0.0f, 0.0f) },
+    Vertex { glm::vec3( 0.5f, -0.5f, 0.0f), glm::vec3( 0.0f,  0.0f, 1.0f), glm::vec2(1.0f, 0.0f) },
+    Vertex { glm::vec3( 0.5f,  0.5f, 0.0f), glm::vec3( 0.0f,  0.0f, 1.0f), glm::vec2(1.0f, 1.0f) },
+    Vertex { glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3( 0.0f,  0.0f, 1.0f), glm::vec2(0.0f, 1.0f) },
+  };
 
-		delete meshEntries.at(i);
-	}
-	meshEntries.clear();
+  std::vector<uint32_t> indices = { 0,  1,  2,  2,  3,  0, };
+
+  return Create(vertices, indices, GL_TRIANGLES);
 }
 
-/**
-*	Renders all loaded MeshEntries
-**/
-void Mesh::draw() {
+void Mesh::Init(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, uint32_t primitiveType)
+{
+    m_vertexLayout = VertexLayout::Create();
+    m_vertexBuffer = Buffer::CreateWithData(GL_ARRAY_BUFFER, GL_STATIC_DRAW, vertices.data(), sizeof(Vertex), vertices.size());
+    m_indexBuffer = Buffer::CreateWithData(GL_ELEMENT_ARRAY_BUFFER, GL_STATIC_DRAW, indices.data(), sizeof(uint32_t), indices.size());
+    m_vertexLayout->SetAttrib(0, 3, GL_FLOAT, false, sizeof(Vertex), 0); // pos
+    m_vertexLayout->SetAttrib(1, 3, GL_FLOAT, false, sizeof(Vertex), offsetof(Vertex, normal));
+    m_vertexLayout->SetAttrib(2, 2, GL_FLOAT, false, sizeof(Vertex), offsetof(Vertex, texCoord));
+}
 
-	shader->use();
-	for (int i = 0; i < meshEntries.size(); ++i) {
+void Mesh::Draw(const Program* program) const
+{
+    m_vertexLayout->Bind();
+    if (m_material)
+    {
+        m_material->SetToProgram(program);
+    }
+    glDrawElements(m_primitiveType, m_indexBuffer->GetCount(), GL_UNSIGNED_INT, 0);
+}
 
-		glm::vec3 diffuse = glm::vec3(meshEntries.at(i)->dcolor.r, meshEntries.at(i)->dcolor.r, meshEntries.at(i)->dcolor.r);
-		glm::vec3 specular = glm::vec3(meshEntries.at(i)->scolor.r, meshEntries.at(i)->scolor.r, meshEntries.at(i)->scolor.r);
-		glm::vec3 ambient = glm::vec3(meshEntries.at(i)->acolor.r, meshEntries.at(i)->acolor.r, meshEntries.at(i)->acolor.r);
 
-		if (glm::length(ambient) == 0) {
-			ambient = glm::vec3(0.3, 0.3, 0.3);
-		}
-
-		if (glm::length(diffuse) == 0) {
-			diffuse = glm::vec3(0.8, 0.8, 0.8);
-		}
-
-		if (glm::length(specular) == 0) {
-			specular = glm::vec3(0.3, 0.3, 0.3);
-		}
-
-		float shiness = meshEntries.at(i)->shininessStrength;
-
-		if (shiness == 0)
-			shiness = 10.0f;
-
-		glUniform3fv(shader->uniform("Kd"), 1, glm::value_ptr(diffuse));
-		glUniform3fv(shader->uniform("Ka"), 1, glm::value_ptr(ambient));
-		glUniform3fv(shader->uniform("Ks"), 1, glm::value_ptr(specular));
-		glUniform1f(shader->uniform("shininess"), shiness);
-
-		meshEntries.at(i)->render();
-	}
-	shader->disable();
+// Material Section
+void Material::SetToProgram(const Program *program) const
+{
+    int textureCount = 0;
+    if (diffuse)
+    {
+        glActiveTexture(GL_TEXTURE0 + textureCount);
+        program->SetUniform("material.diffuse", textureCount);
+        diffuse->Bind();
+        textureCount++;
+    }
+    if (specular)
+    {
+        glActiveTexture(GL_TEXTURE0 + textureCount);
+        program->SetUniform("material.specular", textureCount);
+        specular->Bind();
+        //textureCount++;
+    }
+    // glActiveTexture(GL_TEXTURE0 + textureCount);
+    program->SetUniform("material.shininess", shininess);
 }

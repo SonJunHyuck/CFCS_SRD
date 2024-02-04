@@ -1,50 +1,64 @@
 #pragma once
 
-#include <vector>
+#include "common.h"
+#include "buffer.h"
+#include "vertex_layout.h"
+#include "texture.h"
+#include "program.h"
 
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
+struct Vertex
+{
+    glm::vec3 position;
+    glm::vec3 normal;
+    glm::vec2 texCoord;
+};
 
-#include <assimp/mesh.h>
-#include <assimp/scene.h>
+CLASS_PTR(Material);
+class Material
+{
+public:
+    static MaterialUPtr Create()
+    {
+        return MaterialUPtr(new Material());
+    }
+    TexturePtr diffuse;
+    TexturePtr specular;
+    float shininess{32.0f};
 
-class ShaderProgram;
+    void SetToProgram(const Program* program) const;
 
+private:
+    Material() {}
+};
+
+CLASS_PTR(Mesh);
 class Mesh
 {
 public:
-	struct MeshEntry 
-	{
-		enum BUFFERS 
-		{
-			VERTEX_BUFFER, TEXCOORD_BUFFER, NORMAL_BUFFER, INDEX_BUFFER
-		};
+    static MeshUPtr Create(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, uint32_t primitiveType);
+    static MeshUPtr CreateBox();
+    static MeshUPtr CreatePlane();
 
-		GLuint vao;
-		GLuint vbo[4];
+    const VertexLayout *GetVertexLayout() const { return m_vertexLayout.get(); }
+    BufferPtr GetVertexBuffer() const { return m_vertexBuffer; }
+    BufferPtr GetIndexBuffer() const { return m_indexBuffer; }
 
-		std::vector<glm::vec3> vertices;
+    void Draw(const Program* program) const;
 
-		unsigned int elementCount;
-		aiColor3D dcolor;
-		aiColor3D acolor;
-		aiColor3D scolor;
-		float shininessStrength;
-		MeshEntry(aiMesh *mesh, const aiScene* scene, Mesh * m);
-		~MeshEntry();
+private:
+    Mesh() {}
+    void Init(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, uint32_t primitiveType);
 
-		Mesh * parent;
+    uint32_t m_primitiveType{GL_TRIANGLES};
+    VertexLayoutUPtr m_vertexLayout;
+    BufferPtr m_vertexBuffer;
+    BufferPtr m_indexBuffer;
 
-		void render();	
-	};
-		
+    // Material Section
 public:
-	Mesh(const char *filename, ShaderProgram * sh);
-	~Mesh(void);
+    void SetMaterial(MaterialPtr material) { m_material = material; }
+    MaterialPtr GetMaterial() const { return m_material; }
 
-	std::vector<Mesh::MeshEntry*> meshEntries;
-
-	ShaderProgram * shader;
-	void draw();	
+private:
+    MaterialPtr m_material;
 };

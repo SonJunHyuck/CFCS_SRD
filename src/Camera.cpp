@@ -1,69 +1,35 @@
-#include "Camera.h"
+#include "camera.h"
 
-#define KEY_UP 'w'
-#define KEY_DOWN 's'
-#define KEY_LEFT 'a'
-#define KEY_RIGHT 'd'
-
-Camera::Camera(glm::vec3 pos, glm::vec3 target)
+void Camera::Translate(glm::vec3 direction)
 {
-	this->pos = pos;
-	this->target = target;
+    if(!isControl)
+        return;
 
-	front = glm::normalize(pos - target);
-	right = glm::normalize(glm::cross(glm::vec3(0.0f, 1.0f, 0.0f), front));
-	up = glm::cross(front, right);
-
-	yaw = -90.0f;
-	pitch = 0.0f;
-	fov = 45.0f;
-
-	speed = 2.5f;
+    position += direction * translateSpeed;
 }
 
-glm::mat4 Camera::LookAt()
-{
-	glm::mat4 matrixView = glm::identity<glm::mat4>();
+void Camera::Rotate(double x, double y)
+{   
+    if(!isControl)
+        return; 
 
-	matrixView = glm::lookAt(pos, pos + front, up);
+    auto newMousePos = glm::vec2((float)x, (float)y);
+    auto deltaPos = newMousePos - prevMousePos;
 
-	return matrixView;
-}
+    yaw -= deltaPos.x * rotateSpeed;
+    pitch -= deltaPos.y * rotateSpeed;
 
-void Camera::Move(float deltaTime, char key)
-{
-	float speed = this->speed * deltaTime;
+    // Yaw
+    if (yaw < 0.0f)
+        yaw += 360.0f;
+    if (yaw > 360.0f)
+        yaw -= 360.0f;
 
-	switch (key)
-	{
-	case KEY_UP:
-		pos += speed * front;
-		break;
-	case KEY_DOWN:
-		pos -= speed * front;
-		break;
-	case KEY_LEFT:
-		pos -= speed * right;
-		break;
-	case KEY_RIGHT:
-		pos += speed * right;
-		break;
-	}
-}
-void Camera::Rotate(double offsetX, double offsetY)
-{
-	float sensitivity = 0.05f;
-	offsetX *= sensitivity;
-	offsetY *= sensitivity;
+    // Pitch
+    if (pitch > 89.0f)
+        pitch = 89.0f;
+    if (pitch < -89.0f)
+        pitch = -89.0f;
 
-	yaw += offsetX;
-	pitch += offsetY;
-
-	glm::clamp(pitch, 89.0f, -89.0f);
-
-	glm::vec3 front;
-	front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-	front.y = sin(glm::radians(pitch));
-	front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-	this->front = glm::normalize(front);
+    prevMousePos = newMousePos;
 }

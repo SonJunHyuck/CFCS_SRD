@@ -9,10 +9,10 @@
 # project 설정 시작
 # --------------------------------------------------------
 # 3.14 최소 버전 제약
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.13)
 
 # 변수명 : PROJECT_NAME, 값 : cmake_project_example
-set(PROJECT_NAME pbd_crowd_formation)
+set(PROJECT_NAME opengl_project)
 
 # C++ 17버전 쓸것이다.
 set(CMAKE_CXX_STANDARD 17)
@@ -23,7 +23,7 @@ if(APPLE)
 endif()
 
 # glfw 변수 정의
-set(WINDOW_NAME "PBD_CROWD_FORMATION")
+set(WINDOW_NAME "OpenGL Project")
 set(WINDOW_WIDTH 640)
 set(WINDOW_HEIGHT 480)
 
@@ -33,22 +33,18 @@ project(${PROJECT_NAME})
 # cmake_project_example이라는 실행파일 만들거고, 뒤에 붙어있는 모든 소스파일 모아서
 add_executable(${PROJECT_NAME} 
     src/main.cpp
-    src/Camera.cpp
-    src/CheckerdBoard.cpp
-    src/constraint.cpp
-    src/GL_Window.cpp
-    src/grid.cpp
-    src/group.cpp
-    src/Line.cpp
-    src/main.cpp
-    src/Mesh.cpp
-    src/particle.cpp
-    src/path_planner.cpp
-    src/simulation.cpp
-    src/Sphere.cpp
-    src/station.cpp
-    src/Viewer.cpp
-    src/wall.cpp
+    src/common.cpp src/common.h
+    src/shader.cpp src/shader.h
+    src/program.cpp src/program.h
+    src/context.cpp src/context.h
+    src/buffer.cpp src/buffer.h
+    src/vertex_layout.cpp src/vertex_layout.h
+    src/image.cpp src/image.h
+    src/texture.cpp src/texture.h
+    src/mesh.cpp src/mesh.h
+    src/model.cpp src/model.h
+    src/framebuffer.cpp src/framebuffer.h
+    src/camera.h src/camera.cpp
 )
 
 # --------------------------------------------------------
@@ -67,17 +63,25 @@ target_link_directories(${PROJECT_NAME} PUBLIC ${DEP_LIB_DIR})
 # 실제 lib link 하는 단계
 target_link_libraries(${PROJECT_NAME} PUBLIC ${DEP_LIBS})
 
-
 # #define과 똑같은 효과, 소스코드 밖에서 정의
 target_compile_definitions(${PROJECT_NAME} PUBLIC
     WINDOW_NAME="${WINDOW_NAME}"
     WINDOW_WIDTH=${WINDOW_WIDTH}
     WINDOW_HEIGHT=${WINDOW_HEIGHT}
-)
+    )
 
 # Dependency들이 먼저 build 될 수 있게 관계 설정
 # 리스트에 있는 타겟들 먼저 컴파일 한 후에 우리 프로젝트 컴파일 해라.
 # 안적으면, 우리 프로젝트와 라이브러리를 병렬로 빌드함 -> 오류
 add_dependencies(${PROJECT_NAME} ${DEP_LIST})
 
+
 file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/shader DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/images DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/models DESTINATION ${CMAKE_CURRENT_BINARY_DIR} )
+
+if(NOT APPLE)
+file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/shader DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Debug )
+file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/images DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Debug )
+file( COPY ${CMAKE_CURRENT_SOURCE_DIR}/models DESTINATION ${CMAKE_CURRENT_BINARY_DIR}/Debug )
+endif()

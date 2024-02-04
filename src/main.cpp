@@ -1,163 +1,80 @@
-#define STB_IMAGE_IMPLEMENTATION
+#include "context.h"  // common, shader, program 모두 포함
 
-#include <iostream>
-
-#include <glad/glad.h>
+#include <spdlog/spdlog.h>
+#include <glad/glad.h> // glfw 이전에 include!
 #include <GLFW/glfw3.h>
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
 
-#include "GL_Window.h"
-#include "common.h"
-#include "simulation.h"
-#include "constraint.h"
-#include "particle.h"
-#include "path_planner.h"
-#include "wall.h"
-#include "Viewer.h"
+#include <imgui_impl_glfw.h>
+#include <imgui_impl_opengl3.h>
 
-GLFWwindow* window;
-GL_Window* gl_window;
-
-bool stop = true;
-bool A_button_down;
-bool S_button_down;
-bool D_button_down;
-
-bool mouse_button_down_left;
-bool mouse_button_down_right;
-bool mouse_button_down_center;
-double last_mouse_X;
-double last_mouse_Y;
-double cx, cy;
-
-static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void OnFramebufferSizeChange(GLFWwindow *window, int width, int height)
 {
-	if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
-		glfwSetWindowShouldClose(window, GLFW_TRUE);
+    SPDLOG_INFO("framebuffer size changed: ({} x {})", width, height);
+    
+    // 아예 형변환 시켜버릴 것
+    auto context = reinterpret_cast<Context*>(glfwGetWindowUserPointer(window));
 
-	if (key == GLFW_KEY_SPACE && action == GLFW_PRESS)
-		stop = !stop;
+    context->Reshape(width, height);
+}   
 
-	if (key == GLFW_KEY_A)
-	{
-		if (action == GLFW_PRESS)
-			A_button_down = true;
-		else if(action == GLFW_RELEASE)
-			A_button_down = false;
-	}
-
-	if (key == GLFW_KEY_S)
-	{
-		if (action == GLFW_PRESS)
-			S_button_down = true;
-		else if (action == GLFW_RELEASE)
-			S_button_down = false;
-	}
-
-	if (key == GLFW_KEY_D)
-	{
-		if (action == GLFW_PRESS)
-			D_button_down = true;
-		else if (action == GLFW_RELEASE)
-			D_button_down = false;
-	}
-
-}
-void window_size_callback(GLFWwindow* window, int width, int height)
+void OnKeyEvent(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
-	gl_window->set_size(width, height);
-}
-static void cursor_pos_callback(GLFWwindow* window, double xpos, double ypos)
-{
-	cx = xpos;
-	cy = ypos;
-}
-void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
-{
-	if (action == GLFW_PRESS) {
-		double xpos, ypos;
-		glfwGetCursorPos(window, &xpos, &ypos);
-		last_mouse_X = xpos;
-		last_mouse_Y = ypos;
-	}
+    ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
 
-	if (button == GLFW_MOUSE_BUTTON_LEFT) {
-		if (GLFW_PRESS == action)
-			mouse_button_down_left = true;
-		else if (GLFW_RELEASE == action)
-			mouse_button_down_left = false;
-	}
+    SPDLOG_INFO("key: {}, scancode: {}, action: {}, mods: {}{}{}",
+                key, scancode,
+                action == GLFW_PRESS ? "Pressed" : 
+                action == GLFW_RELEASE ? "Released" :
+                action == GLFW_REPEAT ? "Repeat" : "Unknown",
+                mods & GLFW_MOD_CONTROL ? "C" : "-",
+                mods & GLFW_MOD_SHIFT ? "S" : "-",
+                mods & GLFW_MOD_ALT ? "A" : "-");
 
-	else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
-		if (GLFW_PRESS == action)
-			mouse_button_down_right = true;
-		else if (GLFW_RELEASE == action)
-			mouse_button_down_right = false;
-	}
-
-	else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
-		if (GLFW_PRESS == action)
-			mouse_button_down_center = true;
-		else if (GLFW_RELEASE == action)
-			mouse_button_down_center = false;
-	}
-}
-void mouseDragging(double width, double height)
-{
-	if (mouse_button_down_left && (!A_button_down && !S_button_down && !D_button_down)) {
-		float fractionChangeX = static_cast<float>(cx - last_mouse_X) / static_cast<float>(width);
-		float fractionChangeY = static_cast<float>(last_mouse_Y - cy) / static_cast<float>(height);
-		gl_window->viewer->rotate(fractionChangeX, fractionChangeY);
-	}
-	else if (mouse_button_down_center) {
-		float fractionChangeX = static_cast<float>(cx - last_mouse_X) / static_cast<float>(width);
-		float fractionChangeY = static_cast<float>(last_mouse_Y - cy) / static_cast<float>(height);
-		gl_window->viewer->zoom(fractionChangeY);
-	}
-	else if (mouse_button_down_right) {
-		float fractionChangeX = static_cast<float>(cx - last_mouse_X) / static_cast<float>(width);
-		float fractionChangeY = static_cast<float>(last_mouse_Y - cy) / static_cast<float>(height);
-		gl_window->viewer->translate(-fractionChangeX, -fractionChangeY, 1);
-	}
-
-	last_mouse_X = cx;
-	last_mouse_Y = cy;
-}
-void send_mouse_cursor_pos(Simulation* sim)
-{
-	float x = ((2.0f * cx) / WINDOW_WIDTH) - 1.0f;
-	float y = 1.0f - ((2.0f * cy) / WINDOW_HEIGHT);
-	float z = 1.0f;
-	glm::vec3 ray_nds = glm::vec3(x, y, z);
-	glm::vec4 ray_clip = glm::vec4(ray_nds.x, ray_nds.y, -1.0f, 1.0f);
-
-	if (mouse_button_down_left && A_button_down)
-	{
-		gl_window->send_ray(ray_clip, sim, 0);
-	}
-
-	if (mouse_button_down_left && S_button_down)
-	{
-		gl_window->send_ray(ray_clip, sim, 1);
-	}
-
-	if (mouse_button_down_left && D_button_down)
-	{
-		gl_window->send_ray(ray_clip, sim, 2);
-	}
+    if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+    {
+        glfwSetWindowShouldClose(window, true);
+    }
 }
 
-void Init() 
+void OnCursorPos(GLFWwindow *window, double x, double y)
 {
-	std::cout << "Initialize glfw" << std::endl;
+    auto context = (Context *)glfwGetWindowUserPointer(window);
+    context->MouseMove(x, y);
+}
+
+void OnMouseButton(GLFWwindow *window, int button, int action, int modifier)
+{
+    // 1.82 버전 이후, 마우스 인풋 작동
+     ImGui_ImplGlfw_MouseButtonCallback(window, button, action, modifier);
+
+    auto context = (Context *)glfwGetWindowUserPointer(window);
+    double x, y;
+    glfwGetCursorPos(window, &x, &y);
+    context->MouseButton(button, action, x, y);
+}
+
+void OnCharEvent(GLFWwindow *window, unsigned int ch)
+{
+    ImGui_ImplGlfw_CharCallback(window, ch);
+}
+
+void OnScroll(GLFWwindow *window, double xoffset, double yoffset)
+{
+    ImGui_ImplGlfw_ScrollCallback(window, xoffset, yoffset);
+}
+
+int main()
+{
+    SPDLOG_INFO("Start program!");
+
+    SPDLOG_INFO("Initialize glfw");
     if (!glfwInit())
     {
         const char *description = nullptr;
         glfwGetError(&description);
-        std::cout << "failed to initialize glfw: {" <<  description << " }" << std::endl; 
+        SPDLOG_ERROR("failed to initialize glfw: {}", description);
 
-		abort();
+        return -1;
     }
 
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -165,82 +82,89 @@ void Init()
     glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    std::cout << "Create window!" << std::endl;
-    window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, nullptr, nullptr);
-
+    SPDLOG_INFO("Create window!");
+    auto window = glfwCreateWindow(WINDOW_WIDTH, WINDOW_HEIGHT, WINDOW_NAME, nullptr, nullptr);
     if (!window)
     {
-        std::cout << "failed to create glfw window" << std::endl;
+        SPDLOG_ERROR("failed to create glfw window");
         glfwTerminate();
-
-        abort();
+        return -1;
     }
 
-	// window context
-	glfwMakeContextCurrent(window);
+    // window가 만들어지면서, 만들어진 context를 사용하겠다.
+    glfwMakeContextCurrent(window);
 
-	// set callback
-	glfwSetWindowSizeCallback(window, window_size_callback);
-	glfwSetMouseButtonCallback(window, mouse_button_callback);
-	glfwSetCursorPosCallback(window, cursor_pos_callback);
-	glfwSetKeyCallback(window, key_callback);
+    // glad를 이용한 openGL 함수 로딩 (process address를 얻어옴)
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    {
+        SPDLOG_ERROR("failed to initialize glad");
+        glfwTerminate();
+        return -1;
+    }
+    auto glVersion = (const char *)glGetString(GL_VERSION);
+    SPDLOG_INFO("OpenGL context version: {}", glVersion);
 
-	//glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    // ========== Glad Load 끝 -> 여기서부터 GL Functions 사용 가능 ==========
 
-	// GLAD Loader
-	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-	{
-		std::cout << "Failed to initilize GLAD" << std::endl;
+    // imgui
+    auto imguiContext = ImGui::CreateContext();
+    ImGui::SetCurrentContext(imguiContext);
+    ImGui_ImplGlfw_InitForOpenGL(window, false);  // callback setting false
+    ImGui_ImplOpenGL3_Init();
+    ImGui_ImplOpenGL3_CreateFontsTexture();
+    ImGui_ImplOpenGL3_CreateDeviceObjects();
 
-		abort();
-	}
+    auto context = Context::Create();
+    if (!context)
+    {
+        SPDLOG_ERROR("failed to create context");   
+        glfwTerminate();
+        return -1;
+    }
+    glfwSetWindowUserPointer(window, context.get());
 
-	// complete OpenGL init
-	printf("OpenGL %s, GLSL %s\n", glGetString(GL_VERSION), glGetString(GL_SHADING_LANGUAGE_VERSION));
-}
+    // setting events
+    // forced set viewport (frambuffer이 계속 window size * 2로 잡혀서, 강제로 버퍼 사이즈 설정)
+    OnFramebufferSizeChange(window, WINDOW_WIDTH * 2, WINDOW_HEIGHT * 2);
+    glfwSetFramebufferSizeCallback(window, OnFramebufferSizeChange);
+    glfwSetKeyCallback(window, OnKeyEvent);
+    glfwSetCharCallback(window, OnCharEvent);
+    glfwSetCursorPosCallback(window, OnCursorPos);
+    glfwSetMouseButtonCallback(window, OnMouseButton);
+    glfwSetScrollCallback(window, OnScroll);
 
-int main()
-{
-	Init();
+    SPDLOG_INFO("Start main loop");
+    while (!glfwWindowShouldClose(window))
+    {
+        // mouse, keyboard, window size event... 등을 수집
+        glfwPollEvents();
 
-	gl_window = new GL_Window(WINDOW_WIDTH, WINDOW_HEIGHT);
+        // 지금부터 새로운 렌더링 프레임이다! 라고 알려줘야함 
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 
-	int num_particles = ROWS * COLS;
-	char* output = (char*)"blender.txt";
+        context->ProcessInput(window);
+        context->Render();
 
-	Simulation sim(num_particles, 0, MS_PER_UPDATE, output);
+        // 그리려고 하는 데이터 수집
+        ImGui::Render();
+        // 실제 Draw
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
-	gl_window->dummy_init(&sim);
+        glfwSwapBuffers(window);
+    }
 
-	while (!glfwWindowShouldClose(window))
-	{
-		if (!stop)
-			sim.do_time_step();
+    // gl 끝나기 전에 메모리 정리 해야함
+    context.reset();
 
-		sim.stop = stop;
+    // Destroy : imgui (init 역순)
+    ImGui_ImplOpenGL3_DestroyFontsTexture();
+    ImGui_ImplOpenGL3_DestroyDeviceObjects();
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext(imguiContext);
 
-		// process : rendering
-		gl_window->draw(&sim);
+    glfwTerminate();
 
-		// process : buffer swap
-		glfwSwapBuffers(window);
-
-		// process : event callback
-		glfwPollEvents();
-		
-		int display_w, display_h;
-		glfwGetFramebufferSize(window, &display_w, &display_h);
-		mouseDragging(display_w, display_h);
-
-		// if use path drawing, must stop program
-		if (stop)
-		{
-			send_mouse_cursor_pos(&sim);
-		}
-	}
-
-	glfwDestroyWindow(window);
-	glfwTerminate();
-
-	return 0;
+    return 0;
 }

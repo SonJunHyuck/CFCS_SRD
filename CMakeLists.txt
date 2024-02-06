@@ -12,7 +12,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 # 변수명 : PROJECT_NAME, 값 : cmake_project_example
-set(PROJECT_NAME opengl_project)
+set(PROJECT_NAME CrowndFormationControlScheme)
 
 # C++ 17버전 쓸것이다.
 set(CMAKE_CXX_STANDARD 17)
@@ -23,7 +23,7 @@ if(APPLE)
 endif()
 
 # glfw 변수 정의
-set(WINDOW_NAME "OpenGL Project")
+set(WINDOW_NAME "Crowd Formation Control Scheme Project")
 set(WINDOW_WIDTH 640)
 set(WINDOW_HEIGHT 480)
 
@@ -44,7 +44,8 @@ add_executable(${PROJECT_NAME}
     src/mesh.cpp src/mesh.h
     src/model.cpp src/model.h
     src/framebuffer.cpp src/framebuffer.h
-    src/camera.h src/camera.cpp
+    src/camera.cpp src/camera.h
+    src/checkboard.cpp src/checkboard.h
 )
 
 # --------------------------------------------------------

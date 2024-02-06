@@ -20,6 +20,9 @@ using klassName ## UPtr = std::unique_ptr<klassName>; \
 using klassName ## Ptr = std::shared_ptr<klassName>; \
 using klassName ## WPtr = std::weak_ptr<klassName>;
 
+#define VEC_ZERO glm::vec3(0, 0, 0)
+#define VEC_ONE glm::vec3(1, 1, 1)
+
 // 메모리 할당 안돼있다. -> 비어있다. -> 에러 캐치 가능
 // std::string* LoadTextFile(const std::string& filename);
 

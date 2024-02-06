@@ -5,11 +5,17 @@
 CLASS_PTR(Texture)
 class Texture
 {
+private:
+    Texture() {}
+
 public:
-    // UniquePtr가 아닌 이유 : 
-    static TextureUPtr Create(int width, int height, uint32_t format);
-    static TextureUPtr CreateFromImage(const Image *image);
     ~Texture();
+
+public:
+    static TextureUPtr Create(int width, int height, uint32_t format);
+    static TextureUPtr CreateFromImage(const Image *image);    
+    static TextureUPtr CreateFromImage(const Image *image, uint32_t minFilter, uint32_t magFilter);
+    static TextureUPtr CreateFromImage(const Image *image, uint32_t minFilter, uint32_t magFilter, uint32_t sWrap, uint32_t tWrap);
 
     const uint32_t Get() const { return m_texture; }
     void Bind() const;
@@ -21,8 +27,9 @@ public:
     uint32_t GetFormat() const { return m_format; }
 
 private:
-    Texture() {}
     void CreateTexture();  // bool이 아니라 void -> 무조건 성공을 가정
+    void CreateTexture(uint32_t minFilter, uint32_t magFilter);
+    void CreateTexture(uint32_t minFilter, uint32_t magFilter, uint32_t sWrap, uint32_t tWrap);
     void SetTextureFromImage(const Image *image);
     void SetTextureFormat(int width, int height, uint32_t format);
 
@@ -30,21 +37,4 @@ private:
     int m_width{0};
     int m_height{0};
     uint32_t m_format{GL_RGBA};
-};
-
-
-CLASS_PTR(CubeTexture)
-class CubeTexture
-{
-public:
-    static CubeTextureUPtr CreateFromImages(const std::vector<Image *>& images);
-    ~CubeTexture();
-
-    const uint32_t Get() const { return m_texture; }
-    void Bind() const;
-
-private:
-    CubeTexture() {}
-    bool InitFromImages(const std::vector<Image *>& images);
-    uint32_t m_texture{0};
 };

@@ -10,6 +10,7 @@
 #include "model.h"
 #include "framebuffer.h"
 #include "camera.h"
+#include "checkboard.h"
 
 CLASS_PTR(Context)
 class Context
@@ -25,30 +26,25 @@ public:
 private:
     Context() {}
     bool Init();
-    ProgramUPtr m_program;
+    ProgramUPtr m_lightProgram;
     ProgramUPtr m_simpleProgram;
     ProgramUPtr m_textureProgram;
     ProgramUPtr m_postProgram;
-    ProgramUPtr m_skyboxProgram;
-    ProgramUPtr m_envMapProgram;
 
     float m_gamma {1.0f};
 
     MeshUPtr m_box;
     MeshUPtr m_plane;
 
+    CheckBoardUPtr m_checkboard;
+
     MaterialPtr m_planeMaterial;
-    MaterialPtr m_box1Material;
-    MaterialPtr m_box2Material;
-    // ModelUPtr m_model; // Backpack
-    TexturePtr m_windowTexture;
-    CubeTextureUPtr m_cubeTexture;
 
     // animation
     bool m_animation { true };
 
     // clear color
-    glm::vec4 m_clearColor { glm::vec4(0.0f, 0.0f, 0.0f, 0.0f) };
+    glm::vec4 m_clearColor { glm::vec4(0.3f, 0.3f, 0.3f, 0.0f) };
 
     // light parameter
     struct Light
@@ -63,14 +59,6 @@ private:
     };
     Light m_light;
     bool m_flashLightMode { false };
-
-    // light parameter
-    glm::vec3 m_lightPos{glm::vec3(3.0f, 3.0f, 3.0f)};
-    glm::vec3 m_lightColor{glm::vec3(1.0f, 1.0f, 1.0f)};
-    glm::vec3 m_objectColor{glm::vec3(1.0f, 0.5f, 0.0f)};
-    float m_ambientStrength{0.1f};
-    float m_specularStrength { 0.5f };
-    float m_specularShininess { 32.0f };
 
     // camera
     Camera m_camera;

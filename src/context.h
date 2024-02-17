@@ -26,6 +26,8 @@ public:
 private:
     Context() {}
     bool Init();
+
+    // Shader Program
     ProgramUPtr m_lightProgram;
     ProgramUPtr m_simpleProgram;
     ProgramUPtr m_textureProgram;
@@ -33,11 +35,12 @@ private:
 
     float m_gamma {1.0f};
 
+    // object
     MeshUPtr m_box;
     MeshUPtr m_plane;
-
     CheckBoardUPtr m_checkboard;
 
+    // material
     MaterialPtr m_planeMaterial;
 
     // animation

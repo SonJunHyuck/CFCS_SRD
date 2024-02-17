@@ -46,6 +46,9 @@ add_executable(${PROJECT_NAME}
     src/framebuffer.cpp src/framebuffer.h
     src/camera.cpp src/camera.h
     src/checkboard.cpp src/checkboard.h
+
+    src/agent.cpp src/agent.h
+    src/grid.cpp src/grid.h
 )
 
 # --------------------------------------------------------

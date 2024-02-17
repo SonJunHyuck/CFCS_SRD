@@ -136,19 +136,20 @@ int main()
     SPDLOG_INFO("Start main loop");
     while (!glfwWindowShouldClose(window))
     {
-        // mouse, keyboard, window size event... 등을 수집
+        // Collecting mouse, keyboard, window size event... 
         glfwPollEvents();
 
-        // 지금부터 새로운 렌더링 프레임이다! 라고 알려줘야함 
+        // Notify to ImGUI : "Start New Rendering Frame!"
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
         context->ProcessInput(window);
         context->Render();
 
-        // 그리려고 하는 데이터 수집
+        // Collecting Rendering Data
         ImGui::Render();
-        // 실제 Draw
+        
+        // Real Draw
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 
         glfwSwapBuffers(window);

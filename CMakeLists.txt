@@ -34,21 +34,21 @@ project(${PROJECT_NAME})
 add_executable(${PROJECT_NAME} 
     src/main.cpp
     src/common.cpp src/common.h
-    src/shader.cpp src/shader.h
-    src/program.cpp src/program.h
-    src/context.cpp src/context.h
-    src/buffer.cpp src/buffer.h
-    src/vertex_layout.cpp src/vertex_layout.h
-    src/image.cpp src/image.h
-    src/texture.cpp src/texture.h
-    src/mesh.cpp src/mesh.h
-    src/model.cpp src/model.h
-    src/framebuffer.cpp src/framebuffer.h
-    src/camera.cpp src/camera.h
-    src/checkboard.cpp src/checkboard.h
+    src/framework/shader.cpp src/framework/shader.h
+    src/framework/program.cpp src/framework/program.h
+    src/framework/context.cpp src/framework/context.h
+    src/framework/buffer.cpp src/framework/buffer.h
+    src/framework/vertex_layout.cpp src/framework/vertex_layout.h
+    src/framework/image.cpp src/framework/image.h
+    src/framework/texture.cpp src/framework/texture.h
+    src/framework/mesh.cpp src/framework/mesh.h
+    src/framework/model.cpp src/framework/model.h
+    src/framework/framebuffer.cpp src/framework/framebuffer.h
+    src/framework/camera.cpp src/framework/camera.h
+    src/framework/checkboard.cpp src/framework/checkboard.h
 
-    src/agent.cpp src/agent.h
-    src/grid.cpp src/grid.h
+    src/simulation/agent.cpp src/simulation/agent.h
+    src/simulation/grid.cpp src/simulation/grid.h
 )
 
 # --------------------------------------------------------

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "../common.h"
 #include "buffer.h"
 #include "vertex_layout.h"
 #include "texture.h"

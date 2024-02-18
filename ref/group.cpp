@@ -126,8 +126,6 @@ void Group::update_start_end()
 
 void Group::update_short_range_goal()
 {
-	// ׷ ̷ġ : Leader  ġ
-	// ׷ ġ : group  ġ
 	// Leader pos - group pos = ̵ 
 	glm::vec3 diff = leader->X - position;
 

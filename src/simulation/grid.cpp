@@ -30,13 +30,8 @@ bool Grid::IsConquerableCell(uint32_t InCellId, uint8_t InGroupId)
     return false;
 }
 
-void Grid::UpdateStability()
-{
-}
-
 void Grid::Update(std::vector<Agent>& Agents)
 {
-
     for(Cell& Iter : Cells)
     {
         Iter.Counter = 0;

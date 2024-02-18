@@ -1,10 +1,10 @@
 #pragma once
 
-#include "common.h"
+#include "../common.h"
 
 class Agent
 {
-public:
+private:
 Agent() {}
 ~Agent() {}
 

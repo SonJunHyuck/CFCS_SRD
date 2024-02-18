@@ -11,7 +11,7 @@ void OnFramebufferSizeChange(GLFWwindow *window, int width, int height)
 {
     SPDLOG_INFO("framebuffer size changed: ({} x {})", width, height);
     
-    // 아예 형변환 시켜버릴 것
+    // reinterpret_cast : 아예 형변환 시켜버릴 것
     auto context = reinterpret_cast<Context*>(glfwGetWindowUserPointer(window));
 
     context->Reshape(width, height);

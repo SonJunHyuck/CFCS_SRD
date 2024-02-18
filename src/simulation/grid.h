@@ -1,6 +1,6 @@
 #pragma once
 
-#include "common.h"
+#include "../common.h"
 
 class Grid
 {
@@ -10,7 +10,6 @@ public:
     Grid(float InCellSize, glm::vec3 InMinBound, glm::vec3 InMaxBound);
     ~Grid();
 
-    void UpdateStability();
     void Update(std::vector<class Agent>& Agents);
 
 public:

@@ -28,3 +28,14 @@ glm::vec3 GetAttenuationCoeff(float distance)
 
     return glm::vec3(kc, glm::max(kl, 0.0f), glm::max(kq * kq, 0.0f));
 }
+
+void ClampVec3(glm::vec3 &InVec3, const float MaxValue)
+{
+	float Length = glm::length(InVec3);
+
+	if (Length > MaxValue)
+	{
+		float Multi = (MaxValue / Length);
+        InVec3 *= Multi;
+	}
+}

@@ -2,6 +2,7 @@
 
 #include "../common.h"
 
+CLASS_PTR(Grid)
 class Grid
 {
 public:

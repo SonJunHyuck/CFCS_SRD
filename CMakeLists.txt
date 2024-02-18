@@ -47,6 +47,7 @@ add_executable(${PROJECT_NAME}
     src/framework/camera.cpp src/framework/camera.h
     src/framework/checkboard.cpp src/framework/checkboard.h
 
+    src/simulation/simulation.cpp src/simulation/simulation.h
     src/simulation/agent.cpp src/simulation/agent.h
     src/simulation/grid.cpp src/simulation/grid.h
 )

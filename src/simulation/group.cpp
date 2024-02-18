@@ -29,26 +29,18 @@ void Group::Init()
     }
 }
 
-void Group::UpdateSRDs()
-{
-    for(glm::vec3& SRD : SRDs)
-    {
-        SRD += Velocity;
-    }
-}
-
 void Group::FollowPath()
 {
     glm::vec3 CurrentWaypointPos = Path[CurrentWaypointId].Position;
     Velocity = CurrentWaypointPos - Position;
     float Distance = glm::length(Velocity);
     
-    if(Distance != 0)
+    if(Distance > _EPSILON)
     {
         float PreferedVelocity = Distance > DefinedAccel ? DefinedAccel : Distance;
 
         Velocity /= Distance;  // Normalize;
-        velocity *= PreferedVelocity * DeltaTime;
+        velocity *= PreferedVelocity * DELTA_TIME;
 
         UpdateSRDs();
 
@@ -60,5 +52,29 @@ void Group::FollowPath()
     {
         if(CurrentWaypointId < Path.size() - 1)
             CurrentWaypointId++;
+    }
+}
+
+void Group::UpdateSRDs()
+{
+    for(glm::vec3& SRD : SRDs)
+    {
+        SRD += Velocity;
+    }
+}
+
+void Group::PlanAgentVelocity()
+{
+    for (Agent& agent : Agents)
+    {
+        agent.PlanVelocity();
+    }
+}
+
+void Group::CorrectAgentPosition()
+{
+    for (Agent &agent : Agents)
+    {
+        agent.CorrectPosition();
     }
 }

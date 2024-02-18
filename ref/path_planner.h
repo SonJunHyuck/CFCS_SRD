@@ -22,10 +22,6 @@ public:
 	PathPlanner(int num_particles, Particle** particles);
 	~PathPlanner();
 
-	// normalize(now, next)
-	void calc_pref_v_force(const int& particle_id);
-
 	// normalize + clamping
 	void calc_velocity(const int& particle_id);
-
 };

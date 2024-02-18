@@ -20,11 +20,14 @@ using klassName ## UPtr = std::unique_ptr<klassName>; \
 using klassName ## Ptr = std::shared_ptr<klassName>; \
 using klassName ## WPtr = std::weak_ptr<klassName>;
 
-template<class T> shared_ptr(T*) -> shared_ptr<T>;
-template<class T> shared_ptr(T*[]) -> shared_ptr<T[]>;
+#define _M_PI 3.14159265358979323846f
+#define _EPSILON 0.00001f
 
 #define VEC_ZERO glm::vec3(0, 0, 0)
 #define VEC_ONE glm::vec3(1, 1, 1)
+
+static float DELTA_TIME 0.072
+static bool ON_AVOIDANCE_MODEL true
 
 // 메모리 할당 안돼있다. -> 비어있다. -> 에러 캐치 가능
 // std::string* LoadTextFile(const std::string& filename);
@@ -33,3 +36,5 @@ template<class T> shared_ptr(T*[]) -> shared_ptr<T[]>;
 std::optional<std::string> LoadTextFile(const std::string& filename);
 
 glm::vec3 GetAttenuationCoeff(float distance);
+
+void ClampVec3(glm::vec3 &InVec3, const float MaxValue);

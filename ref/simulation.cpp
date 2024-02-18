@@ -23,7 +23,6 @@ Simulation::Simulation(int num_particles, int num_constraints, float time_step, 
 		std::unordered_map<unsigned long long, Constraint*>();
 	this->collision_upper_trig_arr = NULL;
 	this->powerlaw_upper_trig_arr = NULL;
-	this->stability_upper_trig_arr = NULL;
 	this->distance_trig_arr = NULL;
 	this->friction_constraint_stiffness = 0.22f;
 

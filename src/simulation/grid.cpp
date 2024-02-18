@@ -30,7 +30,7 @@ bool Grid::IsConquerableCell(uint32_t InCellId, uint8_t InGroupId)
     return false;
 }
 
-void Grid::Update(std::vector<Agent>& Agents)
+void Grid::Update(std::vector<Agent>& InAgents)
 {
     for(Cell& Iter : Cells)
     {
@@ -44,28 +44,41 @@ void Grid::Update(std::vector<Agent>& Agents)
     }
 
 	// adding particles to grid
-	for (int i = 0; i < Agents.size(); i++)
+	for (int i = 0; i < InAgents.size(); i++)
 	{
-		glm::vec3 Position = Agents[i].PredictedPosition;
+		glm::vec3 Position = InAgents[i].PredictedPosition;
 		uint32_t x = (Position.x - MinBound.x) / CellSize;
 		uint32_t z = (Position.z - MinBound.z) / CellSize;
 		uint32_t CellId = z * NumRows + x;
-		Agents[i].CellId = CellId;
-		Agents[i].CellX = x;
-		Agents[i].CellZ = z;
+		InAgents[i].CellId = CellId;
+		InAgents[i].CellX = x;
+		InAgents[i].CellZ = z;
 
         uint16_t Counter = Cells[CellId].Counter;
 		Cells[CellId].Guests[Counter] = i;  // Counter is number of guests
 		Cells[CellId].Counter += 1;
 
 		// to search particle mixed zone;
-        if(IsConquerableCell(CellId, Agents[i].GroupId))
+        if(IsConquerableCell(CellId, InAgents[i].GroupId))
         {
-            Cells[CellId].Congestion = Agents[i].GroupId;
+            Cells[CellId].Congestion = InAgents[i].GroupId;
         }
         else
         {
             Cells[CellId].Congestion = Cell::STATE::MIXED;
         }
 	}
+
+    // After Cell Update Complete
+    for(Agent& agent : InAgents)
+    {
+        if(Cells[agent.CellId].Congestion == Cell::STATE::MIXED)
+        {
+            agent.bIsConnected = true;
+        }
+        else
+        {
+            agent.bIsConnected = false;
+        }
+    }
 }

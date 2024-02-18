@@ -26,6 +26,9 @@ private:
     void Init();
 
     // Update
+    void FollowPath();  // (before) Update Path
     void UpdateSRDs();
-    void FollowPath();  // <- Update Path
+    void PlanAgentVelocity();
+    void CorrectAgentPosition();
+    
 };

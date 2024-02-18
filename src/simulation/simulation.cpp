@@ -1,10 +1,9 @@
 #include "simulation.h"
+#include "group.h"
+#include "grid.h"
 
-Simulation::Simulation(int num_particles, int num_constraints, float time_step, char* out_path)
+Simulation::Simulation(int num_particles, int num_constraints)
 {
-	this->time_step = time_step;
-	this->step_no = 1;
-
 	this->num_particles = IS_SINGLE ? num_particles / GROUP_COUNT : num_particles;
 	this->num_particles_divided = num_particles / GROUP_COUNT;
 	this->particles = (Particle**)malloc(sizeof(void*) * num_particles);
@@ -13,8 +12,6 @@ Simulation::Simulation(int num_particles, int num_constraints, float time_step, 
 	this->constraints = NULL;
 	this->collision_upper_trig_arr = NULL;
 	this->powerlaw_upper_trig_arr = NULL;
-	this->stability_upper_trig_arr = NULL;
-	this->distance_trig_arr = NULL;
 	this->friction_constraint_stiffness = 0.22f;
 
 	this->grid = new Grid(num_particles, CELL_SIZE, glm::vec3(GRID_MIN_X, 0, GRID_MIN_Z), glm::vec3(GRID_MAX_X, 0, GRID_MAX_Z));
@@ -92,37 +89,9 @@ void Simulation::CalcStiffness(int n)
 
 void Simulation::UpdatePredictedPosition()
 {
-    // predict + correction = next pos
-	for (int i = 0; i < num_particles; i++)
+	for(Group& group : Groups)
 	{
-		if (particles[i]->Delta_x_ctr > 0)
-		{
-			particles[i]->X_pred.x +=
-				(ALPHA * particles[i]->Delta_x.x / particles[i]->Delta_x_ctr);
-			particles[i]->X_pred.z +=
-				(ALPHA * particles[i]->Delta_x.z / particles[i]->Delta_x_ctr);
-
-			// clamp
-			if (false)
-			{
-				float maxValue = 0.069;
-				float length_d_i = distance(particles[i]->X_pred, particles[i]->X);
-				
-				if (length_d_i > maxValue)
-				{
-					float mult = (maxValue / length_d_i);
-					particles[i]->X_pred.x =
-						particles[i]->X.x +
-						(particles[i]->X_pred.x - particles[i]->X.x) * mult;
-					particles[i]->X_pred.z =
-						particles[i]->X.z +
-						(particles[i]->X_pred.z - particles[i]->X.z) * mult;
-				}
-			}
-
-			particles[i]->Delta_x = VEC_ZERO;
-			particles[i]->Delta_x_ctr = 0;
-		}
+		group.CorrectAgentPosition();
 	}
 }
 
@@ -148,8 +117,6 @@ void Simulation::ProjectConstraints()
 								{
 									int t_idx = (num_particles * i) + j - (i * (i + 1) * 0.5);
 									collision_upper_trig_arr[t_idx]->project(particles);
-									// powerlaw_upper_trig_arr[t_idx]->project(particles);
-									// stability_upper_trig_arr[t_idx]->project(particles);
 								}
 							}
 						}
@@ -209,10 +176,13 @@ void Simulation::ProjectConstraints()
 	update_predicted_position();
 
 	// wall + ground + mesh constraints
-	for (int i = 0; i < num_constraints; i++) {
+	for (int i = 0; i < num_constraints; i++) 
+	{
 		constraints[i]->project(particles);
-		if (constraints[i]->active) {
-			for (int j = 0; j < constraints[i]->num_particles; j++) {
+		if (constraints[i]->active) 
+		{
+			for (int j = 0; j < constraints[i]->num_particles; j++) 
+			{
 				int idx = constraints[i]->indicies[j];
 				particles[idx]->Delta_x.x += constraints[i]->delta_X[j].x;
 				particles[idx]->Delta_x.z += constraints[i]->delta_X[j].z;
@@ -227,24 +197,121 @@ void Simulation::ProjectConstraints()
 #pragma region Scheme
 void Simulation::PathFinding()
 {
-	for (int i = 0; i < num_groups; i++)
+	for (int i = 0; i < NumGroups; i++)
 	{
-		groups[i]->update_path();
+		Groups[i]->FollowPath();
 	}
 }
 void Simulation::CalcPredictedPosition()
 {
-    for (int i = 0; i < num_particles; i++)
+	for (int i = 0; i < NumGroups; i++)
 	{
-		particles[i]->V_prev = particles[i]->V;
-
-		planner->calc_velocity(i);  // V.length = V_pref (calc velocity from planner)
-		particles[i]->V *= 0.9999f;
-		particles[i]->V = KSI * planner->velocity_buffer[i] + (1 - KSI) * particles[i]->V;
-		particles[i]->X_pred += time_step * particles[i]->V;
+		Groups[i]->PlanAgentVelocity();
 	}
 }
-void Simulation::UpdatePosition()
+void Simulation::UpdateLocalInformation()
+{	
+	for(Group group : Groups)
+	{
+		GridField.Update(group.Agents);
+	}
+}
+void Simulation::TriggerCollisionAvoidance()
+{
+	InitAgentDelta();
+
+	for (int i = 0; i < num_particles; i++)
+	{
+		// iterate over adjacent cells ( cell Ȯ)
+		for (int x = -2; x <= 2; x++)
+		{
+			int cur_x = particles[i]->cell_x + x;
+			if (cur_x >= 0 && cur_x < grid->num_cols)
+			{
+				for (int z = -2; z <= 2; z++)
+				{
+					int cur_z = particles[i]->cell_z + z;
+					if (cur_z >= 0 && cur_z < grid->num_rows)
+					{
+						int cell_id = particles[i]->cell_id + x + (z * grid->num_rows);
+						// ش cell particle ϰ ִٸ
+						if (grid->grid_counters[cell_id] > 0)
+						{
+							// ش cell ϴ ƼŬ  ŭ
+							for (int idx = 0; idx < grid->grid_counters[cell_id]; idx++)
+							{
+								int j = grid->grid_cells[cell_id][idx];
+								if (i < j) // so only do collision once
+								{
+									int t_idx = (num_particles * i) + j - (i * (i + 1) * 0.5);
+									powerlaw_upper_trig_arr[t_idx]->project(particles);
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// traverse friction constraints to accumalte deltas
+	for (int i = 0; i < num_particles; i++) {
+		// iterate over adjacent cells
+		for (int x = -2; x <= 2; x++)
+		{
+			int cur_x = particles[i]->cell_x + x;
+			if (cur_x >= 0 && cur_x < grid->num_cols)
+			{
+				for (int z = -2; z <= 2; z++)
+				{
+					int cur_z = particles[i]->cell_z + z;
+					if (cur_z >= 0 && cur_z < grid->num_rows)
+					{
+						int cell_id = particles[i]->cell_id + x + (z * grid->num_rows);
+						if (grid->grid_counters[cell_id] > 0)
+						{
+							for (int idx = 0; idx < grid->grid_counters[cell_id]; idx++)
+							{
+								int j = grid->grid_cells[cell_id][idx];
+								if (i < j) // so only do collision once
+								{
+									int t_idx = (num_particles * i) + j - (i * (i + 1) * 0.5);
+									if (powerlaw_upper_trig_arr[t_idx]->active)
+									{
+										for (int ctr = 0;
+											ctr < powerlaw_upper_trig_arr[t_idx]->num_particles;
+											ctr++)
+										{
+											int p_idx = powerlaw_upper_trig_arr[t_idx]->indicies[ctr];
+											particles[p_idx]->Delta_x.x +=
+												powerlaw_upper_trig_arr[t_idx]->delta_X[ctr].x;
+											particles[p_idx]->Delta_x.z +=
+												powerlaw_upper_trig_arr[t_idx]->delta_X[ctr].z;
+											particles[p_idx]->Delta_x_ctr++;
+										}
+										powerlaw_upper_trig_arr[t_idx]->active = false;
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// 5. predict(Particle) <- correction(Constraint) 
+	UpdatePredictedPosition();
+}
+void Simulation::TriggerPenetrateAvoidance()
+{
+	for (int i = 1; i < IterateCount; i++)
+	{
+		CalcStiffness(i);
+		ProjectConstraints();  // 4.2 (short)
+	}
+}
+void Simulation::UpdateFinalPosition()
 {
     // 5. Update Velocity
 	for (int i = 0; i < num_particles; i++)
@@ -312,122 +379,6 @@ void Simulation::UpdatePosition()
 		particles[i]->X = particles[i]->X_pred;
 	}
 }
-void Simulation::UpdateLocalInformation()
-{
-	grid->update(particles);
-
-	for (int i = 0; i < num_particles; i++)
-	{
-		Particle* p = particles[i];
-
-		if (grid->grid_safty[p->cell_id] == MIXED_AREA)
-		{
-			p->is_link = false;
-		}
-		else
-		{
-			p->is_link = true;
-		}
-	}
-}
-void Simulation::TriggerCollisionAvoidance()
-{
-    // init to 0
-	InitAgentDelta();
-
-	// grid  ڽ ϴ cell  cell ִ ƼŬ鿡  constraint
-	for (int i = 0; i < num_particles; i++)
-	{
-		// iterate over adjacent cells ( cell Ȯ)
-		for (int x = -2; x <= 2; x++)
-		{
-			int cur_x = particles[i]->cell_x + x;
-			if (cur_x >= 0 && cur_x < grid->num_cols)
-			{
-				for (int z = -2; z <= 2; z++)
-				{
-					int cur_z = particles[i]->cell_z + z;
-					if (cur_z >= 0 && cur_z < grid->num_rows)
-					{
-						int cell_id = particles[i]->cell_id + x + (z * grid->num_rows);
-						// ش cell particle ϰ ִٸ
-						if (grid->grid_counters[cell_id] > 0)
-						{
-							// ش cell ϴ ƼŬ  ŭ
-							for (int idx = 0; idx < grid->grid_counters[cell_id]; idx++)
-							{
-								int j = grid->grid_cells[cell_id][idx];
-								if (i < j) // so only do collision once
-								{
-									int t_idx = (num_particles * i) + j - (i * (i + 1) * 0.5);
-									powerlaw_upper_trig_arr[t_idx]->project(particles);
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// traverse friction constraints to accumalte deltas
-	for (int i = 0; i < num_particles; i++) {
-		// iterate over adjacent cells
-		for (int x = -2; x <= 2; x++)
-		{
-			int cur_x = particles[i]->cell_x + x;
-			if (cur_x >= 0 && cur_x < grid->num_cols)
-			{
-				for (int z = -2; z <= 2; z++)
-				{
-					int cur_z = particles[i]->cell_z + z;
-					if (cur_z >= 0 && cur_z < grid->num_rows)
-					{
-						int cell_id = particles[i]->cell_id + x + (z * grid->num_rows);
-						if (grid->grid_counters[cell_id] > 0)
-						{
-							for (int idx = 0; idx < grid->grid_counters[cell_id]; idx++)
-							{
-								int j = grid->grid_cells[cell_id][idx];
-								if (i < j) // so only do collision once
-								{
-									int t_idx = (num_particles * i) + j - (i * (i + 1) * 0.5);
-									if (powerlaw_upper_trig_arr[t_idx]->active)
-									{
-										for (int ctr = 0;
-											ctr < powerlaw_upper_trig_arr[t_idx]->num_particles;
-											ctr++)
-										{
-											int p_idx =
-												powerlaw_upper_trig_arr[t_idx]->indicies[ctr];
-											particles[p_idx]->Delta_x.x +=
-												powerlaw_upper_trig_arr[t_idx]->delta_X[ctr].x;
-											particles[p_idx]->Delta_x.z +=
-												powerlaw_upper_trig_arr[t_idx]->delta_X[ctr].z;
-											particles[p_idx]->Delta_x_ctr++;
-										}
-										powerlaw_upper_trig_arr[t_idx]->active = false;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// 5. predict(Particle) <- correction(Constraint) 
-	UpdatePredictedPosition();
-}
-void Simulation::TriggerPenetrateAvoidance()
-{
-	for (int i = 1; i < (ITER_COUNT + 1); i++)
-	{
-		CalcStiffness(i);
-		ProjectConstraints();  // 4.2 (short)
-	}
-}
 #pragma endregion
 
 void Simulation::Update()
@@ -448,7 +399,7 @@ void Simulation::Update()
     TriggerPenetrateAvoidance();
 
     // 5. Real Translate Agent Position
-	UpdatePosition();
+	UpdateFinalPosition();
 
 	step_no++;
 }

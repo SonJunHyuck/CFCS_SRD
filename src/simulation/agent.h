@@ -14,6 +14,8 @@ private:
 void Init();
 
 public:
+	uint32_t Id;
+
     glm::vec3 Position;
     glm::vec3 PredictedPosition;
 
@@ -22,11 +24,9 @@ public:
     float PreferedSpeed;
 
     glm::vec3 DeltaPosition;
-    int DeltaPositionControl;  // MUST be change
+    int DeltaPositionCounter;  // MUST be change
 
 	glm::vec3 SRD;
-
-	glm::vec3 Accel;  // Only Force
 
 	float Mass;
 
@@ -42,10 +42,9 @@ public:
 	int CellX;
 	int CellZ;
 
-    int PathPtr;
-
-	float LookLength;
-
 	uint8_t bIsLeader;
 	uint8_t bIsConnected;
+
+	void PlanVelocity();
+	void CorrectPosition();
 };

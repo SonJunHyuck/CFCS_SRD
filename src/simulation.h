@@ -19,20 +19,22 @@ public:
 	uint8_t IterateCount { 2 };
 	bool bIsAvoidance = true;
 	bool bIsFormation = true;
-	bool bIsFTL = false;
+	//bool bIsFTL = false;
 	bool bIsSteering = true;
 	bool bIsCohesion = true;
 	bool bSimulate = false;
 
 private:
 	// NumGroups -> Group 1 Agents -> Group 2 Agents, ...m Group N Agents; -> NumAgents
-	int NumGroups;  // MUST : input
+	uint16_t NumGroups;  // MUST : input
 	std::vector<class Group> Groups;
 
-	int NumAgents;
+	uint32_t NumAgents;
 	std::vector<class Agent> Agents;
 	
 	class Grid GridField;
+
+	float CollisionConstraintStiffness;
 
 	void InitAgentDelta();
 	void CalcStiffness(int n);

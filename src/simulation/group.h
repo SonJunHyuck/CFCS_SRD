@@ -11,6 +11,9 @@ public:
     ~Group();
 
     void CorrectAgentPosition();
+    
+    void FollowPath();  // (before) Update Path
+    void PlanAgentVelocity();  
 
 private:
     uint16_t Id;
@@ -27,9 +30,6 @@ private:
 
     // Init
     void Init();
-
-    // Update
-    void FollowPath();  // (before) Update Path
+    
     void UpdateSRDs();
-    void PlanAgentVelocity();  
 };

@@ -240,9 +240,7 @@ void Powerlaw_Constraint::project(Particle** particles)
 
 	float v_sq = v_x * v_x + v_z * v_z;
 
-	float x0_sq = x0 * x0;
-	float z0_sq = z0 * z0;
-	float x_sq = x0_sq + z0_sq;  // x_i magnitude_sq
+	float x_sq = x0 * x0 + z0 * z0;  // x_i magnitude_sq
 
 	// a
 	float a = v_sq;

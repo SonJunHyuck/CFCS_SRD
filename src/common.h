@@ -26,7 +26,8 @@ using klassName ## WPtr = std::weak_ptr<klassName>;
 #define VEC_ZERO glm::vec3(0, 0, 0)
 #define VEC_ONE glm::vec3(1, 1, 1)
 
-static float DELTA_TIME = 0.072;
+static float DELTA_TIME = 0.072f;
+static float MAX_ACCEL = 0.25f;
 static bool ON_AVOIDANCE_MODEL = true;
 
 // optional : 포인터의 메모리 누수 위험 방지 장치
@@ -35,3 +36,5 @@ std::optional<std::string> LoadTextFile(const std::string& filename);
 glm::vec3 GetAttenuationCoeff(float distance);
 
 void ClampVec3(glm::vec3 &InVec3, const float MaxValue);
+
+void ProjectOnVec3(const glm::vec3 &InVec3, const glm::vec3 &InUnitVec3, glm::vec3 &OutVec3);

@@ -39,3 +39,9 @@ void ClampVec3(glm::vec3 &InVec3, const float MaxValue)
         InVec3 *= Multi;
 	}
 }
+
+void ProjectOnVec3(const glm::vec3 &InVec3, const glm::vec3 &InUnitVec3, glm::vec3 &OutVec3)
+{
+	float Length = glm::dot(InVec3, InUnitVec3);
+    OutVec3 = InUnitVec3 * Length;
+}

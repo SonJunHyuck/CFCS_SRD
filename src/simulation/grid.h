@@ -11,6 +11,8 @@ public:
     Grid(float InCellSize, glm::vec3 InMinBound, glm::vec3 InMaxBound);
     ~Grid();
 
+    std::vector<uint32_t> GetNeighborAgents(const Agent& InAgent, const uint8_t InRange);
+
     void Update(std::vector<class Agent>& Agents);
 
 public:
@@ -23,13 +25,13 @@ public:
         };
 
         uint32_t Counter;
-        std::vector<uint16_t> Guests;
+        std::vector<uint32_t> Guests;
         uint32_t Congestion;
 
         Cell()
         {
             Counter = 0;
-            Guests = std::vector<uint16_t>(MaxPerCell);
+            Guests = std::vector<uint32_t>(MaxPerCell);
             Congestion = STATE::EMPTY;
         }
     };

@@ -1,4 +1,4 @@
-#include "context.h"  // common, shader, program 모두 포함
+#include "context.h"
 
 #include <spdlog/spdlog.h>
 #include <glad/glad.h> // glfw 이전에 include!

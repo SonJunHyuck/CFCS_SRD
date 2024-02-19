@@ -19,6 +19,39 @@ Grid::~Grid()
 
 }
 
+std::vector<uint32_t> Grid::GetNeighborAgents(const Agent& InAgent, const uint8_t InRange)
+{
+    std::vector<uint32_t> NeighborAgents;
+
+    // iterate over adjacent cells
+    for (int X = -InRange; X <= InRange; X++)
+    {
+        const int CurX = InAgent.CellX + X;
+        if (CurX >= 0 && CurX < NumCols)
+        {
+            for (int Z = -2; Z <= 2; Z++)
+            {
+                const int CurZ = InAgent.CellZ + Z;
+                if (CurZ >= 0 && CurZ < NumRows)
+                {
+                    const int CurCellId = InAgent.CellId + X + (Z * NumRows);
+                    const Cell CurCell = Cells[CurCellId];
+
+                    if (CurCell.Counter > 0)
+                    {
+                        for(const uint32_t Guest : CurCell.Guests)
+                        {
+                            NeighborAgents.push_back(Guest);
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    return NeighborAgents;
+}
+
 bool Grid::IsConquerableCell(uint32_t InCellId, uint8_t InGroupId)
 {
     if(Cells[InCellId].Congestion == Cell::STATE::EMPTY)
@@ -30,6 +63,7 @@ bool Grid::IsConquerableCell(uint32_t InCellId, uint8_t InGroupId)
     return false;
 }
 
+
 void Grid::Update(std::vector<Agent>& InAgents)
 {
     for(Cell& Iter : Cells)
@@ -37,7 +71,7 @@ void Grid::Update(std::vector<Agent>& InAgents)
         Iter.Counter = 0;
         Iter.Congestion = Cell::STATE::EMPTY;
 
-        for(uint16_t& Guest : Iter.Guests)
+        for(uint32_t& Guest : Iter.Guests)
         {
             Guest = -1;  // Nobody agents
         }

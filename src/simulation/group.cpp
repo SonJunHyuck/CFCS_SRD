@@ -1,7 +1,8 @@
 #include "group.h"
 #include "agent.h"
+#include "waypoint.h"
 
-Group::Group(uint16_t InGroupId, uint32_t InGenerateAgent)
+Group::Group(uint16_t InGroupId)
 {
     Id = InGroupId;
 
@@ -19,14 +20,14 @@ void Group::Init()
     
 
     // Generate + Init SRD
-    uint32_t AgentCounter = 0;
-    auto(auto agent : Agents)
-    {
-        glm::vec3 SRDpos = agent.Position;
-        agent.SRD = SRDpos;
-        SRDs.emplace({ AgentCounter, SRDpos });
-        AgentCounter++;
-    }
+    // uint32_t AgentCounter = 0;
+    // auto(auto agent : Agents)
+    // {
+    //     glm::vec3 SRDpos = agent.Position;
+    //     agent.SRD = SRDpos;
+    //     SRDs.emplace({ AgentCounter, SRDpos });
+    //     AgentCounter++;
+    // }
 }
 
 void Group::FollowPath()
@@ -37,10 +38,10 @@ void Group::FollowPath()
     
     if(Distance > _EPSILON)
     {
-        float PreferedVelocity = Distance > DefinedAccel ? DefinedAccel : Distance;
+        float PreferedSpeed = Distance > DefinedAccel ? DefinedAccel : Distance;
 
         Velocity /= Distance;  // Normalize;
-        velocity *= PreferedVelocity * DELTA_TIME;
+        velocity *= PreferedSpeed * DELTA_TIME;
 
         UpdateSRDs();
 

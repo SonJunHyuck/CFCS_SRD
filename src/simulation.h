@@ -4,11 +4,6 @@
 
 #include "common.h"
 
-class Constraint;
-class Particle;
-class PathPlanner;
-class Station;
-
 class Simulation
 {
 public:
@@ -33,6 +28,9 @@ private:
 	// NumGroups -> Group 1 Agents -> Group 2 Agents, ...m Group N Agents; -> NumAgents
 	int NumGroups;  // MUST : input
 	std::vector<class Group> Groups;
+
+	int NumAgents;
+	std::vector<class Agent> Agents;
 	
 	class Grid GridField;
 

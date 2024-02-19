@@ -8,8 +8,6 @@ private:
 Agent() {}
 ~Agent() {}
 
-float GetInverseMass() { return 1 / Mass; }
-
 private:
 void Init();
 
@@ -29,6 +27,7 @@ public:
 	glm::vec3 SRD;
 
 	float Mass;
+	float InverseMass;
 
 	uint8_t GroupId;
 

@@ -34,9 +34,11 @@ project(${PROJECT_NAME})
 add_executable(${PROJECT_NAME} 
     src/main.cpp
     src/common.cpp src/common.h
+    src/context.cpp src/context.h
+    src/simulation.cpp src/simulation.h
+
     src/framework/shader.cpp src/framework/shader.h
     src/framework/program.cpp src/framework/program.h
-    src/framework/context.cpp src/framework/context.h
     src/framework/buffer.cpp src/framework/buffer.h
     src/framework/vertex_layout.cpp src/framework/vertex_layout.h
     src/framework/image.cpp src/framework/image.h
@@ -47,9 +49,11 @@ add_executable(${PROJECT_NAME}
     src/framework/camera.cpp src/framework/camera.h
     src/framework/checkboard.cpp src/framework/checkboard.h
 
-    src/simulation/simulation.cpp src/simulation/simulation.h
     src/simulation/agent.cpp src/simulation/agent.h
+    src/simulation/group.cpp src/simulation/group.h
     src/simulation/grid.cpp src/simulation/grid.h
+    src/simulation/constraint.cpp src/simulation/constraint.h
+    src/simulation/waypoint.cpp src/simulation/waypoint.h
 )
 
 # --------------------------------------------------------

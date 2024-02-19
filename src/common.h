@@ -26,11 +26,8 @@ using klassName ## WPtr = std::weak_ptr<klassName>;
 #define VEC_ZERO glm::vec3(0, 0, 0)
 #define VEC_ONE glm::vec3(1, 1, 1)
 
-static float DELTA_TIME 0.072
-static bool ON_AVOIDANCE_MODEL true
-
-// 메모리 할당 안돼있다. -> 비어있다. -> 에러 캐치 가능
-// std::string* LoadTextFile(const std::string& filename);
+static float DELTA_TIME = 0.072;
+static bool ON_AVOIDANCE_MODEL = true;
 
 // optional : 포인터의 메모리 누수 위험 방지 장치
 std::optional<std::string> LoadTextFile(const std::string& filename);

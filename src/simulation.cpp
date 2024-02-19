@@ -1,6 +1,8 @@
 #include "simulation.h"
-#include "group.h"
-#include "grid.h"
+#include "simulation/agent.h"
+#include "simulation/group.h"
+#include "simulation/grid.h"
+#include "simulation/constraint.h"
 
 Simulation::Simulation(int num_particles, int num_constraints)
 {
@@ -220,87 +222,22 @@ void Simulation::TriggerCollisionAvoidance()
 {
 	InitAgentDelta();
 
-	for (int i = 0; i < num_particles; i++)
+	for (Agent &OutAgent : Agents)
 	{
-		// iterate over adjacent cells ( cell Ȯ)
-		for (int x = -2; x <= 2; x++)
+		uint8_t SearchRange = 2;
+		std::vector<uint32_t> Neighbors = GridField.GetNeighborAgents(OutAgent, SearchRange);
+
+		for (uint32_t IterNeighborId : Neighbors)
 		{
-			int cur_x = particles[i]->cell_x + x;
-			if (cur_x >= 0 && cur_x < grid->num_cols)
+			if (OutAgent.Id < IterNeighborId)
 			{
-				for (int z = -2; z <= 2; z++)
-				{
-					int cur_z = particles[i]->cell_z + z;
-					if (cur_z >= 0 && cur_z < grid->num_rows)
-					{
-						int cell_id = particles[i]->cell_id + x + (z * grid->num_rows);
-						// ش cell particle ϰ ִٸ
-						if (grid->grid_counters[cell_id] > 0)
-						{
-							// ش cell ϴ ƼŬ  ŭ
-							for (int idx = 0; idx < grid->grid_counters[cell_id]; idx++)
-							{
-								int j = grid->grid_cells[cell_id][idx];
-								if (i < j) // so only do collision once
-								{
-									int t_idx = (num_particles * i) + j - (i * (i + 1) * 0.5);
-									powerlaw_upper_trig_arr[t_idx]->project(particles);
-								}
-							}
-						}
-					}
-				}
+				Agent& OutGuestAgent = Agents[IterNeighborId];
+				ConstraintAvoide(OutAgent, OutGuestAgent);
 			}
 		}
 	}
 
-	// traverse friction constraints to accumalte deltas
-	for (int i = 0; i < num_particles; i++) {
-		// iterate over adjacent cells
-		for (int x = -2; x <= 2; x++)
-		{
-			int cur_x = particles[i]->cell_x + x;
-			if (cur_x >= 0 && cur_x < grid->num_cols)
-			{
-				for (int z = -2; z <= 2; z++)
-				{
-					int cur_z = particles[i]->cell_z + z;
-					if (cur_z >= 0 && cur_z < grid->num_rows)
-					{
-						int cell_id = particles[i]->cell_id + x + (z * grid->num_rows);
-						if (grid->grid_counters[cell_id] > 0)
-						{
-							for (int idx = 0; idx < grid->grid_counters[cell_id]; idx++)
-							{
-								int j = grid->grid_cells[cell_id][idx];
-								if (i < j) // so only do collision once
-								{
-									int t_idx = (num_particles * i) + j - (i * (i + 1) * 0.5);
-									if (powerlaw_upper_trig_arr[t_idx]->active)
-									{
-										for (int ctr = 0;
-											ctr < powerlaw_upper_trig_arr[t_idx]->num_particles;
-											ctr++)
-										{
-											int p_idx = powerlaw_upper_trig_arr[t_idx]->indicies[ctr];
-											particles[p_idx]->Delta_x.x +=
-												powerlaw_upper_trig_arr[t_idx]->delta_X[ctr].x;
-											particles[p_idx]->Delta_x.z +=
-												powerlaw_upper_trig_arr[t_idx]->delta_X[ctr].z;
-											particles[p_idx]->Delta_x_ctr++;
-										}
-										powerlaw_upper_trig_arr[t_idx]->active = false;
-									}
-								}
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// 5. predict(Particle) <- correction(Constraint) 
+	// predict(Particle) <- correction(Constraint) 
 	UpdatePredictedPosition();
 }
 void Simulation::TriggerPenetrateAvoidance()

@@ -1,16 +1,16 @@
 #pragma once
 
-#include "../common.h"
-#include "shader.h"
-#include "program.h"
-#include "buffer.h"
-#include "vertex_layout.h"
-#include "texture.h"
-#include "mesh.h"
-#include "model.h"
-#include "framebuffer.h"
-#include "camera.h"
-#include "checkboard.h"
+#include "common.h"
+#include "framework/shader.h"
+#include "framework/program.h"
+#include "framework/buffer.h"
+#include "framework/vertex_layout.h"
+#include "framework/texture.h"
+#include "framework/mesh.h"
+#include "framework/model.h"
+#include "framework/framebuffer.h"
+#include "framework/camera.h"
+#include "framework/checkboard.h"
 
 CLASS_PTR(Context)
 class Context

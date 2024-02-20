@@ -4,10 +4,11 @@
 
 #include "common.h"
 
+CLASS_PTR(Simulation);
 class Simulation
 {
 public:
-	Simulation(int num_particles, int num_constraints);
+	Simulation(const std::vector<uint8_t>& InNumGroups, const std::vector<uint32_t>& InNumAgents);
 	~Simulation();
 
 	void Update();
@@ -22,11 +23,11 @@ public:
 	//bool bIsFTL = false;
 	bool bIsSteering = true;
 	bool bIsCohesion = true;
-	bool bSimulate = false;
+	bool bIsSimulate = false;
 
 private:
 	// NumGroups -> Group 1 Agents -> Group 2 Agents, ...m Group N Agents; -> NumAgents
-	uint16_t NumGroups;  // MUST : input
+	uint8_t NumGroups;  // MUST : input
 	std::vector<class Group> Groups;
 
 	uint32_t NumAgents;
@@ -36,15 +37,17 @@ private:
 
 	float CollisionConstraintStiffness;
 
+	void Init();  // Agent Position
+
 	void InitAgentDelta();
 	void CalcStiffness(int n);
 	void UpdatePredictedPosition();
-	void ProjectConstraints();
 
 	void PathFinding();
 	void CalcPredictedPosition();
 	void UpdateLocalInformation();
-	void TriggerCollisionAvoidance();
-	void TriggerPenetrateAvoidance();
+	void TriggerAvoidanceConstraint();
+	void TriggerCollisionConstraint();
+	void TriggerSRDConstraint();
 	void UpdateFinalPosition();
 };

@@ -5,14 +5,21 @@
 class Agent
 {
 private:
-Agent() {}
-~Agent() {}
+	Agent(const uint32_t& InAgentId, const uint8_t& InGroupId) : Id(InAgentId), GroupId(InGroupId) { }
+	~Agent() {}
+	
+	void Init();
 
-private:
-void Init();
+	friend class AgentFactory;
 
 public:
-	uint32_t Id;
+	const uint32_t Id;
+	const uint8_t GroupId;
+
+	float Mass;
+	float InverseMass;
+
+	float Radius;
 
     glm::vec3 Position;
     glm::vec3 PredictedPosition;
@@ -22,28 +29,26 @@ public:
     float PreferedSpeed;
 
     glm::vec3 DeltaPosition;
-    int DeltaPositionCounter;  // MUST be change
+    int DeltaPositionCounter;
 
 	glm::vec3 SRD;
 
-	float Mass;
-	float InverseMass;
-
-	uint8_t GroupId;
-
 	glm::vec3 CurrentWaypoint;
     glm::vec3 FinalDestination;
-
-	float Radius;
 
 	// grid
 	int CellId;
 	int CellX;
 	int CellZ;
 
-	uint8_t bIsLeader;
-	uint8_t bIsConnected;
+	bool bIsConnected;
 
 	void PlanVelocity();
 	void CorrectPosition();
+};
+
+class AgentFactory
+{
+	public:
+	static Agent CreateAgent(const uint32_t& InAgentId, const uint8_t& InGroupId);
 };

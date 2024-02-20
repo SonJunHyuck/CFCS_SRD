@@ -1,9 +1,8 @@
 #include "agent.h"
 
-Agent::Agent()
+void Agent::Init()
 {
-    InverseMass = 1 / Mass;
-    Init();
+
 }
 
 void Agent::PlanVelocity()
@@ -29,4 +28,13 @@ void Agent::CorrectPosition()
         DeltaPosition = VEC_ZERO;
         DeltaPositionCounter = 0;
     }
+}
+
+Agent AgentFactory::CreateAgent(const uint32_t& InAgentId, const uint8_t& InGroupId)
+{
+    Agent OutAgent = Agent(InAgentId, InGroupId);
+
+    OutAgent.Init();
+
+    return OutAgent;
 }

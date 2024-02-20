@@ -28,6 +28,7 @@ using klassName ## WPtr = std::weak_ptr<klassName>;
 
 static float DELTA_TIME = 0.072f;
 static float MAX_ACCEL = 0.25f;
+static float GRID_DENSITY = 3.0f;
 static bool ON_AVOIDANCE_MODEL = true;
 
 // optional : 포인터의 메모리 누수 위험 방지 장치

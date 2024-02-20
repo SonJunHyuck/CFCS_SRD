@@ -8,6 +8,7 @@ class Grid
 public:
     const static uint16_t MaxPerCell = 10;
 
+    Grid();
     Grid(float InCellSize, glm::vec3 InMinBound, glm::vec3 InMaxBound);
     ~Grid();
 

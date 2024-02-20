@@ -1,6 +1,7 @@
 #include "context.h"
 #include "framework/image.h"
 #include <imgui.h>
+#include <iostream>
 
 ContextUPtr Context::Create()
 {
@@ -12,25 +13,36 @@ ContextUPtr Context::Create()
 
 void Context::ProcessInput(GLFWwindow *window)
 {
-    if (!m_camera.isControl)
-        return;
+    if (m_camera.isControl)
+    {
+        if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
+            m_camera.Translate(m_camera.front);
+        if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
+            m_camera.Translate(-m_camera.front);
 
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        m_camera.Translate(m_camera.front);
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        m_camera.Translate(- m_camera.front);
+        auto cameraRight = glm::normalize(glm::cross(m_camera.up, -m_camera.front));
+        if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
+            m_camera.Translate(cameraRight);
+        if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
+            m_camera.Translate(-cameraRight);
 
-    auto cameraRight = glm::normalize(glm::cross(m_camera.up, -m_camera.front));
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        m_camera.Translate(cameraRight);
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        m_camera.Translate(-cameraRight);
+        auto cameraUp = glm::normalize(glm::cross(-m_camera.front, cameraRight));
+        if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
+            m_camera.Translate(cameraUp);
+        if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
+            m_camera.Translate(-cameraUp);
+    }
 
-    auto cameraUp = glm::normalize(glm::cross(-m_camera.front, cameraRight));
-    if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS)
-        m_camera.Translate(cameraUp);
-    if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
-        m_camera.Translate(-cameraUp);
+    if (m_simulation->bIsDrawMode && !m_simulation->bIsSimulate)
+    {
+        for (int PRESS_KEY = GLFW_KEY_0; PRESS_KEY <= GLFW_KEY_9; PRESS_KEY++)
+        {
+            if (glfwGetKey(window, PRESS_KEY) == GLFW_PRESS)
+            {
+                m_simulation->DrawPathGroupId = PRESS_KEY - 48;  // GLFW_KEY_0 = 48
+            }
+        }
+    }
 }
 
 void Context::Reshape(int width, int height)
@@ -43,10 +55,17 @@ void Context::Reshape(int width, int height)
 
 void Context::MouseMove(double x, double y)
 {
-    if (!m_camera.isControl)
-        return;
+    if (m_camera.isControl)
+    {        
+        m_camera.Rotate(x, y);
+    }
 
-    m_camera.Rotate(x, y);
+    if (m_simulation->bIsDrawMode && !m_simulation->bIsSimulate)
+    {
+        glm::vec3 FinalPos = m_camera.GetWorldPos(static_cast<float>(m_width), static_cast<float>(m_height), x, y);
+
+        m_simulation->DrawPath(FinalPos);
+    }
 }
 
 void Context::MouseButton(int button, int action, double x, double y)
@@ -64,10 +83,38 @@ void Context::MouseButton(int button, int action, double x, double y)
             m_camera.isControl = false;
         }
     }
+
+    if(button == GLFW_MOUSE_BUTTON_LEFT)
+    {
+        if(action == GLFW_PRESS)
+        {
+            m_simulation->bIsDrawMode = true;
+        }
+        else if(action == GLFW_RELEASE)
+        {
+            m_simulation->bIsDrawMode = false;
+        }
+    }
 }
 
 bool Context::Init()
 {
+    // Simulation
+    // uint8_t NumGroups;
+    // std::cin >> NumGroups;
+    // std::vector<uint32_t> Agents;
+    // for(int i = 0; i < NumGroups; i++)
+    // {
+    //     uint32_t NumAgents;
+    //     std::cin >> NumAgents;
+    //     Agents.push_back(NumAgents);
+    // }
+    // Input Group Count -> 1 Group Agent Count -> 2Group Agent Count, ..., nGroup Agent Count
+    // Simulation = Simulation::Create(NumGroups, Agents);
+    // Simulation.SetAgentsFormation(GroupId, vector<glm::vec3> FormationPositions); <-
+    // Draw Path
+    // 
+
     m_box = Mesh::CreateBox();
     m_plane = Mesh::CreatePlane();
     m_checkboard = CheckBoard::CreateCheckBoard(100, 10);

@@ -12,6 +12,8 @@
 #include "framework/camera.h"
 #include "framework/checkboard.h"
 
+#include "simulation.h"
+
 CLASS_PTR(Context)
 class Context
 {
@@ -34,6 +36,9 @@ private:
     ProgramUPtr m_postProgram;
 
     float m_gamma {1.0f};
+
+    // simulation
+    SimulationUPtr m_simulation;
 
     // object
     MeshUPtr m_box;

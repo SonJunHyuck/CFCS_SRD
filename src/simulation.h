@@ -11,6 +11,8 @@ public:
 	Simulation(const std::vector<uint8_t>& InNumGroups, const std::vector<uint32_t>& InNumAgents);
 	~Simulation();
 
+	void DrawPath(const glm::vec3& Waypoint);
+
 	void Update();
 
 public:
@@ -24,6 +26,9 @@ public:
 	bool bIsSteering = true;
 	bool bIsCohesion = true;
 	bool bIsSimulate = false;
+	bool bIsDrawMode = false;
+
+	uint8_t DrawPathGroupId { 0 };
 
 private:
 	// NumGroups -> Group 1 Agents -> Group 2 Agents, ...m Group N Agents; -> NumAgents

@@ -31,7 +31,9 @@ Simulation::Simulation(const std::vector<uint8_t>& InNumGroups, const std::vecto
 	}
 
 	// Grid
-	// GridField = UPtr
+	glm::vec3 MinBound = glm::vec3(-400, 0, -400);
+	glm::vec3 MaxBound = glm::vec3(400, 0, 400);
+	GridField = Grid(GRID_DENSITY, MinBound, MaxBound);
 
 	// Stiffness
 	CollisionConstraintStiffness = 0.22f;
@@ -40,6 +42,11 @@ Simulation::Simulation(const std::vector<uint8_t>& InNumGroups, const std::vecto
 Simulation::~Simulation() 
 {
 	
+}
+
+void Simulation::DrawPath(const glm::vec3& Waypoint)
+{
+	Groups[DrawPathGroupId].DrawPath(Waypoint);
 }
 
 void Simulation::InitAgentDelta()

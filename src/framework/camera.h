@@ -13,6 +13,8 @@ public:
     void SetTranslationSpeed(float speed) { translateSpeed = speed; }
     void SetRotationSpeed(float speed) { rotateSpeed = speed; }
 
+    glm::vec3 GetWorldPos(float width, float height, double x, double y);
+
 private:
     friend class Context;  // context 클래스 이외에는 변수 접근 어렵게
 

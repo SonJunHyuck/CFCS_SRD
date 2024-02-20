@@ -13,25 +13,26 @@ private:
 	friend class AgentFactory;
 
 public:
-	const uint32_t Id;
-	const uint8_t GroupId;
+	const uint32_t Id;  // Get
+	const uint8_t GroupId;  // Get
 
-	float Mass;
-	float InverseMass;
+	float Mass;  // Get
+	float InverseMass;  // Get
 
-	float Radius;
+	float Radius;  // Get
+
+    float PreferedSpeed;
 
     glm::vec3 Position;
     glm::vec3 PredictedPosition;
 
     glm::vec3 Velocity;
     glm::vec3 PreviousVelocity;
-    float PreferedSpeed;
 
     glm::vec3 DeltaPosition;
-    int DeltaPositionCounter;
+    uint16_t DeltaPositionCounter;
 
-	glm::vec3 SRD;
+	glm::vec3 SRD;  // private
 
 	glm::vec3 CurrentWaypoint;
     glm::vec3 FinalDestination;

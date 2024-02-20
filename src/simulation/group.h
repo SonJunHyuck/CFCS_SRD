@@ -12,6 +12,7 @@ public:
 
     // void CorrectAgentPosition();
     
+    void DrawPath(const glm::vec3& Waypoint);
     void FollowPath();  // (before) Update Path
     // void PlanAgentVelocity();  
 
@@ -25,7 +26,7 @@ private:
 
     std::map<uint32_t, glm::vec3> SRDs;  // Short Range Destination
 
-    std::vector<class Waypoint> Path;
+    std::vector<glm::vec3> Path;
     uint32_t CurrentWaypointId;
 
     // Init

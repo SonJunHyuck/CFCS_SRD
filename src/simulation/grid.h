@@ -2,19 +2,20 @@
 
 #include "../common.h"
 
+class Agent;
+
 CLASS_PTR(Grid)
 class Grid
 {
 public:
     const static uint16_t MaxPerCell = 10;
 
-    Grid();
     Grid(float InCellSize, glm::vec3 InMinBound, glm::vec3 InMaxBound);
     ~Grid();
 
     std::vector<uint32_t> GetNeighborAgents(const Agent& InAgent, const uint8_t InRange);
 
-    void Update(std::vector<class Agent>& Agents);
+    void Update(std::vector<Agent>& Agents);
 
 public:
     struct Cell

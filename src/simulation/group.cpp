@@ -18,9 +18,14 @@ void Group::Init()
     
 }
 
+void Group::DrawPath(const glm::vec3& Waypoint)
+{
+    Path.push_back(Waypoint);
+}
+
 void Group::FollowPath()
 {
-    glm::vec3 CurrentWaypointPos = Path[CurrentWaypointId].Position;
+    glm::vec3 CurrentWaypointPos = Path[CurrentWaypointId];
     Velocity = CurrentWaypointPos - Position;
     float Distance = glm::length(Velocity);
     

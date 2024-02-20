@@ -1026,9 +1026,6 @@ void GL_Window::send_ray(glm::vec4 ray_clip, Simulation* sim, int group_id)
 
 glm::mat4 GL_Window::LookAt(glm::vec3 campos, glm::vec3 look, glm::vec3 up)
 {
-	// ο  Ѵ
-	//  ġ̵Ѵ
-	// α  ġ̵ ؼ ü ǰ Ѵ -> ü  ǥ Ѵ ->  ǥ迡  ǥ ϴ 
 	glm::mat4 matrix_LookAt = glm::mat4();
 
 	glm::mat4 translation = glm::mat4();

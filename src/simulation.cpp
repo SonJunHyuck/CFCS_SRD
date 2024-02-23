@@ -4,49 +4,133 @@
 #include "simulation/grid.h"
 #include "simulation/constraint.h"
 
-Simulation::Simulation(const std::vector<uint8_t>& InNumGroups, const std::vector<uint32_t>& InNumAgents)
+SimulationUPtr Simulation::Create(const uint8_t& InNumGroups, const std::vector<uint32_t>& InNumAgents)
 {
-	if(InNumGroups.size() != InNumAgents.size())
+	SimulationUPtr OutSimulation = SimulationUPtr();
+
+	if(!OutSimulation->Init(InNumGroups, InNumAgents))
 	{
-		SPDLOG_ERROR("Diff Size : Groups : {}, Agents : {}", InNumGroups.size(), InNumAgents.size());
-		return;
+		return nullptr;
 	}
-	
-	// Create Groups, Agents
-	NumGroups = InNumGroups.size();
+
+	return std::move(OutSimulation);
+}
+
+bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& InNumAgents)
+{
+	SPDLOG_INFO("Start Simulation Init");
+
+	if(InNumGroups != InNumAgents.size())
+	{
+		SPDLOG_ERROR("Diff Size : Groups : {}, Agents : {}", InNumGroups, InNumAgents.size());
+		return false;
+	}
+
+	// Groups, Agents
+	NumGroups = InNumGroups;
 	NumAgents = 0;
 
 	for(uint8_t GroupId = 0; GroupId < NumGroups; GroupId++)
 	{
-		for (const uint32_t CreateAgentCount : InNumAgents)
+		for (const uint32_t CreateAgentCount : InNumAgents)	
 		{
+			SPDLOG_INFO("Group : {}, Agents : {}", GroupId, CreateAgentCount);
 			for (uint32_t AgentId = NumAgents; AgentId < NumAgents + CreateAgentCount; AgentId++)
 			{
-				Agents.push_back(AgentFactory::CreateAgent(AgentId, GroupId));
+				Agents.push_back(AgentFactory::Create(AgentId, GroupId));
 			}
 			NumAgents += CreateAgentCount;
 		}
-
-		// Should Ref Created Agent Id, After have to create Group (with SRD)
 	}
+	SPDLOG_INFO("Success Set Agent & Group");
 
 	// Grid
 	glm::vec3 MinBound = glm::vec3(-400, 0, -400);
 	glm::vec3 MaxBound = glm::vec3(400, 0, 400);
-	GridField = Grid(GRID_DENSITY, MinBound, MaxBound);
+	GridField = GridUPtr(new Grid(GRID_DENSITY, MinBound, MaxBound));
+	SPDLOG_INFO("Success Set Grid");
 
+	return true;
+}
+
+void Simulation::SetFormation(const Formation_t& InFormation, const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale)
+{
+	Formation_t DummyPositions = InFormation;  // copy value
+
+	// Find Agent in Group
+	std::vector<Agent*> AgentsInGroup;
+	for(Agent& IterAgent : Agents)
+	{
+		if(IterAgent.GroupId == InGroupId)
+		{
+			AgentsInGroup.push_back(&IterAgent);
+		}
+	}
+
+	// Rodate, Scale
+	glm::mat4 MatRotateX = glm::rotate(glm::identity<glm::mat4>(), Deg2Rad(90.0f * InRotateAxis.x), glm::vec3(1, 0, 0));
+	glm::mat4 MatRotateY = glm::rotate(glm::identity<glm::mat4>(), Deg2Rad(90.0f * InRotateAxis.y), glm::vec3(0, 1, 0));
+	glm::mat4 MatRotateZ = glm::rotate(glm::identity<glm::mat4>(), Deg2Rad(90.0f * InRotateAxis.z), glm::vec3(0, 0, 1));
+	glm::mat4 MatScale = glm::scale(glm::identity<glm::mat4>(), VEC_ONE * InScale * (GRID_DENSITY / 3.2f));
+
+	// Projection to bottom (y = 0)
+	for(glm::vec3& IterDummyPosition : DummyPositions)
+	{
+		glm::vec4 TransformedPos = glm::vec4(IterDummyPosition, 0);
+
+		TransformedPos = MatScale * TransformedPos;
+
+		TransformedPos = MatRotateX * TransformedPos;
+		TransformedPos = MatRotateY * TransformedPos;
+		TransformedPos = MatRotateZ * TransformedPos;
+
+		IterDummyPosition.x = TransformedPos.x;
+		IterDummyPosition.y = 0;
+		IterDummyPosition.z = TransformedPos.z;
+	}
+
+	// Remove overlapping position
+	UniqueVertices(DummyPositions);
+
+	// Agents < DummyPositions
+	uint32_t NumVertices = DummyPositions.size();
+	uint32_t Div = std::max((int)(NumVertices / AgentsInGroup.size()), 1);
+
+	uint32_t AgentIndex = 0;
+	for (int i = 0; i < NumVertices; i += Div)
+	{
+		glm::vec3 FormationPosition= glm::vec3(DummyPositions[i]);
+
+		if ( (i / Div) < NumVertices )
+		{
+			AgentsInGroup[AgentIndex]->Position = FormationPosition;
+			
+			AgentIndex++;
+		}
+	}
+}
+
+Simulation::Simulation()
+{
 	// Stiffness
 	CollisionConstraintStiffness = 0.22f;
 }
 
 Simulation::~Simulation() 
 {
-	
+	Groups.clear();
+	Agents.clear();
+	GridField.reset();
 }
 
 void Simulation::DrawPath(const glm::vec3& Waypoint)
 {
 	Groups[DrawPathGroupId].DrawPath(Waypoint);
+}
+
+void Simulation::CalcStiffness(int n)
+{
+    CollisionConstraintStiffness = 1.0f - powf(1.0f - CollisionConstraintStiffness, (1.0f / n));
 }
 
 void Simulation::InitAgentDelta()
@@ -56,11 +140,6 @@ void Simulation::InitAgentDelta()
 		IterAgent.DeltaPosition = VEC_ZERO;
 		IterAgent.DeltaPositionCounter = 0;
 	}
-}
-
-void Simulation::CalcStiffness(int n)
-{
-    CollisionConstraintStiffness = 1.0f - powf(1.0f - CollisionConstraintStiffness, (1.0f / n));
 }
 
 void Simulation::UpdatePredictedPosition()
@@ -88,7 +167,7 @@ void Simulation::CalcPredictedPosition()
 }
 void Simulation::UpdateLocalInformation()
 {	
-	GridField.Update(Agents);
+	GridField->Update(Agents);
 }
 void Simulation::TriggerAvoidanceConstraint()
 {
@@ -97,7 +176,7 @@ void Simulation::TriggerAvoidanceConstraint()
 	for (Agent &OutAgent : Agents)
 	{
 		uint8_t SearchRange = 2;
-		std::vector<uint32_t> Neighbors = GridField.GetNeighborAgents(OutAgent, SearchRange);
+		std::vector<uint32_t> Neighbors = GridField->GetNeighborAgents(OutAgent, SearchRange);
 
 		for (uint32_t IterNeighborId : Neighbors)
 		{
@@ -124,7 +203,7 @@ void Simulation::TriggerCollisionConstraint()
 		for (Agent &IterAgent : Agents)
 		{
 			uint8_t SearchRange = 2;
-			std::vector<uint32_t> Neighbors = GridField.GetNeighborAgents(IterAgent, SearchRange);
+			std::vector<uint32_t> Neighbors = GridField->GetNeighborAgents(IterAgent, SearchRange);
 
 			for (uint32_t IterNeighborId : Neighbors)
 			{

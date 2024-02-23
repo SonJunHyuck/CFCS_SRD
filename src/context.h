@@ -19,6 +19,7 @@ class Context
 {
 public:
     static ContextUPtr Create();
+    void Update();
     void Render();
     void ProcessInput(GLFWwindow* window);
     void Reshape(int width, int height);
@@ -44,6 +45,8 @@ private:
     MeshUPtr m_box;
     MeshUPtr m_plane;
     CheckBoardUPtr m_checkboard;
+    
+    std::vector<ModelUPtr> m_models;
 
     // material
     MaterialPtr m_planeMaterial;

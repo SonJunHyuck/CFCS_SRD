@@ -13,6 +13,7 @@ ContextUPtr Context::Create()
 
 void Context::ProcessInput(GLFWwindow *window)
 {
+    // Camera Control
     if (m_camera.isControl)
     {
         if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
@@ -33,6 +34,7 @@ void Context::ProcessInput(GLFWwindow *window)
             m_camera.Translate(-cameraUp);
     }
 
+    // Draw Path
     if (m_simulation->bIsDrawMode && !m_simulation->bIsSimulate)
     {
         for (int PRESS_KEY = GLFW_KEY_0; PRESS_KEY <= GLFW_KEY_9; PRESS_KEY++)
@@ -99,22 +101,6 @@ void Context::MouseButton(int button, int action, double x, double y)
 
 bool Context::Init()
 {
-    // Simulation
-    // uint8_t NumGroups;
-    // std::cin >> NumGroups;
-    // std::vector<uint32_t> Agents;
-    // for(int i = 0; i < NumGroups; i++)
-    // {
-    //     uint32_t NumAgents;
-    //     std::cin >> NumAgents;
-    //     Agents.push_back(NumAgents);
-    // }
-    // Input Group Count -> 1 Group Agent Count -> 2Group Agent Count, ..., nGroup Agent Count
-    // Simulation = Simulation::Create(NumGroups, Agents);
-    // Simulation.SetAgentsFormation(GroupId, vector<glm::vec3> FormationPositions); <-
-    // Draw Path
-    // 
-
     m_box = Mesh::CreateBox();
     m_plane = Mesh::CreatePlane();
     m_checkboard = CheckBoard::CreateCheckBoard(100, 10);
@@ -154,10 +140,46 @@ bool Context::Init()
     m_planeMaterial->diffuse = grayTexture;
     m_planeMaterial->specular = grayTexture;
     m_planeMaterial->shininess = 128.0f;
+    SPDLOG_INFO("Texture Load Success");
+
+    // ======== Model(Mesh) ========
+    m_models.push_back(Model::Load("./models/backpack.obj"));
+
+    if (m_models[0] == nullptr)
+        return false;
+        
+    SPDLOG_INFO("Model Load Success");
+
+    // ======== Simulation ========
+    // Input Group Count -> Group_1 AgentCount -> Group_1 Formation -> Group_2 AgentCount -> Group_2 Formation -> ...
+    uint8_t NumGroups = 2;
+
+    std::vector<uint32_t> Agents;
+    Agents.push_back(300);
+    Agents.push_back(300);
+
+    std::vector<uint8_t> FormationNumbers;
+    FormationNumbers.push_back(0);
+    FormationNumbers.push_back(0);
+
+    m_simulation = Simulation::Create(NumGroups, Agents);
+
+    // Set Formation
+    for(int i = 0; i < FormationNumbers.size(); i++)
+    {
+        uint8_t FormationNumber = FormationNumbers[i];
+        m_simulation->SetFormation(*m_models[FormationNumber]->GetPositions(), i, VEC_ZERO, 1.0f);
+        m_models[FormationNumber]->DeletePositions();  // immediatly delete
+    }
 
     glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 
     return true;
+}
+
+void Context::Update()
+{
+    m_simulation->Update();
 }
 
 void Context::Render()

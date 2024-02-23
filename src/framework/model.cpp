@@ -3,8 +3,10 @@
 ModelUPtr Model::Load(const std::string &filename)
 {
     auto model = ModelUPtr(new Model());
+
     if (!model->LoadByAssimp(filename))
         return nullptr;
+        
     return std::move(model);
 }
 
@@ -74,6 +76,9 @@ void Model::ProcessMesh(aiMesh *mesh, const aiScene *scene)
         v.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
         v.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
         v.texCoord = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
+
+        // save for Formation
+        //m_positions->push_back(v.position);
     }
 
     std::vector<uint32_t> indices;

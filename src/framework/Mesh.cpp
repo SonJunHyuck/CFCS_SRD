@@ -87,7 +87,6 @@ void Mesh::Draw(const Program* program) const
     glDrawElements(m_primitiveType, m_indexBuffer->GetCount(), GL_UNSIGNED_INT, 0);
 }
 
-
 // Material Section
 void Material::SetToProgram(const Program *program) const
 {

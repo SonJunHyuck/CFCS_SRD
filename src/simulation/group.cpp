@@ -1,11 +1,8 @@
 #include "group.h"
-#include "waypoint.h"
 
 Group::Group(uint16_t InGroupId)
 {
     Id = InGroupId;
-
-    Init();
 }
 
 Group::~Group()
@@ -13,9 +10,12 @@ Group::~Group()
 
 }
 
-void Group::Init()
+void Group::Init(const std::vector<std::pair<uint32_t, glm::vec3>> InFormation)
 {
-    
+    for(auto AgentPosition : InFormation)
+    {
+        SRDs.emplace(AgentPosition.first, AgentPosition.second);
+    }
 }
 
 void Group::DrawPath(const glm::vec3& Waypoint)
@@ -57,18 +57,11 @@ void Group::UpdateSRDs()
     }
 }
 
-// void Group::PlanAgentVelocity()
-// {
-//     for (Agent& agent : Agents)
-//     {
-//         agent.PlanVelocity();
-//     }
-// }
+Group GroupFactory::Create(const uint8_t& InGroupId, const std::vector<std::pair<uint32_t, glm::vec3>> InFormation)
+{
+    Group OutGroup = Group(InGroupId);
 
-// void Group::CorrectAgentPosition()
-// {
-//     for (Agent &agent : Agents)
-//     {
-//         agent.CorrectPosition();
-//     }
-// }
+    OutGroup.Init(InFormation);
+
+    return OutGroup;
+}

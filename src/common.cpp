@@ -45,3 +45,44 @@ void ProjectOnVec3(const glm::vec3 &InVec3, const glm::vec3 &InUnitVec3, glm::ve
 	float Length = glm::dot(InVec3, InUnitVec3);
     OutVec3 = InUnitVec3 * Length;
 }
+
+float Deg2Rad(float InDegree)
+{
+	while (InDegree >= 360.)
+	{
+		InDegree -= 360.;
+	}
+	while (InDegree <= 0.)
+	{
+		InDegree += 360.;
+	}
+	return _M_PI / 180. * InDegree;
+}
+
+void UniqueVertices(std::vector<glm::vec3>& OutVertices)
+{
+    for (glm::vec3& IterVertex : OutVertices)
+    {
+        IterVertex.x = floor(IterVertex.x);
+        IterVertex.y = floor(IterVertex.y);
+        IterVertex.z = floor(IterVertex.z);
+    }
+
+	std::sort(OutVertices.begin(), OutVertices.end(),
+			  [](glm::vec3 V1, glm::vec3 V2) -> bool
+			  {
+				  if (V1.x == V2.x)
+				  {
+					  if (V1.y == V2.y)
+					  {
+						  return V1.z <= V2.z;
+					  }
+					  else
+					  {
+						  return V1.y < V2.y;
+					  }
+				  }
+				  return V1.x < V2.x;
+			  });
+	OutVertices.erase(std::unique(OutVertices.begin(), OutVertices.end()), OutVertices.end());
+}

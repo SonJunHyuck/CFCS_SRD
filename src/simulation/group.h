@@ -3,11 +3,10 @@
 
 #include "../common.h"
 
+CLASS_PTR(Group)
 class Group
 {
 public:
-    Group();
-    Group(uint16_t InGroupId);
     ~Group();
 
     // void CorrectAgentPosition();
@@ -17,6 +16,8 @@ public:
     // void PlanAgentVelocity();  
 
 private:
+    Group();
+    Group(uint16_t InGroupId);
     uint16_t Id;
 
     glm::vec3 Position;
@@ -30,7 +31,15 @@ private:
     uint32_t CurrentWaypointId;
 
     // Init
-    void Init();
+    void Init(const std::vector<std::pair<uint32_t, glm::vec3>> InFormation);
     
     void UpdateSRDs();
+
+    friend class GroupFactory;
+};
+
+class GroupFactory
+{
+public:
+    static Group Create(const uint8_t& InGroupId, const std::vector<std::pair<uint32_t, glm::vec3>> InFormation);
 };

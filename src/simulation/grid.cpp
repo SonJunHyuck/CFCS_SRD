@@ -1,6 +1,8 @@
 #include "grid.h"
 #include "agent.h"
 
+Grid::Grid() { }
+
 Grid::Grid(float InCellSize, glm::vec3 InMinBound, glm::vec3 InMaxBound)
 {
     CellSize = InCellSize;

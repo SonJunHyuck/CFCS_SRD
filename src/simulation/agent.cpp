@@ -30,7 +30,7 @@ void Agent::CorrectPosition()
     }
 }
 
-Agent AgentFactory::CreateAgent(const uint32_t& InAgentId, const uint8_t& InGroupId)
+Agent AgentFactory::Create(const uint32_t& InAgentId, const uint8_t& InGroupId)
 {
     Agent OutAgent = Agent(InAgentId, InGroupId);
 

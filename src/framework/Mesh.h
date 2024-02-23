@@ -54,6 +54,7 @@ private:
     BufferPtr m_vertexBuffer;
     BufferPtr m_indexBuffer;
 
+
     // Material Section
 public:
     void SetMaterial(MaterialPtr material) { m_material = material; }

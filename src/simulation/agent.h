@@ -2,17 +2,19 @@
 
 #include "../common.h"
 
+CLASS_PTR(Agent);
 class Agent
 {
 private:
 	Agent(const uint32_t& InAgentId, const uint8_t& InGroupId) : Id(InAgentId), GroupId(InGroupId) { }
-	~Agent() {}
 	
 	void Init();
 
 	friend class AgentFactory;
 
 public:
+	~Agent() {}
+	
 	const uint32_t Id;  // Get
 	const uint8_t GroupId;  // Get
 
@@ -51,5 +53,5 @@ public:
 class AgentFactory
 {
 	public:
-	static Agent CreateAgent(const uint32_t& InAgentId, const uint8_t& InGroupId);
+	static Agent Create(const uint32_t& InAgentId, const uint8_t& InGroupId);
 };

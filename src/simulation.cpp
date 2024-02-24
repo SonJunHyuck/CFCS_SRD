@@ -6,20 +6,20 @@
 
 SimulationUPtr Simulation::Create(const uint8_t& InNumGroups, const std::vector<uint32_t>& InNumAgents)
 {
-	SimulationUPtr OutSimulation = SimulationUPtr();
+	SimulationUPtr OutSimulation = SimulationUPtr(new Simulation());
 
 	if(!OutSimulation->Init(InNumGroups, InNumAgents))
 	{
 		return nullptr;
 	}
 
+	SPDLOG_INFO("Success Create Simulation");
+
 	return std::move(OutSimulation);
 }
 
 bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& InNumAgents)
 {
-	SPDLOG_INFO("Start Simulation Init");
-
 	if(InNumGroups != InNumAgents.size())
 	{
 		SPDLOG_ERROR("Diff Size : Groups : {}, Agents : {}", InNumGroups, InNumAgents.size());
@@ -30,17 +30,14 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 	NumGroups = InNumGroups;
 	NumAgents = 0;
 
-	for(uint8_t GroupId = 0; GroupId < NumGroups; GroupId++)
+	for (uint8_t GroupId = 0; GroupId < NumGroups; GroupId++)
 	{
-		for (const uint32_t CreateAgentCount : InNumAgents)	
+		uint32_t CreateAgentCount = InNumAgents[GroupId];
+		for (uint32_t AgentId = NumAgents; AgentId < NumAgents + CreateAgentCount; AgentId++)
 		{
-			SPDLOG_INFO("Group : {}, Agents : {}", GroupId, CreateAgentCount);
-			for (uint32_t AgentId = NumAgents; AgentId < NumAgents + CreateAgentCount; AgentId++)
-			{
-				Agents.push_back(AgentFactory::Create(AgentId, GroupId));
-			}
-			NumAgents += CreateAgentCount;
+			Agents.push_back(AgentFactory::Create(AgentId, GroupId));
 		}
+		NumAgents += CreateAgentCount;
 	}
 	SPDLOG_INFO("Success Set Agent & Group");
 

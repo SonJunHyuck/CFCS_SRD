@@ -18,8 +18,7 @@ public:
 	void DrawPath(const glm::vec3& Waypoint);
 
 private:
-	// NumGroups -> Group 1 Agents -> Group 2 Agents, ...m Group N Agents; -> NumAgents
-	uint8_t NumGroups;  // MUST : input
+	uint8_t NumGroups;
 	std::vector<class Group> Groups;
 
 	uint32_t NumAgents;

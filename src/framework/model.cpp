@@ -76,9 +76,6 @@ void Model::ProcessMesh(aiMesh *mesh, const aiScene *scene)
         v.position = glm::vec3(mesh->mVertices[i].x, mesh->mVertices[i].y, mesh->mVertices[i].z);
         v.normal = glm::vec3(mesh->mNormals[i].x, mesh->mNormals[i].y, mesh->mNormals[i].z);
         v.texCoord = glm::vec2(mesh->mTextureCoords[0][i].x, mesh->mTextureCoords[0][i].y);
-
-        // save for Formation
-        m_positions.push_back(v.position);
     }
 
     std::vector<uint32_t> indices;
@@ -92,7 +89,9 @@ void Model::ProcessMesh(aiMesh *mesh, const aiScene *scene)
 
     auto glMesh = Mesh::Create(vertices, indices, GL_TRIANGLES);
     if (mesh->mMaterialIndex >= 0)
-        glMesh->SetMaterial(m_materials[mesh->mMaterialIndex]);
+    {
+        glMesh->SetMaterial(m_materials[mesh->mMaterialIndex]);   
+    }
     m_meshes.push_back(std::move(glMesh));
 }
 

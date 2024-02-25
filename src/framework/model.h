@@ -15,8 +15,6 @@ public:
 
     int GetMeshCount() const { return (int)m_meshes.size(); }
     MeshPtr GetMesh(int index) const { return m_meshes[index]; }
-    std::vector<glm::vec3>* GetPositions() { return &m_positions; }
-    void DeletePositions() { m_positions.clear(); } // Only for Formation, So, should delete after GetPosition
     void Draw(const Program* program) const;
 
 private:
@@ -27,6 +25,4 @@ private:
 
     std::vector<MeshPtr> m_meshes;
     std::vector<MaterialPtr> m_materials;
-    
-    std::vector<glm::vec3> m_positions;
 };

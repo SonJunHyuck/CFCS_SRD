@@ -143,6 +143,8 @@ int main()
         ImGui_ImplGlfw_NewFrame();
         ImGui::NewFrame();
 
+        context->Update();
+
         context->ProcessInput(window);
         context->Render();
 

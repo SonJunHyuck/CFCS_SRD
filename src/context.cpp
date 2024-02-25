@@ -35,15 +35,22 @@ void Context::ProcessInput(GLFWwindow *window)
     }
 
     // Draw Path
-    if (m_simulation->bIsDrawMode && !m_simulation->bIsSimulate)
+    if (!m_simulation->bIsDrawMode && !m_simulation->bIsSimulate)
     {
         for (int PRESS_KEY = GLFW_KEY_0; PRESS_KEY <= GLFW_KEY_9; PRESS_KEY++)
         {
             if (glfwGetKey(window, PRESS_KEY) == GLFW_PRESS)
             {
-                m_simulation->DrawPathGroupId = PRESS_KEY - 48;  // GLFW_KEY_0 = 48
+                m_simulation->SetDrawPathId(PRESS_KEY - 48);  // GLFW_KEY_0 = 48
+                //SPDLOG_INFO("Draw GroupId : {}", m_simulation->DrawPathGroupId);
             }
         }
+    }
+
+    // Simulate Mode
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        m_simulation->bIsSimulate = !m_simulation->bIsSimulate;
     }
 }
 
@@ -65,6 +72,8 @@ void Context::MouseMove(double x, double y)
     if (m_simulation->bIsDrawMode && !m_simulation->bIsSimulate)
     {
         glm::vec3 FinalPos = m_camera.GetWorldPos(static_cast<float>(m_width), static_cast<float>(m_height), x, y);
+
+        SPDLOG_INFO("RayPos : ({}, {}, {})", FinalPos.x, FinalPos.y, FinalPos.z);
 
         m_simulation->DrawPath(FinalPos);
     }
@@ -150,6 +159,8 @@ bool Context::Init()
         
     SPDLOG_INFO("Model Load Success");
 
+    // ======== Formation ========
+
     // ======== Simulation ========
     // Input Group Count -> Group_1 AgentCount -> Group_1 Formation -> Group_2 AgentCount -> Group_2 Formation -> ...
     uint8_t NumGroups = 2;
@@ -158,18 +169,17 @@ bool Context::Init()
     Agents.push_back(300);
     Agents.push_back(300);
 
-    std::vector<uint8_t> FormationNumbers;
-    FormationNumbers.push_back(0);
-    FormationNumbers.push_back(0);
+    std::vector<uint8_t> FormationIds;
+    FormationIds.push_back(0);
+    FormationIds.push_back(0);
 
     m_simulation = Simulation::Create(NumGroups, Agents);
 
     // Set Formation
-    for(int i = 0; i < FormationNumbers.size(); i++)
+    for(int i = 0; i < FormationIds.size(); i++)
     {
-        uint8_t FormationNumber = FormationNumbers[i];
-        m_simulation->SetFormation(*m_models[FormationNumber]->GetPositions(), i, VEC_ZERO, 1.0f);
-        m_models[FormationNumber]->DeletePositions();  // immediatly delete
+        uint8_t FormationId = FormationIds[i];
+       // m_simulation->SetFormation(RectFormation->GetPositions(), i, VEC_ZERO, 1.0f);
     }
 
     glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
@@ -241,7 +251,7 @@ void Context::Render()
         glm::rotate(glm::mat4(1.0f), glm::radians(m_camera.pitch), glm::vec3(1.0f, 0.0f, 0.0f)) *
         glm::vec4(0.0f, 0.0f, -1.0f, 0.0f);  // w : 1.0f -> 점, 0.0f -> 벡터 (위치 상관x -> 평행이동x)
     
-    auto projection = glm::perspective(glm::radians(45.0f), (float)m_width / (float)m_height, 0.01f, 100.0f);
+    auto projection = glm::perspective(glm::radians(45.0f), (float)m_width / (float)m_height, 0.01f, 400.0f);
     auto view = glm::lookAt(m_camera.position, m_camera.position + m_camera.front, m_camera.up);
 
     // light cube
@@ -282,6 +292,8 @@ void Context::Render()
     m_simpleProgram->SetUniform("transform", transform);
     m_simpleProgram->SetUniform("color", glm::vec4(1, 1, 1, 1));
     m_checkboard->Draw(m_simpleProgram.get());
+
+    // Agents
 
     Framebuffer::BindToDefault();
 

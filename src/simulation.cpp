@@ -3,6 +3,7 @@
 #include "simulation/group.h"
 #include "simulation/grid.h"
 #include "simulation/constraint.h"
+#include "simulation/formation.h"
 
 SimulationUPtr Simulation::Create(const uint8_t& InNumGroups, const std::vector<uint32_t>& InNumAgents)
 {
@@ -29,14 +30,35 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 	// Groups, Agents
 	NumGroups = InNumGroups;
 	NumAgents = 0;
+	
+	// Set Base Position
+	std::vector<glm::vec3> GroupPositions;
+	GroupPositions.push_back(glm::vec3(-200.0f, 0, 0));
+	GroupPositions.push_back(glm::vec3( 200.0f, 0, 0));
 
 	for (uint8_t GroupId = 0; GroupId < NumGroups; GroupId++)
 	{
 		uint32_t CreateAgentCount = InNumAgents[GroupId];
+
+		// Create Group (Init Group SRD)
+		float GroupSpeed = 1.0f;
+		Groups.push_back(GroupFactory::Create(GroupId, GroupPositions[GroupId], GroupSpeed));
+
+		// Create Formation
+		FormationUPtr TempFormation = Formation::CreateRectFormation(CreateAgentCount, 3.0f);
+
 		for (uint32_t AgentId = NumAgents; AgentId < NumAgents + CreateAgentCount; AgentId++)
 		{
-			Agents.push_back(AgentFactory::Create(AgentId, GroupId));
+			//Create Agents
+			uint32_t RefAgentId = AgentId - NumAgents;  // (0 ~ )
+			float Mass = 1.0f;
+			float Radius = 1.0f;
+			float PreferedSpeed = 1.0f;
+			glm::vec3 Position = Groups[GroupId].GetPosition() + TempFormation->GetPositions()[RefAgentId];  // Group Position + Formation Position
+
+			Agents.push_back(AgentFactory::Create(AgentId, GroupId, Mass, Radius, PreferedSpeed, Position));
 		}
+		
 		NumAgents += CreateAgentCount;
 	}
 	SPDLOG_INFO("Success Set Agent & Group");
@@ -50,10 +72,8 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 	return true;
 }
 
-void Simulation::SetFormation(const Formation_t& InFormation, const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale)
+void Simulation::SetFormation(const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale)
 {
-	Formation_t DummyPositions = InFormation;  // copy value
-
 	// Find Agent in Group
 	std::vector<Agent*> AgentsInGroup;
 	for(Agent& IterAgent : Agents)
@@ -63,49 +83,68 @@ void Simulation::SetFormation(const Formation_t& InFormation, const uint8_t& InG
 			AgentsInGroup.push_back(&IterAgent);
 		}
 	}
-
-	// Rodate, Scale
-	glm::mat4 MatRotateX = glm::rotate(glm::identity<glm::mat4>(), Deg2Rad(90.0f * InRotateAxis.x), glm::vec3(1, 0, 0));
-	glm::mat4 MatRotateY = glm::rotate(glm::identity<glm::mat4>(), Deg2Rad(90.0f * InRotateAxis.y), glm::vec3(0, 1, 0));
-	glm::mat4 MatRotateZ = glm::rotate(glm::identity<glm::mat4>(), Deg2Rad(90.0f * InRotateAxis.z), glm::vec3(0, 0, 1));
-	glm::mat4 MatScale = glm::scale(glm::identity<glm::mat4>(), VEC_ONE * InScale * (GRID_DENSITY / 3.2f));
-
-	// Projection to bottom (y = 0)
-	for(glm::vec3& IterDummyPosition : DummyPositions)
-	{
-		glm::vec4 TransformedPos = glm::vec4(IterDummyPosition, 0);
-
-		TransformedPos = MatScale * TransformedPos;
-
-		TransformedPos = MatRotateX * TransformedPos;
-		TransformedPos = MatRotateY * TransformedPos;
-		TransformedPos = MatRotateZ * TransformedPos;
-
-		IterDummyPosition.x = TransformedPos.x;
-		IterDummyPosition.y = 0;
-		IterDummyPosition.z = TransformedPos.z;
-	}
-
-	// Remove overlapping position
-	UniqueVertices(DummyPositions);
-
-	// Agents < DummyPositions
-	uint32_t NumVertices = DummyPositions.size();
-	uint32_t Div = std::max((int)(NumVertices / AgentsInGroup.size()), 1);
-
-	uint32_t AgentIndex = 0;
-	for (int i = 0; i < NumVertices; i += Div)
-	{
-		glm::vec3 FormationPosition= glm::vec3(DummyPositions[i]);
-
-		if ( (i / Div) < NumVertices )
-		{
-			AgentsInGroup[AgentIndex]->Position = FormationPosition;
-			
-			AgentIndex++;
-		}
-	}
 }
+
+// void Simulation::SetFormation(const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale)
+// {
+// 	Formation_t DummyPositions = InFormation;
+// 	// std::copy(InFormation.begin(), InFormation.end(), DummyPositions.begin());
+
+// 	//SPDLOG_INFO("FormationSize : {}, GroupId : {}, Scale : {}", InFormation.size(), InGroupId, InScale);
+
+// 	// Find Agent in Group
+// 	std::vector<Agent*> AgentsInGroup;
+// 	for(Agent& IterAgent : Agents)
+// 	{
+// 		if(IterAgent.GroupId == InGroupId)
+// 		{
+// 			AgentsInGroup.push_back(&IterAgent);
+// 		}
+
+// 	FormationUPtr DummyPosition = Formation::CreateRectFormation(AgentsInGroup.size(), 3.0f);
+
+// 	// Rodate, Scale
+// 	glm::mat4 MatRotateX = glm::rotate(glm::identity<glm::mat4>(), Deg2Rad(90.0f * InRotateAxis.x), glm::vec3(1, 0, 0));
+// 	glm::mat4 MatRotateY = glm::rotate(glm::identity<glm::mat4>(), Deg2Rad(90.0f * InRotateAxis.y), glm::vec3(0, 1, 0));
+// 	glm::mat4 MatRotateZ = glm::rotate(glm::identity<glm::mat4>(), Deg2Rad(90.0f * InRotateAxis.z), glm::vec3(0, 0, 1));
+// 	glm::mat4 MatScale = glm::scale(glm::identity<glm::mat4>(), VEC_ONE * InScale * (GRID_DENSITY / 3.2f));
+
+// 	// Projection to bottom (y = 0)
+// 	for(glm::vec3& IterDummyPosition : DummyPositions)
+// 	{
+// 		glm::vec4 TransformedPos = glm::vec4(IterDummyPosition, 0);
+
+// 		TransformedPos = MatScale * TransformedPos;
+
+// 		TransformedPos = MatRotateX * TransformedPos;
+// 		TransformedPos = MatRotateY * TransformedPos;
+// 		TransformedPos = MatRotateZ * TransformedPos;
+
+// 		IterDummyPosition.x = TransformedPos.x;
+// 		IterDummyPosition.y = 0;
+// 		IterDummyPosition.z = TransformedPos.z;
+// 	}
+
+// 	// Remove overlapping position
+// 	UniqueVertices(DummyPositions);
+
+// 	// Agents < DummyPositions
+// 	uint32_t NumVertices = DummyPositions.size();
+// 	uint32_t Div = std::max((int)(NumVertices / AgentsInGroup.size()), 1);
+
+// 	uint32_t AgentIndex = 0;
+// 	for (int i = 0; i < NumVertices; i += Div)
+// 	{
+// 		glm::vec3 FormationPosition= glm::vec3(DummyPositions[i]);
+
+// 		if ( (i / Div) < NumVertices )
+// 		{
+// 			AgentsInGroup[AgentIndex]->Position = FormationPosition;
+			
+// 			AgentIndex++;
+// 		}
+// 	}
+// }
 
 Simulation::Simulation()
 {
@@ -120,9 +159,20 @@ Simulation::~Simulation()
 	GridField.reset();
 }
 
+void Simulation::SetDrawPathId(uint8_t InDrawPathGroupId) 
+{
+	DrawPathGroupId = std::min(InDrawPathGroupId, (uint8_t)(NumGroups - 1)); 
+}
+
 void Simulation::DrawPath(const glm::vec3& Waypoint)
 {
+	SPDLOG_INFO("Draw Path : {}", Groups.size());
 	Groups[DrawPathGroupId].DrawPath(Waypoint);
+}
+
+glm::vec3 Simulation::GetAgentPosition(const uint32_t InAgentId)
+{
+	return Agents[InAgentId].Position;
 }
 
 void Simulation::CalcStiffness(int n)
@@ -159,6 +209,7 @@ void Simulation::CalcPredictedPosition()
 {
 	for (Agent &IterAgent : Agents)
 	{
+		IterAgent.SRD += Groups[IterAgent.GroupId].GetVelocity();
 		IterAgent.PlanVelocity();
 	}
 }

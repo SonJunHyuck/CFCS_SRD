@@ -53,6 +53,7 @@ add_executable(${PROJECT_NAME}
     src/simulation/group.cpp src/simulation/group.h
     src/simulation/grid.cpp src/simulation/grid.h
     src/simulation/constraint.cpp src/simulation/constraint.h
+    src/simulation/formation.cpp src/simulation/formation.h
 )
 
 # --------------------------------------------------------

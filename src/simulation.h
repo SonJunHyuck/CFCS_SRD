@@ -14,8 +14,11 @@ public:
 	static SimulationUPtr Create(const uint8_t& InNumGroups, const std::vector<uint32_t>& InNumAgents);\
 	~Simulation();
 
-	void SetFormation(const Formation_t& InFormation, const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale);
+	void SetFormation(const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale);
+	void SetDrawPathId(uint8_t InDrawPathGroupId);
 	void DrawPath(const glm::vec3& Waypoint);
+
+	glm::vec3 GetAgentPosition(const uint32_t InAgentId);
 
 private:
 	uint8_t NumGroups;
@@ -24,10 +27,12 @@ private:
 	uint32_t NumAgents;
 	std::vector<class Agent> Agents;
 	
-	// Object, UPtr can't pre-declare (Only ptr because of runtime issue)
+	// Object can't pre-declare (Only ptr because of runtime issue)
 	std::unique_ptr<class Grid> GridField;
 
 	float CollisionConstraintStiffness;
+	
+	uint8_t DrawPathGroupId { 0 };
 
 	void CalcStiffness(int n);
 	void InitAgentDelta();
@@ -55,8 +60,6 @@ public:
 	bool bIsCohesion = true;
 	bool bIsSimulate = false;
 	bool bIsDrawMode = false;
-
-	uint8_t DrawPathGroupId { 0 };
 
 public:
 	void Update();

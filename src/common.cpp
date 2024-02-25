@@ -59,7 +59,7 @@ float Deg2Rad(float InDegree)
 	return _M_PI / 180. * InDegree;
 }
 
-void UniqueVertices(std::vector<glm::vec3>& OutVertices)
+void UniqueVertices(Formation_t& OutVertices)
 {
     for (glm::vec3& IterVertex : OutVertices)
     {
@@ -68,8 +68,7 @@ void UniqueVertices(std::vector<glm::vec3>& OutVertices)
         IterVertex.z = floor(IterVertex.z);
     }
 
-	std::sort(OutVertices.begin(), OutVertices.end(),
-			  [](glm::vec3 V1, glm::vec3 V2) -> bool
+	std::sort(OutVertices.begin(), OutVertices.end(), [](glm::vec3 V1, glm::vec3 V2)
 			  {
 				  if (V1.x == V2.x)
 				  {
@@ -82,7 +81,9 @@ void UniqueVertices(std::vector<glm::vec3>& OutVertices)
 						  return V1.y < V2.y;
 					  }
 				  }
+
 				  return V1.x < V2.x;
 			  });
+
 	OutVertices.erase(std::unique(OutVertices.begin(), OutVertices.end()), OutVertices.end());
 }

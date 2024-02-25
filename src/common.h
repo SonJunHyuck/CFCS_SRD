@@ -22,8 +22,6 @@ using klassName ## Ptr = std::shared_ptr<klassName>; \
 using klassName ## WPtr = std::weak_ptr<klassName>;
 
 #define Formation_t std::vector<glm::vec3>
-#define FormationUPtr std::unique_ptr<Formation_t>
-#define FormationPtr std::shared_ptr<Formation_t>
 
 #define _M_PI 3.14159265358979323846f
 #define _EPSILON 0.00001f
@@ -47,4 +45,4 @@ void ProjectOnVec3(const glm::vec3 &InVec3, const glm::vec3 &InUnitVec3, glm::ve
 
 float Deg2Rad(float InDegree);
 
-void UniqueVertices(std::vector<glm::vec3>& OutVertices);
+void UniqueVertices(Formation_t& OutVertices);

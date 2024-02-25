@@ -1,21 +1,15 @@
 #include "group.h"
+#include "agent.h"
 
 Group::Group(uint16_t InGroupId)
 {
     Id = InGroupId;
+    CurrentWaypointId = 0;
 }
 
 Group::~Group()
 {
 
-}
-
-void Group::Init(const std::vector<std::pair<uint32_t, glm::vec3>> InFormation)
-{
-    for(auto AgentPosition : InFormation)
-    {
-        SRDs.emplace(AgentPosition.first, AgentPosition.second);
-    }
 }
 
 void Group::DrawPath(const glm::vec3& Waypoint)
@@ -36,8 +30,6 @@ void Group::FollowPath()
         Velocity /= Distance;  // Normalize;
         Velocity *= MinPreferedSpeed * DELTA_TIME;
 
-        UpdateSRDs();
-
         Position += Velocity;
     }
 
@@ -49,19 +41,17 @@ void Group::FollowPath()
     }
 }
 
-void Group::UpdateSRDs()
-{
-    for(auto& IterSRD : SRDs)
-    {
-        IterSRD.second += Velocity;
-    }
+void Group::Init(const glm::vec3& InPosition, const float InPreferedSpeed)
+{   
+    Position = InPosition;
+    PreferedSpeed = InPreferedSpeed;
 }
 
-Group GroupFactory::Create(const uint8_t& InGroupId, const std::vector<std::pair<uint32_t, glm::vec3>> InFormation)
+Group GroupFactory::Create(const uint8_t& InGroupId, const glm::vec3& InPosition, const float InPreferedSpeed)
 {
     Group OutGroup = Group(InGroupId);
 
-    OutGroup.Init(InFormation);
+    OutGroup.Init(InPosition, InPreferedSpeed);
 
     return OutGroup;
 }

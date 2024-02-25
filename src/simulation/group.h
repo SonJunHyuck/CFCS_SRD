@@ -1,5 +1,4 @@
 #include <vector>
-#include <map>
 
 #include "../common.h"
 
@@ -9,11 +8,10 @@ class Group
 public:
     ~Group();
 
-    // void CorrectAgentPosition();
-    
     void DrawPath(const glm::vec3& Waypoint);
     void FollowPath();  // (before) Update Path
-    // void PlanAgentVelocity();  
+    glm::vec3 GetPosition() { return Position; }
+    glm::vec3 GetVelocity() { return Velocity; }
 
 private:
     Group();
@@ -25,21 +23,19 @@ private:
     glm::vec3 Color;
     float PreferedSpeed;
 
-    std::map<uint32_t, glm::vec3> SRDs;  // Short Range Destination
+    Formation_t SRDs;  // Short Range Destination
 
     std::vector<glm::vec3> Path;
     uint32_t CurrentWaypointId;
 
     // Init
-    void Init(const std::vector<std::pair<uint32_t, glm::vec3>> InFormation);
+    void Init(const glm::vec3& InPosition, const float InPreferedSpeed);
     
-    void UpdateSRDs();
-
     friend class GroupFactory;
 };
 
 class GroupFactory
 {
 public:
-    static Group Create(const uint8_t& InGroupId, const std::vector<std::pair<uint32_t, glm::vec3>> InFormation);
+    static Group Create(const uint8_t& InGroupId, const glm::vec3& InPosition, const float InPreferedSpeed);
 };

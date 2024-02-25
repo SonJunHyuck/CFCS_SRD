@@ -8,7 +8,7 @@ class Agent
 private:
 	Agent(const uint32_t& InAgentId, const uint8_t& InGroupId) : Id(InAgentId), GroupId(InGroupId) { }
 	
-	void Init();
+	void Init(const float InMass, const float InRadius, const float InPreferedSpeed, const glm::vec3& InPosition);
 
 	friend class AgentFactory;
 
@@ -53,5 +53,5 @@ public:
 class AgentFactory
 {
 	public:
-	static Agent Create(const uint32_t& InAgentId, const uint8_t& InGroupId);
+	static Agent Create(const uint32_t& InAgentId, const uint8_t& InGroupId, const float InMass, const float InRadius, const float InPreferedSpeed, const glm::vec3& InPosition);
 };

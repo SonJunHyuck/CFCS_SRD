@@ -1,8 +1,13 @@
 #include "agent.h"
 
-void Agent::Init()
+void Agent::Init(const float InMass, const float InRadius, const float InPreferedSpeed, const glm::vec3& InPosition)
 {
-
+    Mass = InMass;
+    InverseMass = 1 / Mass;
+    Radius = InRadius;
+    PreferedSpeed = InPreferedSpeed;
+    Position = InPosition;
+    SRD = InPosition;
 }
 
 void Agent::PlanVelocity()
@@ -30,11 +35,11 @@ void Agent::CorrectPosition()
     }
 }
 
-Agent AgentFactory::Create(const uint32_t& InAgentId, const uint8_t& InGroupId)
+Agent AgentFactory::Create(const uint32_t& InAgentId, const uint8_t& InGroupId, const float InMass, const float InRadius, const float InPreferedSpeed, const glm::vec3& InPosition)
 {
     Agent OutAgent = Agent(InAgentId, InGroupId);
 
-    OutAgent.Init();
+    OutAgent.Init(InMass, InRadius, InPreferedSpeed, InPosition);
 
     return OutAgent;
 }

@@ -30,6 +30,10 @@ void OnKeyEvent(GLFWwindow *window, int key, int scancode, int action, int mods)
                 mods & GLFW_MOD_SHIFT ? "S" : "-",
                 mods & GLFW_MOD_ALT ? "A" : "-");
 
+
+    auto context = (Context *)glfwGetWindowUserPointer(window);
+    context->KeyboardInput(key, action);
+
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
     {
         glfwSetWindowShouldClose(window, true);

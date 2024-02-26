@@ -165,7 +165,6 @@ Simulation::~Simulation()
 
 void Simulation::DrawPath(const glm::vec3& Waypoint)
 {
-	SPDLOG_INFO("Draw Path : {}", Groups.size());
 	Groups[DrawPathId].DrawPath(Waypoint);
 }
 
@@ -174,12 +173,17 @@ glm::vec3 Simulation::GetAgentPosition(const uint32_t InAgentId)
 	return Agents[InAgentId].Position;
 }
 
+glm::vec3 Simulation::GetGroupColor(const uint8_t InGroupId)
+{
+	return Groups[InGroupId].GetColor();
+}
+
 glm::vec3 Simulation::GetGroupColor(const uint32_t InAgentId)
 {
 	return Groups[ Agents[InAgentId].GroupId ].GetColor();
 }
 
-glm::vec3 Simulation::GetWaypoints(std::vector<glm::vec3>& OutPath)
+void Simulation::GetWaypoints(std::vector<glm::vec3>& OutPath)
 {
 	Groups[DrawPathId].GetWaypoints(OutPath);
 }
@@ -371,8 +375,8 @@ void Simulation::Update()
     // 0. 
     PathFinding();
 
-	// // 1.
-	// CalcPredictedPosition();
+	// 1.
+	CalcPredictedPosition();
 
 	// // 2. searching neighboring
     // UpdateLocalInformation();
@@ -387,7 +391,7 @@ void Simulation::Update()
 	// TriggerSRDConstraint();
 
     // // 5. Real Translate Agent Position
-	// UpdateFinalPosition();
+	UpdateFinalPosition();
 
 	StepNo++;
 }

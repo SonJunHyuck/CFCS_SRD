@@ -33,23 +33,27 @@ void Context::ProcessInput(GLFWwindow *window)
         if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS)
             m_camera.Translate(-cameraUp);
     }
+}
 
+
+void Context::KeyboardInput(int key, int action)
+{
     // Draw Path
     if (!m_simulation->bIsDrawMode && !m_simulation->bIsSimulate)
     {
         for (int PRESS_KEY = GLFW_KEY_0; PRESS_KEY <= GLFW_KEY_9; PRESS_KEY++)
         {
-            if (glfwGetKey(window, PRESS_KEY) == GLFW_PRESS)
+            if (key == PRESS_KEY && action == GLFW_PRESS)
             {
-                //m_simulation->SetDrawPathId(PRESS_KEY - 48);  // GLFW_KEY_0 = 48
                 uint8_t DrawGroupId = std::min(PRESS_KEY - 48, m_simulation->GetNumGroups() - 1);
+                //m_simulation->SetDrawPathId(PRESS_KEY - 48);  // GLFW_KEY_0 = 48
                 m_simulation->DrawPathId = DrawGroupId;
             }
         }
     }
 
     // Simulate Mode
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    if (key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
     {
         m_simulation->bIsSimulate = !m_simulation->bIsSimulate;
     }
@@ -74,9 +78,13 @@ void Context::MouseMove(double x, double y)
     {
         glm::vec3 FinalPos = m_camera.GetWorldPos(static_cast<float>(m_width), static_cast<float>(m_height), x, y);
 
-        SPDLOG_INFO("RayPos : ({}, {}, {})", FinalPos.x, FinalPos.y, FinalPos.z);
+        //SPDLOG_INFO("RayPos : ({}, {}, {})", FinalPos.x, FinalPos.y, FinalPos.z);
 
         m_simulation->DrawPath(FinalPos);
+
+        std::vector<glm::vec3> TempPath = std::vector<glm::vec3>();
+        m_simulation->GetWaypoints(TempPath);
+        m_lines[m_simulation->DrawPathId]->Update(TempPath);
     }
 }
 
@@ -105,10 +113,6 @@ void Context::MouseButton(int button, int action, double x, double y)
         else if(action == GLFW_RELEASE)
         {
             m_simulation->bIsDrawMode = false;
-            
-            std::vector<glm::vec3> TempPath;  // Out
-            m_simulation->GetWaypoints(TempPath);
-            m_lines[m_simulation->DrawPathId]->Update(TempPath); // <- copy value?
         }
     }
 }
@@ -303,13 +307,14 @@ void Context::Render()
     m_simpleProgram->SetUniform("color", glm::vec4(1, 1, 1, 1));
     m_checkboard->Draw(m_simpleProgram.get());
 
+
     // Path
     for(uint8_t GroupId = 0; GroupId < m_simulation->GetNumGroups(); GroupId++)
     {
         modelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
         transform = projection * view * modelTransform;
         m_simpleProgram->SetUniform("transform", transform);
-        m_simpleProgram->SetUniform("color", glm::vec4(1, 1, 1, 1));
+        m_simpleProgram->SetUniform("color", glm::vec4(m_simulation->GetGroupColor(GroupId), 1));
 
         if(m_lines[GroupId]->IsDrawable)
             m_lines[GroupId]->Draw(m_simpleProgram.get());

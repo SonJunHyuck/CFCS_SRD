@@ -19,9 +19,10 @@ public:
 
 	uint8_t GetNumGroups() { return NumGroups; }
 	uint32_t GetNumAgents() { return NumAgents; }
+	glm::vec3 GetGroupColor(const uint8_t InGroupId);
 	glm::vec3 GetGroupColor(const uint32_t InAgentId);
 	glm::vec3 GetAgentPosition(const uint32_t InAgentId);
-	glm::vec3 GetWaypoints(std::vector<glm::vec3>& OutPath);
+	void GetWaypoints(std::vector<glm::vec3>& OutPath);
 
 private:
 	uint8_t NumGroups;

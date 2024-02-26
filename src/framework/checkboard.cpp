@@ -27,10 +27,10 @@ CheckBoardUPtr CheckBoard::CreateCheckBoard(const uint32_t inSize, const uint32_
     {
         for (y = 0, yp = minY, i = x; y < inSquare; y++, yp += yd)
         {
-            Vertex vertex1 { glm::vec3(xp, -1.0f, yp), normal, color };  // Left Bottom
-            Vertex vertex2 { glm::vec3(xp, -1.0f, yp + yd), normal, color };  // Left Top
-            Vertex vertex3 { glm::vec3(xp + xd, -1.0f, yp + yd), normal, color };  // Right Top
-            Vertex vertex4 { glm::vec3(xp + xd, -1.0f, yp), normal, color };  // Right Bottom
+            Vertex vertex1 { glm::vec3(xp, -0.5f, yp), normal, color };  // Left Bottom
+            Vertex vertex2 { glm::vec3(xp, -0.5f, yp + yd), normal, color };  // Left Top
+            Vertex vertex3 { glm::vec3(xp + xd, -0.5f, yp + yd), normal, color };  // Right Top
+            Vertex vertex4 { glm::vec3(xp + xd, -0.5f, yp), normal, color };  // Right Bottom
             //SPDLOG_INFO("{} {}", minX, maxX);
 
             vertices.push_back(vertex1);

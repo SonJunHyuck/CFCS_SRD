@@ -36,13 +36,17 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 	GroupPositions.push_back(glm::vec3(-200.0f, 0, 0));
 	GroupPositions.push_back(glm::vec3( 200.0f, 0, 0));
 
+	std::vector<glm::vec3> GroupColors;
+	GroupColors.push_back(glm::vec3(1, 0, 0));
+	GroupColors.push_back(glm::vec3(0, 0, 1));
+
 	for (uint8_t GroupId = 0; GroupId < NumGroups; GroupId++)
 	{
 		uint32_t CreateAgentCount = InNumAgents[GroupId];
 
 		// Create Group (Init Group SRD)
 		float GroupSpeed = 1.0f;
-		Groups.push_back(GroupFactory::Create(GroupId, GroupPositions[GroupId], GroupSpeed));
+		Groups.push_back(GroupFactory::Create(GroupId, GroupPositions[GroupId], GroupSpeed, GroupColors[GroupId]));
 
 		// Create Formation
 		FormationUPtr TempFormation = Formation::CreateRectFormation(CreateAgentCount, 3.0f);
@@ -64,8 +68,8 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 	SPDLOG_INFO("Success Set Agent & Group");
 
 	// Grid
-	glm::vec3 MinBound = glm::vec3(-400, 0, -400);
-	glm::vec3 MaxBound = glm::vec3(400, 0, 400);
+	glm::vec3 MinBound = glm::vec3(-GRID_BOUND_X, 0, -GRID_BOUND_Z);
+	glm::vec3 MaxBound = glm::vec3(GRID_BOUND_X, 0, GRID_BOUND_Z);
 	GridField = GridUPtr(new Grid(GRID_DENSITY, MinBound, MaxBound));
 	SPDLOG_INFO("Success Set Grid");
 
@@ -159,20 +163,25 @@ Simulation::~Simulation()
 	GridField.reset();
 }
 
-void Simulation::SetDrawPathId(uint8_t InDrawPathGroupId) 
-{
-	DrawPathGroupId = std::min(InDrawPathGroupId, (uint8_t)(NumGroups - 1)); 
-}
-
 void Simulation::DrawPath(const glm::vec3& Waypoint)
 {
 	SPDLOG_INFO("Draw Path : {}", Groups.size());
-	Groups[DrawPathGroupId].DrawPath(Waypoint);
+	Groups[DrawPathId].DrawPath(Waypoint);
 }
 
 glm::vec3 Simulation::GetAgentPosition(const uint32_t InAgentId)
 {
 	return Agents[InAgentId].Position;
+}
+
+glm::vec3 Simulation::GetGroupColor(const uint32_t InAgentId)
+{
+	return Groups[ Agents[InAgentId].GroupId ].GetColor();
+}
+
+glm::vec3 Simulation::GetWaypoints(std::vector<glm::vec3>& OutPath)
+{
+	Groups[DrawPathId].GetWaypoints(OutPath);
 }
 
 void Simulation::CalcStiffness(int n)
@@ -362,23 +371,23 @@ void Simulation::Update()
     // 0. 
     PathFinding();
 
-	// 1.
-	CalcPredictedPosition();
+	// // 1.
+	// CalcPredictedPosition();
 
-	// 2. searching neighboring
-    UpdateLocalInformation();
+	// // 2. searching neighboring
+    // UpdateLocalInformation();
 
-	// 3. long_range constraint (Avoidance) (4.4, 4.5)
-	TriggerAvoidanceConstraint();
+	// // 3. long_range constraint (Avoidance) (4.4, 4.5)
+	// TriggerAvoidanceConstraint();
 
-	// 4. Collision (Penetration) Constraint
-    TriggerCollisionConstraint();
+	// // 4. Collision (Penetration) Constraint
+    // TriggerCollisionConstraint();
 
-	// 4-1. SRD Constraint
-	TriggerSRDConstraint();
+	// // 4-1. SRD Constraint
+	// TriggerSRDConstraint();
 
-    // 5. Real Translate Agent Position
-	UpdateFinalPosition();
+    // // 5. Real Translate Agent Position
+	// UpdateFinalPosition();
 
 	StepNo++;
 }

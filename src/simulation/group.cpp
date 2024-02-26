@@ -41,17 +41,23 @@ void Group::FollowPath()
     }
 }
 
-void Group::Init(const glm::vec3& InPosition, const float InPreferedSpeed)
+void Group::GetWaypoints(std::vector<glm::vec3> &OutPath)
+{
+    OutPath = Path;
+}
+
+void Group::Init(const glm::vec3& InPosition, const float InPreferedSpeed, const glm::vec3& InColor)
 {   
     Position = InPosition;
     PreferedSpeed = InPreferedSpeed;
+    Color = InColor;
 }
 
-Group GroupFactory::Create(const uint8_t& InGroupId, const glm::vec3& InPosition, const float InPreferedSpeed)
+Group GroupFactory::Create(const uint8_t& InGroupId, const glm::vec3& InPosition, const float InPreferedSpeed, const glm::vec3& InColor)
 {
     Group OutGroup = Group(InGroupId);
 
-    OutGroup.Init(InPosition, InPreferedSpeed);
+    OutGroup.Init(InPosition, InPreferedSpeed, InColor);
 
     return OutGroup;
 }

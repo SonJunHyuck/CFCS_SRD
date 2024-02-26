@@ -12,6 +12,8 @@ public:
     void FollowPath();  // (before) Update Path
     glm::vec3 GetPosition() { return Position; }
     glm::vec3 GetVelocity() { return Velocity; }
+    glm::vec3 GetColor() { return Color; }
+    void GetWaypoints(std::vector<glm::vec3>& OutPath);
 
 private:
     Group();
@@ -29,7 +31,7 @@ private:
     uint32_t CurrentWaypointId;
 
     // Init
-    void Init(const glm::vec3& InPosition, const float InPreferedSpeed);
+    void Init(const glm::vec3& InPosition, const float InPreferedSpeed, const glm::vec3& InColor);
     
     friend class GroupFactory;
 };
@@ -37,5 +39,5 @@ private:
 class GroupFactory
 {
 public:
-    static Group Create(const uint8_t& InGroupId, const glm::vec3& InPosition, const float InPreferedSpeed);
+    static Group Create(const uint8_t& InGroupId, const glm::vec3& InPosition, const float InPreferedSpeed, const glm::vec3& InColor);
 };

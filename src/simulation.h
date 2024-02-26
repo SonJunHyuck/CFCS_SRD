@@ -15,10 +15,13 @@ public:
 	~Simulation();
 
 	void SetFormation(const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale);
-	void SetDrawPathId(uint8_t InDrawPathGroupId);
 	void DrawPath(const glm::vec3& Waypoint);
 
+	uint8_t GetNumGroups() { return NumGroups; }
+	uint32_t GetNumAgents() { return NumAgents; }
+	glm::vec3 GetGroupColor(const uint32_t InAgentId);
 	glm::vec3 GetAgentPosition(const uint32_t InAgentId);
+	glm::vec3 GetWaypoints(std::vector<glm::vec3>& OutPath);
 
 private:
 	uint8_t NumGroups;
@@ -32,7 +35,6 @@ private:
 
 	float CollisionConstraintStiffness;
 	
-	uint8_t DrawPathGroupId { 0 };
 
 	void CalcStiffness(int n);
 	void InitAgentDelta();
@@ -60,6 +62,8 @@ public:
 	bool bIsCohesion = true;
 	bool bIsSimulate = false;
 	bool bIsDrawMode = false;
+
+	uint8_t DrawPathId { 0 };
 
 public:
 	void Update();

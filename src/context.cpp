@@ -41,8 +41,9 @@ void Context::ProcessInput(GLFWwindow *window)
         {
             if (glfwGetKey(window, PRESS_KEY) == GLFW_PRESS)
             {
-                m_simulation->SetDrawPathId(PRESS_KEY - 48);  // GLFW_KEY_0 = 48
-                //SPDLOG_INFO("Draw GroupId : {}", m_simulation->DrawPathGroupId);
+                //m_simulation->SetDrawPathId(PRESS_KEY - 48);  // GLFW_KEY_0 = 48
+                uint8_t DrawGroupId = std::min(PRESS_KEY - 48, m_simulation->GetNumGroups() - 1);
+                m_simulation->DrawPathId = DrawGroupId;
             }
         }
     }
@@ -104,6 +105,10 @@ void Context::MouseButton(int button, int action, double x, double y)
         else if(action == GLFW_RELEASE)
         {
             m_simulation->bIsDrawMode = false;
+            
+            std::vector<glm::vec3> TempPath;  // Out
+            m_simulation->GetWaypoints(TempPath);
+            m_lines[m_simulation->DrawPathId]->Update(TempPath); // <- copy value?
         }
     }
 }
@@ -112,7 +117,12 @@ bool Context::Init()
 {
     m_box = Mesh::CreateBox();
     m_plane = Mesh::CreatePlane();
-    m_checkboard = CheckBoard::CreateCheckBoard(100, 10);
+    m_lines.push_back(Line::Create());
+    m_lines.push_back(Line::Create());
+    
+    // Checkboard
+    float FieldSize = GRID_BOUND_X * 2;
+    m_checkboard = CheckBoard::CreateCheckBoard(FieldSize, FieldSize / GRID_DENSITY);
 
     // ========== Create & Attach & Link ========= (create shader func has covered program clas)
     m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");
@@ -152,12 +162,12 @@ bool Context::Init()
     SPDLOG_INFO("Texture Load Success");
 
     // ======== Model(Mesh) ========
-    m_models.push_back(Model::Load("./models/backpack.obj"));
+    // m_models.push_back(Model::Load("./models/backpack.obj"));
 
-    if (m_models[0] == nullptr)
-        return false;
+    // if (m_models[0] == nullptr)
+    //     return false;
         
-    SPDLOG_INFO("Model Load Success");
+    // SPDLOG_INFO("Model Load Success");
 
     // ======== Formation ========
 
@@ -293,7 +303,27 @@ void Context::Render()
     m_simpleProgram->SetUniform("color", glm::vec4(1, 1, 1, 1));
     m_checkboard->Draw(m_simpleProgram.get());
 
+    // Path
+    for(uint8_t GroupId = 0; GroupId < m_simulation->GetNumGroups(); GroupId++)
+    {
+        modelTransform = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.0f, 0.0f));
+        transform = projection * view * modelTransform;
+        m_simpleProgram->SetUniform("transform", transform);
+        m_simpleProgram->SetUniform("color", glm::vec4(1, 1, 1, 1));
+
+        if(m_lines[GroupId]->IsDrawable)
+            m_lines[GroupId]->Draw(m_simpleProgram.get());
+    }
+
     // Agents
+    for(uint32_t AgentId = 0; AgentId < m_simulation->GetNumAgents(); AgentId++)
+    {
+        modelTransform = glm::translate(glm::mat4(1.0f), m_simulation->GetAgentPosition(AgentId));
+        transform = projection * view * modelTransform;
+        m_simpleProgram->SetUniform("transform", transform);
+        m_simpleProgram->SetUniform("color", glm::vec4(m_simulation->GetGroupColor(AgentId), 1));
+        m_box->Draw(m_simpleProgram.get());
+    }
 
     Framebuffer::BindToDefault();
 

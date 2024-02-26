@@ -11,6 +11,7 @@
 #include "framework/framebuffer.h"
 #include "framework/camera.h"
 #include "framework/checkboard.h"
+#include "framework/line.h"
 
 #include "simulation.h"
 
@@ -44,6 +45,7 @@ private:
     // object
     MeshUPtr m_box;
     MeshUPtr m_plane;
+    std::vector<LineUPtr> m_lines;
     CheckBoardUPtr m_checkboard;
     
     std::vector<ModelUPtr> m_models;

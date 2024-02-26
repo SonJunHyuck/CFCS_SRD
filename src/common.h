@@ -31,6 +31,8 @@ using klassName ## WPtr = std::weak_ptr<klassName>;
 
 static float DELTA_TIME = 0.072f;
 static float MAX_ACCEL = 0.25f;
+static float GRID_BOUND_X = 400.0f;
+static float GRID_BOUND_Z = 400.0f;
 static float GRID_DENSITY = 3.0f;
 static bool ON_AVOIDANCE_MODEL = true;
 

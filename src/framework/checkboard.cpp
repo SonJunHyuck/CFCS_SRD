@@ -31,7 +31,7 @@ CheckBoardUPtr CheckBoard::CreateCheckBoard(const uint32_t inSize, const uint32_
             Vertex vertex2 { glm::vec3(xp, -1.0f, yp + yd), normal, color };  // Left Top
             Vertex vertex3 { glm::vec3(xp + xd, -1.0f, yp + yd), normal, color };  // Right Top
             Vertex vertex4 { glm::vec3(xp + xd, -1.0f, yp), normal, color };  // Right Bottom
-            SPDLOG_INFO("{} {}", minX, maxX);
+            //SPDLOG_INFO("{} {}", minX, maxX);
 
             vertices.push_back(vertex1);
             vertices.push_back(vertex2);

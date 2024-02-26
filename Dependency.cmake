@@ -149,7 +149,6 @@ if(APPLE)
 set(DEP_LIBS ${DEP_LIBS}
   assimp
   zlibstatic
-  IrrXML
 )
 else()
 set(DEP_LIBS ${DEP_LIBS}

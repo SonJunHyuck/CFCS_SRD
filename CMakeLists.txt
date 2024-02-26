@@ -48,6 +48,7 @@ add_executable(${PROJECT_NAME}
     src/framework/framebuffer.cpp src/framework/framebuffer.h
     src/framework/camera.cpp src/framework/camera.h
     src/framework/checkboard.cpp src/framework/checkboard.h
+    src/framework/line.cpp src/framework/line.h
 
     src/simulation/agent.cpp src/simulation/agent.h
     src/simulation/group.cpp src/simulation/group.h

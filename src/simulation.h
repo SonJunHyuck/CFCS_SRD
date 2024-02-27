@@ -11,10 +11,9 @@ private:
 	bool Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& InNumAgents);
 
 public:
-	static SimulationUPtr Create(const uint8_t& InNumGroups, const std::vector<uint32_t>& InNumAgents);\
+	static SimulationUPtr Create(const uint8_t& InNumGroups, const std::vector<uint32_t>& InNumAgents);
 	~Simulation();
 
-	void SetFormation(const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale);
 	void DrawPath(const glm::vec3& Waypoint);
 
 	uint8_t GetNumGroups() { return NumGroups; }
@@ -36,7 +35,7 @@ private:
 
 	float CollisionConstraintStiffness;
 	
-
+	void SetFormation(const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale);
 	void CalcStiffness(int n);
 	void InitAgentDelta();
 	void UpdatePredictedPosition();

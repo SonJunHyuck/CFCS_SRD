@@ -19,6 +19,19 @@ SimulationUPtr Simulation::Create(const uint8_t& InNumGroups, const std::vector<
 	return std::move(OutSimulation);
 }
 
+Simulation::Simulation()
+{
+	// Stiffness
+	CollisionConstraintStiffness = 0.22f;
+}
+
+Simulation::~Simulation() 
+{
+	Groups.clear();
+	Agents.clear();
+	GridField.reset();
+}
+
 bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& InNumAgents)
 {
 	if(InNumGroups != InNumAgents.size())
@@ -33,12 +46,16 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 	
 	// Set Base Position
 	std::vector<glm::vec3> GroupPositions;
-	GroupPositions.push_back(glm::vec3(-200.0f, 0, 0));
-	GroupPositions.push_back(glm::vec3( 200.0f, 0, 0));
+	GroupPositions.push_back(glm::vec3(-10.0f, 0, 0));
+	GroupPositions.push_back(glm::vec3( 10.0f, 0, 0));
 
 	std::vector<glm::vec3> GroupColors;
 	GroupColors.push_back(glm::vec3(1, 0, 0));
 	GroupColors.push_back(glm::vec3(0, 0, 1));
+
+	std::vector<Formation::Direction> FormationDirection;
+	FormationDirection.push_back(Formation::Direction::RIGHT_TO_LEFT);
+	FormationDirection.push_back(Formation::Direction::LEFT_TO_RIGHT);
 
 	for (uint8_t GroupId = 0; GroupId < NumGroups; GroupId++)
 	{
@@ -48,9 +65,6 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 		float GroupSpeed = 1.0f;
 		Groups.push_back(GroupFactory::Create(GroupId, GroupPositions[GroupId], GroupSpeed, GroupColors[GroupId]));
 
-		// Create Formation
-		FormationUPtr TempFormation = Formation::CreateRectFormation(CreateAgentCount, 3.0f);
-
 		for (uint32_t AgentId = NumAgents; AgentId < NumAgents + CreateAgentCount; AgentId++)
 		{
 			//Create Agents
@@ -58,10 +72,13 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 			float Mass = 1.0f;
 			float Radius = 1.0f;
 			float PreferedSpeed = 1.0f;
-			glm::vec3 Position = Groups[GroupId].GetPosition() + TempFormation->GetPositions()[RefAgentId];  // Group Position + Formation Position
+			FormationUPtr TempFormation = Formation::CreateRectFormation(CreateAgentCount, Groups[GroupId].GetPosition(), 8, GRID_DENSITY + 1.0f, FormationDirection[GroupId]);
+			glm::vec3 Position = TempFormation->GetPositions()[RefAgentId];  // Group Position + Formation Position
 
 			Agents.push_back(AgentFactory::Create(AgentId, GroupId, Mass, Radius, PreferedSpeed, Position));
 		}
+
+		// Adjust Group Position
 		
 		NumAgents += CreateAgentCount;
 	}
@@ -76,98 +93,13 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 	return true;
 }
 
-void Simulation::SetFormation(const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale)
-{
-	// Find Agent in Group
-	std::vector<Agent*> AgentsInGroup;
-	for(Agent& IterAgent : Agents)
-	{
-		if(IterAgent.GroupId == InGroupId)
-		{
-			AgentsInGroup.push_back(&IterAgent);
-		}
-	}
-}
-
-// void Simulation::SetFormation(const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale)
-// {
-// 	Formation_t DummyPositions = InFormation;
-// 	// std::copy(InFormation.begin(), InFormation.end(), DummyPositions.begin());
-
-// 	//SPDLOG_INFO("FormationSize : {}, GroupId : {}, Scale : {}", InFormation.size(), InGroupId, InScale);
-
-// 	// Find Agent in Group
-// 	std::vector<Agent*> AgentsInGroup;
-// 	for(Agent& IterAgent : Agents)
-// 	{
-// 		if(IterAgent.GroupId == InGroupId)
-// 		{
-// 			AgentsInGroup.push_back(&IterAgent);
-// 		}
-
-// 	FormationUPtr DummyPosition = Formation::CreateRectFormation(AgentsInGroup.size(), 3.0f);
-
-// 	// Rodate, Scale
-// 	glm::mat4 MatRotateX = glm::rotate(glm::identity<glm::mat4>(), Deg2Rad(90.0f * InRotateAxis.x), glm::vec3(1, 0, 0));
-// 	glm::mat4 MatRotateY = glm::rotate(glm::identity<glm::mat4>(), Deg2Rad(90.0f * InRotateAxis.y), glm::vec3(0, 1, 0));
-// 	glm::mat4 MatRotateZ = glm::rotate(glm::identity<glm::mat4>(), Deg2Rad(90.0f * InRotateAxis.z), glm::vec3(0, 0, 1));
-// 	glm::mat4 MatScale = glm::scale(glm::identity<glm::mat4>(), VEC_ONE * InScale * (GRID_DENSITY / 3.2f));
-
-// 	// Projection to bottom (y = 0)
-// 	for(glm::vec3& IterDummyPosition : DummyPositions)
-// 	{
-// 		glm::vec4 TransformedPos = glm::vec4(IterDummyPosition, 0);
-
-// 		TransformedPos = MatScale * TransformedPos;
-
-// 		TransformedPos = MatRotateX * TransformedPos;
-// 		TransformedPos = MatRotateY * TransformedPos;
-// 		TransformedPos = MatRotateZ * TransformedPos;
-
-// 		IterDummyPosition.x = TransformedPos.x;
-// 		IterDummyPosition.y = 0;
-// 		IterDummyPosition.z = TransformedPos.z;
-// 	}
-
-// 	// Remove overlapping position
-// 	UniqueVertices(DummyPositions);
-
-// 	// Agents < DummyPositions
-// 	uint32_t NumVertices = DummyPositions.size();
-// 	uint32_t Div = std::max((int)(NumVertices / AgentsInGroup.size()), 1);
-
-// 	uint32_t AgentIndex = 0;
-// 	for (int i = 0; i < NumVertices; i += Div)
-// 	{
-// 		glm::vec3 FormationPosition= glm::vec3(DummyPositions[i]);
-
-// 		if ( (i / Div) < NumVertices )
-// 		{
-// 			AgentsInGroup[AgentIndex]->Position = FormationPosition;
-			
-// 			AgentIndex++;
-// 		}
-// 	}
-// }
-
-Simulation::Simulation()
-{
-	// Stiffness
-	CollisionConstraintStiffness = 0.22f;
-}
-
-Simulation::~Simulation() 
-{
-	Groups.clear();
-	Agents.clear();
-	GridField.reset();
-}
-
+#pragma region PUBLIC
 void Simulation::DrawPath(const glm::vec3& Waypoint)
 {
 	Groups[DrawPathId].DrawPath(Waypoint);
 }
 
+// GETS
 glm::vec3 Simulation::GetAgentPosition(const uint32_t InAgentId)
 {
 	return Agents[InAgentId].Position;
@@ -186,6 +118,21 @@ glm::vec3 Simulation::GetGroupColor(const uint32_t InAgentId)
 void Simulation::GetWaypoints(std::vector<glm::vec3>& OutPath)
 {
 	Groups[DrawPathId].GetWaypoints(OutPath);
+}
+#pragma endregion
+
+#pragma region PRIVATE_ONLY_FOR_SIMULATION
+void Simulation::SetFormation(const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale)
+{
+	// Find Agent in Group
+	std::vector<Agent*> AgentsInGroup;
+	for(Agent& IterAgent : Agents)
+	{
+		if(IterAgent.GroupId == InGroupId)
+		{
+			AgentsInGroup.push_back(&IterAgent);
+		}
+	}
 }
 
 void Simulation::CalcStiffness(int n)
@@ -209,8 +156,9 @@ void Simulation::UpdatePredictedPosition()
 		IterAgent.CorrectPosition();
 	}
 }
+#pragma endregion
 
-#pragma region Scheme
+#pragma region SCHEME
 void Simulation::PathFinding()
 {
 	for(Group& IterGroup : Groups)

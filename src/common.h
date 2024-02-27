@@ -29,6 +29,7 @@ using klassName ## WPtr = std::weak_ptr<klassName>;
 #define VEC_ZERO glm::vec3(0, 0, 0)
 #define VEC_ONE glm::vec3(1, 1, 1)
 
+static float DPI_WEIGHT = 1.0f;
 static float DELTA_TIME = 0.072f;
 static float MAX_ACCEL = 0.25f;
 static float GRID_BOUND_X = 400.0f;

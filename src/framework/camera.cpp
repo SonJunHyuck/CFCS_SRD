@@ -36,7 +36,6 @@ void Camera::Rotate(double x, double y)
 
 glm::vec3 Camera::GetWorldPos(float width, float height, double x, double y)
 {
-    float DPI_WEIGHT = 2.0f;
     x *= DPI_WEIGHT;
     y *= DPI_WEIGHT;
     double NDC_X = ((2.0f * x) / width) - 1.0f;

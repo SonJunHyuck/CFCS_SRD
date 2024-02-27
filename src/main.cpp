@@ -13,7 +13,6 @@ void OnFramebufferSizeChange(GLFWwindow *window, int width, int height)
     
     // reinterpret_cast : 아예 형변환 시켜버릴 것
     auto context = reinterpret_cast<Context*>(glfwGetWindowUserPointer(window));
-
     context->Reshape(width, height);
 }   
 
@@ -129,7 +128,12 @@ int main()
 
     // setting events
     // forced set viewport (frambuffer이 계속 window size * 2로 잡혀서, 강제로 버퍼 사이즈 설정 -> DPI problem)
-    OnFramebufferSizeChange(window, WINDOW_WIDTH * 2, WINDOW_HEIGHT * 2);
+    int Dpi_Width, Dpi_Height = 0;
+    glfwGetFramebufferSize(window, &Dpi_Width, &Dpi_Height);
+    DPI_WEIGHT = Dpi_Width / WINDOW_WIDTH;
+    SPDLOG_INFO("DPI_WIDTH : {}", DPI_WEIGHT);
+    
+    OnFramebufferSizeChange(window, WINDOW_WIDTH, WINDOW_HEIGHT);
     glfwSetFramebufferSizeCallback(window, OnFramebufferSizeChange);
     glfwSetKeyCallback(window, OnKeyEvent);
     glfwSetCharCallback(window, OnCharEvent);

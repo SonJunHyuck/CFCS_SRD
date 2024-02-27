@@ -20,12 +20,12 @@ private:
     Group(uint16_t InGroupId);
     uint16_t Id;
 
-    glm::vec3 Position;
-    glm::vec3 Velocity;
-    glm::vec3 Color;
-    float PreferedSpeed;
+    glm::vec3 Position { VEC_ZERO };
+    glm::vec3 Velocity { VEC_ZERO };
+    glm::vec3 Color { VEC_ZERO };
+    float PreferedSpeed { 0 };
 
-    Formation_t SRDs;  // Short Range Destination
+    // Formation_t SRDs;  // Short Range Destination
 
     std::vector<glm::vec3> Path;
     uint32_t CurrentWaypointId;

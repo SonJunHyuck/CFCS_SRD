@@ -305,7 +305,6 @@ void Simulation::UpdateFinalPosition()
     // 5. Update Velocity
 	for(Agent& IterAgent : Agents)
 	{
-		glm::vec3 DummyPosition = IterAgent.Position;
 		glm::vec3 DeltaPos = IterAgent.PredictedPosition - IterAgent.Position;
 		
 		IterAgent.Velocity = DeltaPos / DELTA_TIME;

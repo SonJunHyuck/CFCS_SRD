@@ -18,7 +18,7 @@ public:
 private:
     friend class Context;  // context 클래스 이외에는 변수 접근 어렵게
 
-    float translateSpeed {0.02f};
+    float translateSpeed {0.3f};
     float rotateSpeed {0.1f};
 
     glm::vec2 prevMousePos{glm::vec2(0.0f)};

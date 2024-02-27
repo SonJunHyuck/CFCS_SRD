@@ -78,13 +78,9 @@ void Context::MouseMove(double x, double y)
     {
         glm::vec3 FinalPos = m_camera.GetWorldPos(static_cast<float>(m_width), static_cast<float>(m_height), x, y);
 
-        //SPDLOG_INFO("RayPos : ({}, {}, {})", FinalPos.x, FinalPos.y, FinalPos.z);
+        SPDLOG_INFO("RayPos : ({}, {}, {})", FinalPos.x, FinalPos.y, FinalPos.z);
 
         m_simulation->DrawPath(FinalPos);
-
-        std::vector<glm::vec3> TempPath = std::vector<glm::vec3>();
-        m_simulation->GetWaypoints(TempPath);
-        m_lines[m_simulation->DrawPathId]->Update(TempPath);
     }
 }
 
@@ -180,8 +176,8 @@ bool Context::Init()
     uint8_t NumGroups = 2;
 
     std::vector<uint32_t> Agents;
-    Agents.push_back(300);
-    Agents.push_back(300);
+    Agents.push_back(100);
+    Agents.push_back(100);
 
     std::vector<uint8_t> FormationIds;
     FormationIds.push_back(0);
@@ -220,7 +216,7 @@ void Context::Render()
         ImGui::DragFloat("gamma", &m_gamma, 0.01f, 0.0f, 2.0f);
         ImGui::Separator();
         
-        ImGui::DragFloat("Camera Speed", &m_camera.translateSpeed, 0.001f, 0.001f, 0.1f);
+        ImGui::DragFloat("Camera Speed", &m_camera.translateSpeed, 0.001f, 0.001f, 0.3f);
         ImGui::DragFloat("Camera Rotate Speed", &m_camera.rotateSpeed, 0.001f, 0.001f, 0.1f);
         ImGui::DragFloat3("Camera Pos", glm::value_ptr(m_camera.position), 0.01f);
         ImGui::DragFloat("Camera Yaw", &m_camera.yaw, 0.5f);
@@ -308,6 +304,10 @@ void Context::Render()
     m_checkboard->Draw(m_simpleProgram.get());
 
 
+    std::vector<glm::vec3> TempPath = std::vector<glm::vec3>();
+    m_simulation->GetWaypoints(TempPath);
+    m_lines[m_simulation->DrawPathId]->Update(TempPath);
+    
     // Path
     for(uint8_t GroupId = 0; GroupId < m_simulation->GetNumGroups(); GroupId++)
     {

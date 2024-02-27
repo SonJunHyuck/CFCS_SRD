@@ -34,7 +34,7 @@ public:
     glm::vec3 DeltaPosition;
     uint16_t DeltaPositionCounter;
 
-	glm::vec3 SRD;  // private
+	glm::vec3 SRD;  // Short Range Destination
 
 	glm::vec3 CurrentWaypoint;
     glm::vec3 FinalDestination;

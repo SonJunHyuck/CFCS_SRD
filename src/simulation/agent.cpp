@@ -7,6 +7,7 @@ void Agent::Init(const float InMass, const float InRadius, const float InPrefere
     Radius = InRadius;
     PreferedSpeed = InPreferedSpeed;
     Position = InPosition;
+    PredictedPosition = InPosition;
     SRD = InPosition;
 }
 
@@ -17,7 +18,7 @@ void Agent::PlanVelocity()
     float Distance = glm::length(PlanedVelocity);
     if (Distance > _EPSILON)
     {
-        PlanedVelocity /= Distance;
+        PlanedVelocity /= Distance;  // normalize
         PlanedVelocity *= std::min(PreferedSpeed, Distance);
 
         Velocity = PlanedVelocity;

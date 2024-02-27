@@ -128,7 +128,7 @@ int main()
     glfwSetWindowUserPointer(window, context.get());
 
     // setting events
-    // forced set viewport (frambuffer이 계속 window size * 2로 잡혀서, 강제로 버퍼 사이즈 설정)
+    // forced set viewport (frambuffer이 계속 window size * 2로 잡혀서, 강제로 버퍼 사이즈 설정 -> DPI problem)
     OnFramebufferSizeChange(window, WINDOW_WIDTH * 2, WINDOW_HEIGHT * 2);
     glfwSetFramebufferSizeCallback(window, OnFramebufferSizeChange);
     glfwSetKeyCallback(window, OnKeyEvent);

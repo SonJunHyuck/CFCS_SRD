@@ -78,7 +78,7 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 			Agents.push_back(AgentFactory::Create(AgentId, GroupId, Mass, Radius, PreferedSpeed, Position));
 		}
 
-		// Adjust Group Position
+		// TODO : Adjust Group Position
 		
 		NumAgents += CreateAgentCount;
 	}

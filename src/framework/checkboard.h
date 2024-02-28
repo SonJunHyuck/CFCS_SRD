@@ -19,6 +19,7 @@ private:
 public:
     static CheckBoardUPtr Create(const std::vector<Vertex> &vertices, const std::vector<uint32_t> &indices, uint32_t primitiveType);
     static CheckBoardUPtr CreateCheckBoard(const uint32_t inSize, const uint32_t inSquare);
+    static CheckBoardUPtr CreateCheckBoard(const uint32_t inRow, const uint32_t inCol, const uint32_t inSquare);
     
     const VertexLayout* GetVertexLayout() const { return m_vertexLayout.get(); }
     BufferPtr GetVertexBuffer() const { return m_vertexBuffer; }

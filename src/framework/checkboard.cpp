@@ -55,6 +55,54 @@ CheckBoardUPtr CheckBoard::CreateCheckBoard(const uint32_t inSize, const uint32_
     return Create(vertices, indices, GL_LINES);
 }
 
+CheckBoardUPtr CheckBoard::CreateCheckBoard(const uint32_t inRow, const uint32_t inCol, const uint32_t inSquare)
+{
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
+    glm::vec3 color = VEC_ONE * 1.0f;
+    glm::vec3 normal = glm::vec3(0, 1, 0);
+
+	float maxX = inRow * 0.5f, maxY = inCol * 0.5f;
+	float minX = inRow * -0.5f, minY = inCol * -0.5f;
+
+    int x, y, i;
+	float xp, yp, xd, yd;
+	xd = (maxX - minX) / ((float)inSquare);
+	yd = (maxY - minY) / ((float)inSquare);
+
+    for (x = 0, xp = minX; x < inSquare; x++, xp += xd)
+    {
+        for (y = 0, yp = minY, i = x; y < inSquare; y++, yp += yd)
+        {
+            Vertex vertex1 { glm::vec3(xp, -0.5f, yp), normal, color };  // Left Bottom
+            Vertex vertex2 { glm::vec3(xp, -0.5f, yp + yd), normal, color };  // Left Top
+            Vertex vertex3 { glm::vec3(xp + xd, -0.5f, yp + yd), normal, color };  // Right Top
+            Vertex vertex4 { glm::vec3(xp + xd, -0.5f, yp), normal, color };  // Right Bottom
+            //SPDLOG_INFO("{} {}", minX, maxX);
+
+            vertices.push_back(vertex1);
+            vertices.push_back(vertex2);
+            vertices.push_back(vertex3);
+            vertices.push_back(vertex4);
+            
+			indices.push_back(0 + 4 * y + x * inSquare * 4);
+			indices.push_back(1 + 4 * y + x * inSquare * 4);
+            
+			indices.push_back(1 + 4 * y + x * inSquare * 4);
+			indices.push_back(2 + 4 * y + x * inSquare * 4);
+            
+			indices.push_back(2 + 4 * y + x * inSquare * 4);
+			indices.push_back(3 + 4 * y + x * inSquare * 4);
+            
+			indices.push_back(3 + 4 * y + x * inSquare * 4);
+			indices.push_back(0 + 4 * y + x * inSquare * 4);
+        }
+    }
+
+    return Create(vertices, indices, GL_LINES);
+}
+
 void CheckBoard::Draw(const Program *program) const
 {
     m_vertexLayout->Bind();

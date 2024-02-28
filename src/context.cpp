@@ -125,8 +125,9 @@ bool Context::Init()
     m_lines.push_back(Line::Create());
     
     // Checkboard
-    float FieldSize = GRID_BOUND_X * 2;
-    m_checkboard = CheckBoard::CreateCheckBoard(FieldSize, FieldSize / GRID_DENSITY);
+    float FieldSize = GRID_BOUND_X + GRID_BOUND_Z;
+    //m_checkboard = CheckBoard::CreateCheckBoard(FieldSize, FieldSize / GRID_DENSITY);
+    m_checkboard = CheckBoard::CreateCheckBoard(GRID_BOUND_X, GRID_BOUND_Z, FieldSize / GRID_DENSITY);
 
     // ========== Create & Attach & Link ========= (create shader func has covered program clas)
     m_simpleProgram = Program::Create("./shader/simple.vs", "./shader/simple.fs");

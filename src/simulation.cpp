@@ -44,7 +44,7 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 	NumGroups = InNumGroups;
 	NumAgents = 0;
 	
-	// Set Base Position
+	// Set Params
 	std::vector<glm::vec3> GroupPositions;
 	GroupPositions.push_back(glm::vec3(-10.0f, 0, 0));
 	GroupPositions.push_back(glm::vec3( 10.0f, 0, 0));
@@ -57,6 +57,7 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 	FormationDirection.push_back(Formation::Direction::RIGHT_TO_LEFT);
 	FormationDirection.push_back(Formation::Direction::LEFT_TO_RIGHT);
 
+	// Create Objects (Group, Agent)
 	for (uint8_t GroupId = 0; GroupId < NumGroups; GroupId++)
 	{
 		uint32_t CreateAgentCount = InNumAgents[GroupId];
@@ -329,8 +330,8 @@ void Simulation::Update()
 	// 1.
 	CalcPredictedPosition();
 
-	// // 2. searching neighboring
-    // UpdateLocalInformation();
+	// 2. searching neighboring
+    UpdateLocalInformation();
 
 	// // 3. long_range constraint (Avoidance) (4.4, 4.5)
 	// TriggerAvoidanceConstraint();

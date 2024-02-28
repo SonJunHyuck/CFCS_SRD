@@ -78,7 +78,7 @@ void Context::MouseMove(double x, double y)
     {
         glm::vec3 FinalPos = m_camera.GetWorldPos(static_cast<float>(m_width), static_cast<float>(m_height), x, y);
 
-        SPDLOG_INFO("RayPos : ({}, {}, {})", FinalPos.x, FinalPos.y, FinalPos.z);
+        // SPDLOG_INFO("RayPos : ({}, {}, {})", FinalPos.x, FinalPos.y, FinalPos.z);
 
         m_simulation->DrawPath(FinalPos);
 

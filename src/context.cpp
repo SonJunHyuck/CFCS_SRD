@@ -81,6 +81,10 @@ void Context::MouseMove(double x, double y)
         SPDLOG_INFO("RayPos : ({}, {}, {})", FinalPos.x, FinalPos.y, FinalPos.z);
 
         m_simulation->DrawPath(FinalPos);
+
+        std::vector<glm::vec3> TempPath = std::vector<glm::vec3>();
+        m_simulation->GetWaypoints(TempPath);
+        m_lines[m_simulation->DrawPathId]->Update(TempPath);
     }
 }
 
@@ -302,11 +306,6 @@ void Context::Render()
     m_simpleProgram->SetUniform("transform", transform);
     m_simpleProgram->SetUniform("color", glm::vec4(1, 1, 1, 1));
     m_checkboard->Draw(m_simpleProgram.get());
-
-
-    std::vector<glm::vec3> TempPath = std::vector<glm::vec3>();
-    m_simulation->GetWaypoints(TempPath);
-    m_lines[m_simulation->DrawPathId]->Update(TempPath);
     
     // Path
     for(uint8_t GroupId = 0; GroupId < m_simulation->GetNumGroups(); GroupId++)

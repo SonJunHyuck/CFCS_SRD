@@ -9,9 +9,11 @@ Grid::Grid(float InCellSize, glm::vec3 InMinBound, glm::vec3 InMaxBound)
     MinBound = InMinBound;
     MaxBound = InMaxBound;
 
-    NumRows = (MaxBound.x - MinBound.x) / CellSize;
-    NumCols = (MaxBound.z - MinBound.z) / CellSize;
+    NumRows = (MaxBound.z - MinBound.z) / CellSize;
+    NumCols = (MaxBound.x - MinBound.x) / CellSize;
     NumCells = NumRows * NumCols;
+
+    SPDLOG_INFO("GRID ROW : {}, GRID COL : {}, GRID CELL : {}", NumRows, NumCols, NumCells);
 
     Cells = std::vector<Cell>(NumCells);
 }
@@ -21,10 +23,8 @@ Grid::~Grid()
 
 }
 
-std::vector<uint32_t> Grid::GetNeighborAgents(const Agent& InAgent, const uint8_t InRange)
+void Grid::GetNeighborAgents(const Agent& InAgent, const uint8_t InRange, std::vector<int32_t>& OutNeighbors)
 {
-    std::vector<uint32_t> NeighborAgents;
-
     // iterate over adjacent cells
     for (int X = -InRange; X <= InRange; X++)
     {
@@ -41,17 +41,20 @@ std::vector<uint32_t> Grid::GetNeighborAgents(const Agent& InAgent, const uint8_
 
                     if (CurCell.Counter > 0)
                     {
-                        for(const uint32_t Guest : CurCell.Guests)
+                        for(const int32_t Guest : CurCell.Guests)
                         {
-                            NeighborAgents.push_back(Guest);
+                            // uint32_t vs int32_t -> (uint32_t)-1 == 4294967295
+                            if( (int32_t)InAgent.Id < Guest )
+                            {
+                                OutNeighbors.push_back(Guest);
+                            }
+                            
                         }
                     }
                 }
             }
         }
     }
-
-    return NeighborAgents;
 }
 
 bool Grid::IsConquerableCell(uint32_t InCellId, uint8_t InGroupId)
@@ -73,7 +76,7 @@ void Grid::Update(std::vector<Agent>& InAgents)
         Iter.Counter = 0;
         Iter.Congestion = Cell::STATE::EMPTY;
 
-        for(uint32_t& Guest : Iter.Guests)
+        for(int32_t& Guest : Iter.Guests)
         {
             Guest = -1;  // Nobody agents
         }
@@ -83,15 +86,15 @@ void Grid::Update(std::vector<Agent>& InAgents)
 	for (int i = 0; i < InAgents.size(); i++)
 	{
 		glm::vec3 Position = InAgents[i].PredictedPosition;
-		uint32_t x = (Position.x - MinBound.x) / CellSize;
-		uint32_t z = (Position.z - MinBound.z) / CellSize;
-		uint32_t CellId = z * NumRows + x;
+		const uint32_t x = (Position.x - MinBound.x) / CellSize;
+		const uint32_t z = (Position.z - MinBound.z) / CellSize;
+		const uint32_t CellId = z * NumRows + x;
 		InAgents[i].CellId = CellId;
 		InAgents[i].CellX = x;
 		InAgents[i].CellZ = z;
 
         uint16_t Counter = Cells[CellId].Counter;
-		Cells[CellId].Guests[Counter] = i;  // Counter is number of guests
+		Cells[CellId].Guests[Counter] = InAgents[i].Id;  // Counter is number of guests
 		Cells[CellId].Counter += 1;
 
 		// to search particle mixed zone;

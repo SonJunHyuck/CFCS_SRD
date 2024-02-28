@@ -65,6 +65,7 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 		// Create Group (Init Group SRD)
 		float GroupSpeed = 1.0f;
 		Groups.push_back(GroupFactory::Create(GroupId, GroupPositions[GroupId], GroupSpeed, GroupColors[GroupId]));
+		FormationUPtr TempFormation = Formation::CreateRectFormation(CreateAgentCount, Groups[GroupId].GetPosition(), 8, GRID_DENSITY - 1.0f, FormationDirection[GroupId]);
 
 		glm::vec3 NewGroupPosition = VEC_ZERO;
 		for (uint32_t AgentId = NumAgents; AgentId < NumAgents + CreateAgentCount; AgentId++)
@@ -74,7 +75,6 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 			float Mass = 1.0f;
 			float Radius = 1.0f;
 			float PreferedSpeed = 1.0f;
-			FormationUPtr TempFormation = Formation::CreateRectFormation(CreateAgentCount, Groups[GroupId].GetPosition(), 8, GRID_DENSITY + 1.0f, FormationDirection[GroupId]);
 			glm::vec3 Position = TempFormation->GetPositions()[RefAgentId];  // Group Position + Formation Position
 
 			Agents.push_back(AgentFactory::Create(AgentId, GroupId, Mass, Radius, PreferedSpeed, Position));
@@ -187,18 +187,16 @@ void Simulation::TriggerAvoidanceConstraint()
 {
 	InitAgentDelta();
 
-	for (Agent &OutAgent : Agents)
+	for (Agent &HostAgent : Agents)
 	{
 		uint8_t SearchRange = 2;
-		std::vector<uint32_t> Neighbors = GridField->GetNeighborAgents(OutAgent, SearchRange);
+		std::vector<int32_t> Neighbors;
+		GridField->GetNeighborAgents(HostAgent, SearchRange, Neighbors);
 
 		for (uint32_t IterNeighborId : Neighbors)
 		{
-			if (OutAgent.Id < IterNeighborId)
-			{
-				Agent& OutGuestAgent = Agents[IterNeighborId];
-				AvoidConstraint(OutAgent, OutGuestAgent);
-			}
+			Agent &GuestAgent = Agents[IterNeighborId];
+			AvoidConstraint(HostAgent, GuestAgent);
 		}
 	}
 
@@ -217,7 +215,8 @@ void Simulation::TriggerCollisionConstraint()
 		for (Agent &IterAgent : Agents)
 		{
 			uint8_t SearchRange = 2;
-			std::vector<uint32_t> Neighbors = GridField->GetNeighborAgents(IterAgent, SearchRange);
+			std::vector<int32_t> Neighbors;
+			GridField->GetNeighborAgents(IterAgent, SearchRange, Neighbors);
 
 			for (uint32_t IterNeighborId : Neighbors)
 			{
@@ -333,16 +332,16 @@ void Simulation::Update()
 	// 2. searching neighboring
     UpdateLocalInformation();
 
-	// // 3. long_range constraint (Avoidance) (4.4, 4.5)
-	// TriggerAvoidanceConstraint();
+	// 3. long_range constraint (Avoidance) (4.4, 4.5)
+	TriggerAvoidanceConstraint();
 
-	// // 4. Collision (Penetration) Constraint
-    // TriggerCollisionConstraint();
+	// 4. Collision (Penetration) Constraint
+    TriggerCollisionConstraint();
 
-	// // 4-1. SRD Constraint
-	// TriggerSRDConstraint();
+	// 4-1. SRD Constraint
+	//TriggerSRDConstraint();
 
-    // // 5. Real Translate Agent Position
+    // 5. Real Translate Agent Position
 	UpdateFinalPosition();
 
 	StepNo++;

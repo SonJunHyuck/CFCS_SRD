@@ -65,6 +65,7 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 		float GroupSpeed = 1.0f;
 		Groups.push_back(GroupFactory::Create(GroupId, GroupPositions[GroupId], GroupSpeed, GroupColors[GroupId]));
 
+		glm::vec3 NewGroupPosition = VEC_ZERO;
 		for (uint32_t AgentId = NumAgents; AgentId < NumAgents + CreateAgentCount; AgentId++)
 		{
 			//Create Agents
@@ -76,9 +77,12 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 			glm::vec3 Position = TempFormation->GetPositions()[RefAgentId];  // Group Position + Formation Position
 
 			Agents.push_back(AgentFactory::Create(AgentId, GroupId, Mass, Radius, PreferedSpeed, Position));
+			NewGroupPosition += Position;
 		}
 
-		// TODO : Adjust Group Position
+		// Set group position to centre
+		NewGroupPosition /= CreateAgentCount;
+		Groups[GroupId].SetPosition(NewGroupPosition);
 		
 		NumAgents += CreateAgentCount;
 	}
@@ -121,7 +125,7 @@ void Simulation::GetWaypoints(std::vector<glm::vec3>& OutPath)
 }
 #pragma endregion
 
-#pragma region PRIVATE_ONLY_FOR_SIMULATION
+#pragma region PRIVATE
 void Simulation::SetFormation(const uint8_t& InGroupId, const glm::vec3& InRotateAxis, const float& InScale)
 {
 	// Find Agent in Group
@@ -158,7 +162,7 @@ void Simulation::UpdatePredictedPosition()
 }
 #pragma endregion
 
-#pragma region SCHEME
+#pragma region PRIVATE_SCHEME
 void Simulation::PathFinding()
 {
 	for(Group& IterGroup : Groups)

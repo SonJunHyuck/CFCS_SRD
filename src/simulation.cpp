@@ -214,7 +214,7 @@ void Simulation::TriggerFrictionConstraint()
 
 		for (Agent &IterAgent : Agents)
 		{
-			uint8_t SearchRange = 2;
+			uint8_t SearchRange = 1;
 			std::vector<int32_t> Neighbors;
 			GridField->GetNeighborAgents(IterAgent, SearchRange, Neighbors);
 

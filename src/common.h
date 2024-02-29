@@ -30,13 +30,12 @@ using klassName ## WPtr = std::weak_ptr<klassName>;
 #define VEC_ONE glm::vec3(1, 1, 1)
 
 extern float DPI_WEIGHT;
-
-static float DELTA_TIME = 0.072f;
-static float MAX_ACCEL = 0.25f;
-static float GRID_BOUND_X = 200.0f;
-static float GRID_BOUND_Z = 100.0f;
-static float GRID_DENSITY = 3.0f;
-static bool ON_AVOIDANCE_MODEL = true;
+extern float DELTA_TIME;
+extern float MAX_ACCEL;
+extern float GRID_BOUND_X;
+extern float GRID_BOUND_Z;
+extern float GRID_DENSITY;
+extern bool ON_AVOIDANCE_MODEL;
 
 // optional : 포인터의 메모리 누수 위험 방지 장치
 std::optional<std::string> LoadTextFile(const std::string& filename);

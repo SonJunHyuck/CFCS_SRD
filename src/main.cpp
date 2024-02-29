@@ -8,6 +8,12 @@
 #include <imgui_impl_opengl3.h>
 
 float DPI_WEIGHT = 1.0f;
+float DELTA_TIME = 0.072f;
+float MAX_ACCEL = 0.25f;
+float GRID_BOUND_X = 200.0f;
+float GRID_BOUND_Z = 100.0f;
+float GRID_DENSITY = 3.0f;
+bool ON_AVOIDANCE_MODEL = true;
 
 void OnFramebufferSizeChange(GLFWwindow *window, int width, int height)
 {

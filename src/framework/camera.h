@@ -2,6 +2,8 @@
 
 #include "../common.h"
 
+extern float DPI_WEIGHT;
+
 class Camera
 {
 public:

@@ -2,6 +2,10 @@
 
 #include "../common.h"
 
+// extern float DELTA_TIME;
+// extern float MAX_ACCEL;
+// extern bool ON_AVOIDANCE_MODEL;
+
 class Agent;
 
 const float COLLISION_MUI_STATIC = 0.00026f;

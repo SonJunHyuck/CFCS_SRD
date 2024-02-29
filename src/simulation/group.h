@@ -2,6 +2,9 @@
 
 #include "../common.h"
 
+// extern float DELTA_TIME;
+// extern float GRID_DENSITY;
+
 CLASS_PTR(Group)
 class Group
 {

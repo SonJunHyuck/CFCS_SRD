@@ -2,6 +2,8 @@
 
 #include "../common.h"
 
+// extern float DELTA_TIME;
+
 CLASS_PTR(Agent);
 class Agent
 {

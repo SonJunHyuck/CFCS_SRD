@@ -7,6 +7,8 @@
 #include <imgui_impl_glfw.h>
 #include <imgui_impl_opengl3.h>
 
+float DPI_WEIGHT = 1.0f;
+
 void OnFramebufferSizeChange(GLFWwindow *window, int width, int height)
 {
     SPDLOG_INFO("framebuffer size changed: ({} x {})", width, height);
@@ -130,10 +132,11 @@ int main()
     // forced set viewport (frambuffer이 계속 window size * 2로 잡혀서, 강제로 버퍼 사이즈 설정 -> DPI problem)
     int Dpi_Width, Dpi_Height = 0;
     glfwGetFramebufferSize(window, &Dpi_Width, &Dpi_Height);
+
     DPI_WEIGHT = Dpi_Width / WINDOW_WIDTH;
-    SPDLOG_INFO("DPI_WIDTH : {}", DPI_WEIGHT);
+    SPDLOG_INFO("DPI_WEIGHT : {}", DPI_WEIGHT);
     
-    OnFramebufferSizeChange(window, WINDOW_WIDTH, WINDOW_HEIGHT);
+    OnFramebufferSizeChange(window, WINDOW_WIDTH * DPI_WEIGHT, WINDOW_HEIGHT * DPI_WEIGHT);
     glfwSetFramebufferSizeCallback(window, OnFramebufferSizeChange);
     glfwSetKeyCallback(window, OnKeyEvent);
     glfwSetCharCallback(window, OnCharEvent);

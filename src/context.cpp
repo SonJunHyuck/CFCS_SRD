@@ -330,6 +330,16 @@ void Context::Render()
         m_box->Draw(m_simpleProgram.get());
     }
 
+    // SRD
+    // for(uint32_t AgentId = 0; AgentId < m_simulation->GetNumAgents(); AgentId++)
+    // {
+    //     modelTransform = glm::translate(glm::mat4(1.0f), m_simulation->GetAgentSRD(AgentId));
+    //     transform = projection * view * modelTransform;
+    //     m_simpleProgram->SetUniform("transform", transform);
+    //     m_simpleProgram->SetUniform("color", glm::vec4(m_simulation->GetGroupColor(AgentId) * 0.7f, 1));
+    //     m_box->Draw(m_simpleProgram.get());
+    // }
+
     Framebuffer::BindToDefault();
 
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);

@@ -203,7 +203,7 @@ void Simulation::TriggerAvoidanceConstraint()
 	// predict(Particle) <- correction(Constraint) 
 	UpdatePredictedPosition();
 }
-void Simulation::TriggerCollisionConstraint()
+void Simulation::TriggerFrictionConstraint()
 {
 	for (int i = 1; i < IterateCount; i++)
 	{
@@ -223,16 +223,9 @@ void Simulation::TriggerCollisionConstraint()
 				if (IterAgent.Id < IterNeighborId)
 				{
 					Agent &OutGuestAgent = Agents[IterNeighborId];
-					CollisionConstraint(IterAgent, OutGuestAgent, CollisionConstraintStiffness);
+					FrictionConstraint(IterAgent, OutGuestAgent, CollisionConstraintStiffness);
 				}
 			}
-		}
-		UpdatePredictedPosition();
-
-		// SRD constraints
-		for (Agent &IterAgent : Agents)
-		{
-			SRDConstraint(IterAgent);
 		}
 		UpdatePredictedPosition();
 	}
@@ -336,10 +329,10 @@ void Simulation::Update()
 	TriggerAvoidanceConstraint();
 
 	// 4. Collision (Penetration) Constraint
-    TriggerCollisionConstraint();
+    TriggerFrictionConstraint();
 
 	// 4-1. SRD Constraint
-	//TriggerSRDConstraint();
+	TriggerSRDConstraint();
 
     // 5. Real Translate Agent Position
 	UpdateFinalPosition();

@@ -46,7 +46,7 @@ private:
 	void CalcPredictedPosition();
 	void UpdateLocalInformation();
 	void TriggerAvoidanceConstraint();
-	void TriggerCollisionConstraint();
+	void TriggerFrictionConstraint();
 	void TriggerSRDConstraint();
 	void UpdateFinalPosition();
 

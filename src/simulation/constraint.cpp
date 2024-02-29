@@ -1,7 +1,7 @@
 #include "constraint.h"
 #include "agent.h"
 
-void CollisionConstraint(Agent& OutAgent1, Agent& OutAgent2, const float& InStiffness)
+void FrictionConstraint(Agent& OutAgent1, Agent& OutAgent2, const float& InStiffness)
 {
     glm::vec3 Correction1 = VEC_ZERO;
     glm::vec3 Correction2 = VEC_ZERO;
@@ -43,9 +43,9 @@ void CollisionConstraint(Agent& OutAgent1, Agent& OutAgent2, const float& InStif
 
         float OutLength = glm::length(Out);
 
-        if(OutLength >= COLLISION_MUI_STATIC * PredictedPenetration)
+        if(OutLength >= FRICTION_MUI_STATIC * PredictedDistance)
         {
-            float Coefficient = COLLISION_MUI_KINEMATIC * PredictedPenetration / OutLength;
+            float Coefficient = FRICTION_MUI_KINEMATIC * PredictedDistance / OutLength;
             Coefficient = std::min(1.0f, Coefficient);
             Out *= Coefficient;
         }
@@ -53,8 +53,8 @@ void CollisionConstraint(Agent& OutAgent1, Agent& OutAgent2, const float& InStif
         Correction1 += -Out * WeightedCoefficient1;
         Correction2 += -Out * WeightedCoefficient2;
 
-        ClampVec3(Correction1, COLLISION_LimitAccel);
-        ClampVec3(Correction2, COLLISION_LimitAccel);
+        ClampVec3(Correction1, FRICTION_LimitAccel);
+        ClampVec3(Correction2, FRICTION_LimitAccel);
 
         OutAgent1.DeltaPosition += Correction1;
         OutAgent2.DeltaPosition += Correction2;
@@ -130,9 +130,9 @@ void CollisionConstraint(Agent& OutAgent1, Agent& OutAgent2, const float& InStif
 
                     float OutLength = glm::length(Out);
 
-                    if (OutLength >= COLLISION_MUI_STATIC * d)
+                    if (OutLength >= FRICTION_MUI_STATIC * d)
                     {
-                        float Coefficient = COLLISION_MUI_KINEMATIC * d / OutLength;
+                        float Coefficient = FRICTION_MUI_KINEMATIC * d / OutLength;
                         Coefficient = std::min(1.0f, Coefficient);
                         Out *= Coefficient;
                     }

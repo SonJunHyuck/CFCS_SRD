@@ -44,6 +44,7 @@ void ProjectOnVec3(const glm::vec3 &InVec3, const glm::vec3 &InUnitVec3, glm::ve
 {
 	float Length = glm::dot(InVec3, InUnitVec3);
     OutVec3 = InUnitVec3 * Length;
+	OutVec3.y = 0.0f;
 }
 
 float Deg2Rad(float InDegree)

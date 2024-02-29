@@ -16,13 +16,14 @@ void Agent::PlanVelocity()
     glm::vec3 PlanedVelocity = SRD - Position;
 
     float Distance = glm::length(PlanedVelocity);
+    
     if (Distance > _EPSILON)
     {
         PlanedVelocity /= Distance;  // normalize
         PlanedVelocity *= std::min(PreferedSpeed, Distance);
 
         Velocity = PlanedVelocity;
-        PredictedPosition += Velocity * DELTA_TIME;
+        PredictedPosition += Velocity * DELTA_TIME * DELTA_TIME;
     }
 }
 
@@ -30,7 +31,7 @@ void Agent::CorrectPosition()
 {
     if (DeltaPositionCounter > 0)
     {
-        PredictedPosition += DeltaPosition / static_cast<float>(DeltaPositionCounter);
+        PredictedPosition += 1.2f * DeltaPosition / static_cast<float>(DeltaPositionCounter);
         DeltaPosition = VEC_ZERO;
         DeltaPositionCounter = 0;
     }

@@ -21,6 +21,7 @@ public:
 	glm::vec3 GetGroupColor(const uint8_t InGroupId);
 	glm::vec3 GetGroupColor(const uint32_t InAgentId);
 	glm::vec3 GetAgentPosition(const uint32_t InAgentId);
+	glm::vec3 GetAgentSRD(const uint32_t InAgentId);
 	void GetWaypoints(std::vector<glm::vec3>& OutPath);
 
 private:

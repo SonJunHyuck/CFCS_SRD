@@ -65,7 +65,7 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 		// Create Group (Init Group SRD)
 		float GroupSpeed = 1.0f;
 		Groups.push_back(GroupFactory::Create(GroupId, GroupPositions[GroupId], GroupSpeed, GroupColors[GroupId]));
-		FormationUPtr TempFormation = Formation::CreateRectFormation(CreateAgentCount, Groups[GroupId].GetPosition(), 8, GRID_DENSITY - 1.0f, FormationDirection[GroupId]);
+		FormationUPtr TempFormation = Formation::CreateRectFormation(CreateAgentCount, Groups[GroupId].GetPosition(), 8, GRID_DENSITY - 1.1f, FormationDirection[GroupId]);
 
 		glm::vec3 NewGroupPosition = VEC_ZERO;
 		for (uint32_t AgentId = NumAgents; AgentId < NumAgents + CreateAgentCount; AgentId++)
@@ -108,6 +108,11 @@ void Simulation::DrawPath(const glm::vec3& Waypoint)
 glm::vec3 Simulation::GetAgentPosition(const uint32_t InAgentId)
 {
 	return Agents[InAgentId].Position;
+}
+
+glm::vec3 Simulation::GetAgentSRD(const uint32_t InAgentId)
+{
+	return Agents[InAgentId].SRD;
 }
 
 glm::vec3 Simulation::GetGroupColor(const uint8_t InGroupId)
@@ -205,7 +210,7 @@ void Simulation::TriggerAvoidanceConstraint()
 }
 void Simulation::TriggerFrictionConstraint()
 {
-	for (int i = 1; i < IterateCount; i++)
+	for (int i = 1; i < IterateCount + 1; i++)
 	{
 		CalcStiffness(i);
 
@@ -218,6 +223,7 @@ void Simulation::TriggerFrictionConstraint()
 			std::vector<int32_t> Neighbors;
 			GridField->GetNeighborAgents(IterAgent, SearchRange, Neighbors);
 
+			//SPDLOG_INFO("Neighbor Count : {} -> {}", IterAgent.Id, Neighbors.size());
 			for (uint32_t IterNeighborId : Neighbors)
 			{
 				if (IterAgent.Id < IterNeighborId)

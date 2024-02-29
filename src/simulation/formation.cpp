@@ -20,7 +20,7 @@ FormationUPtr Formation::CreateRectFormation(const uint32_t InAmount, const glm:
                 break;
         }
         
-        x += InSpace * Dir;
+        x += InSpace * Dir * 1.1f;
     }
 
     SPDLOG_INFO("Success Create Rect Formation : {}", OutFormation->Positions.size());

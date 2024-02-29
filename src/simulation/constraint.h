@@ -18,7 +18,9 @@ const float AVOIDANCE_TAO0 = 10.0f;
 const float AVOIDANCE_LimitAccel = MAX_ACCEL * DELTA_TIME;
 void AvoidConstraint(Agent& OutAgent1, Agent& OutAgent2);
 
+void StabilityConstraint(Agent& OutAgent1, Agent& OutAgent2);
+
 const float SRD_STIFFNESS = 1.0f;
-const float SRD_HoldingDistance = 2.2f;
-const float SRD_LimitAccel = MAX_ACCEL * DELTA_TIME * DELTA_TIME;
+const float SRD_HoldingDistance = 1.2f;
+const float SRD_LimitAccel = MAX_ACCEL;
 void SRDConstraint(Agent& OutAgent);

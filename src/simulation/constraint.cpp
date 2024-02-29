@@ -3,10 +3,10 @@
 
 void FrictionConstraint(Agent& OutAgent1, Agent& OutAgent2, const float& InStiffness)
 {
-    glm::vec3 Correction1 = VEC_ZERO;
+    glm::vec3 Correction1 = VEC_ZERO;  // delta == correction
     glm::vec3 Correction2 = VEC_ZERO;
     const float WeightedCoefficient1 = 0.5f;
-    const float WeightedCoefficient2 = 0.5f;
+    const float WeightedCoefficient2 = -0.5f;
 
     const float PredictedDistance = glm::distance(OutAgent1.PredictedPosition, OutAgent2.PredictedPosition);
     const float RadiusSum = OutAgent1.Radius + OutAgent2.Radius;
@@ -21,7 +21,7 @@ void FrictionConstraint(Agent& OutAgent1, Agent& OutAgent2, const float& InStiff
     
     glm::vec3 Out = VEC_ZERO;
 
-    // Panetrate
+    // Overlap
     if (PredictedPenetration < 0)
     {
         ContactNormal = (OutAgent1.PredictedPosition - OutAgent2.PredictedPosition) / PredictedDistance;
@@ -62,7 +62,7 @@ void FrictionConstraint(Agent& OutAgent1, Agent& OutAgent2, const float& InStiff
         OutAgent1.DeltaPositionCounter++;
         OutAgent2.DeltaPositionCounter++;
     }
-    else  // Not Penetrate
+    else  // Not overlap
     {
         const float Distance = glm::distance(OutAgent1.Position, OutAgent2.Position);
         float RadiusSumSq = pow(RadiusSum, 2);
@@ -177,8 +177,6 @@ void AvoidConstraint(Agent& OutAgent1, Agent& OutAgent2)
     glm::vec3 V = ( (OutAgent1.PredictedPosition - OutAgent1.Position) / DELTA_TIME ) - ( (OutAgent2.PredictedPosition - OutAgent2.Position) / DELTA_TIME ); 
     glm::vec3 P = OutAgent1.Position - OutAgent2.Position;
 
-    float DotP = glm::dot(P, P);
-
     // Root Equation
     float a = glm::dot(V, V);
     float b = glm::dot(-V, P);
@@ -249,6 +247,37 @@ void AvoidConstraint(Agent& OutAgent1, Agent& OutAgent2)
                 }
             }
         }
+    }
+}
+
+void StabilityConstraint(Agent& OutAgent1, Agent& OutAgent2)
+{
+    glm::vec3 Correction1 = VEC_ZERO;
+    glm::vec3 Correction2 = VEC_ZERO;
+
+    const float WeightedCoefficient1 = 0.5f;
+    const float WeightedCoefficient2 = 0.5f;
+
+    const float Distance = glm::distance(OutAgent1.Position, OutAgent2.Position);
+    const float RadiusSum = OutAgent1.Radius + OutAgent2.Radius;
+    const float CollisionMargin = RadiusSum * 1.05f;
+
+    const float Penetration = Distance - CollisionMargin;  // Penetration < 0 -> Overlap
+
+    if (Penetration < 0)
+    {
+        glm::vec3 ContactNormal = VEC_ZERO;
+        glm::vec3 CollisionTangent = VEC_ZERO;
+
+        glm::vec3 PredictedWeightedDelta1 = VEC_ZERO;
+        glm::vec3 PredictedWeightedDelta2 = VEC_ZERO;
+
+        glm::vec3 Out = VEC_ZERO;
+
+        ContactNormal = (OutAgent1.Position, OutAgent2.Position) / Distance;
+
+        OutAgent1.DeltaPosition = -WeightedCoefficient1 * ContactNormal * Penetration;
+        OutAgent2.DeltaPosition = -WeightedCoefficient2 * ContactNormal * Penetration;
     }
 }
 

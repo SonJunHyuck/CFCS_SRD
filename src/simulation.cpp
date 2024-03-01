@@ -104,6 +104,20 @@ void Simulation::DrawPath(const glm::vec3& Waypoint)
 	Groups[DrawPathId].DrawPath(Waypoint);
 }
 
+void Simulation::SwitchSimulate()
+{
+	for(Group IterGroup : Groups)
+	{
+		if(!IterGroup.HasPath())
+		{
+			SPDLOG_ERROR("Fail Start Simulation : No Group {} Path", IterGroup.GetId());
+			return;
+		}
+	}
+
+	bIsSimulate = !bIsSimulate;
+}
+
 // GETS
 glm::vec3 Simulation::GetAgentPosition(const uint32_t InAgentId)
 {

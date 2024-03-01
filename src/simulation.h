@@ -16,6 +16,8 @@ public:
 
 	void DrawPath(const glm::vec3& Waypoint);
 
+	void SwitchSimulate();
+
 	uint8_t GetNumGroups() { return NumGroups; }
 	uint32_t GetNumAgents() { return NumAgents; }
 	glm::vec3 GetGroupColor(const uint8_t InGroupId);

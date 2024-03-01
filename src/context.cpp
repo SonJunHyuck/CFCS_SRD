@@ -55,7 +55,8 @@ void Context::KeyboardInput(int key, int action)
     // Simulate Mode
     if (key == GLFW_KEY_SPACE && action == GLFW_RELEASE)
     {
-        m_simulation->bIsSimulate = !m_simulation->bIsSimulate;
+        m_simulation->SwitchSimulate();
+        //m_simulation->bIsSimulate = !m_simulation->bIsSimulate;
     }
 }
 
@@ -181,8 +182,8 @@ bool Context::Init()
     uint8_t NumGroups = 2;
 
     std::vector<uint32_t> Agents;
-    Agents.push_back(100);
-    Agents.push_back(100);
+    Agents.push_back(2);
+    Agents.push_back(2);
 
     std::vector<uint8_t> FormationIds;
     FormationIds.push_back(0);

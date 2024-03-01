@@ -13,11 +13,13 @@ public:
 
     void DrawPath(const glm::vec3& Waypoint);
     void FollowPath();  // (before) Update Path
+    uint8_t GetId() { return Id; }
     glm::vec3 GetPosition() { return Position; }
     void SetPosition(const glm::vec3 InPosition) { Position = InPosition; }
     glm::vec3 GetVelocity() { return Velocity; }
     glm::vec3 GetColor() { return Color; }
     void GetWaypoints(std::vector<glm::vec3>& OutPath);
+    bool HasPath() { return Path.size() > 0; }
 
 private:
     Group();

@@ -35,6 +35,7 @@ void FrictionConstraint(Agent& OutAgent1, Agent& OutAgent2, const float& InStiff
 
         float WeightedDeltaDistance = distance(PredictedWeightedDelta1, PredictedWeightedDelta2);
         ContactNormal.x = -(PredictedWeightedDelta1.z - PredictedWeightedDelta2.z) / WeightedDeltaDistance;
+        ContactNormal.y = 0;
         ContactNormal.z = (PredictedWeightedDelta1.x - PredictedWeightedDelta2.x) / WeightedDeltaDistance;
 
         CollisionTangent = (PredictedWeightedDelta1 - OutAgent1.Position) - (PredictedWeightedDelta2 - OutAgent2.Position);
@@ -234,7 +235,7 @@ void AvoidConstraint(Agent& OutAgent1, Agent& OutAgent2)
                     glm::vec3 AvoidanceTangent = AvoidanceDelta - AvoidanceDeltaNormal;
 
                     Correction1 += AvoidanceTangent * OutAgent1.PreferedSpeed * DELTA_TIME;
-                    Correction2 -= AvoidanceTangent * OutAgent2.PreferedSpeed * DELTA_TIME;
+                    Correction2 += AvoidanceTangent * OutAgent2.PreferedSpeed * DELTA_TIME;
 
                     ClampVec3(Correction1, AVOIDANCE_LimitAccel);
                     ClampVec3(Correction2, AVOIDANCE_LimitAccel);
@@ -274,7 +275,7 @@ void StabilityConstraint(Agent& OutAgent1, Agent& OutAgent2)
 
         glm::vec3 Out = VEC_ZERO;
 
-        ContactNormal = (OutAgent1.Position, OutAgent2.Position) / Distance;
+        ContactNormal = (OutAgent1.Position - OutAgent2.Position) / Distance;
 
         OutAgent1.DeltaPosition = -WeightedCoefficient1 * ContactNormal * Penetration;
         OutAgent2.DeltaPosition = -WeightedCoefficient2 * ContactNormal * Penetration;

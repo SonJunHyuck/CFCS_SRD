@@ -22,8 +22,9 @@ void Agent::PlanVelocity()
         PlanedVelocity /= Distance;  // normalize
         PlanedVelocity *= std::min(PreferedSpeed, Distance);
 
-        Velocity = PlanedVelocity;
-        PredictedPosition += Velocity * DELTA_TIME * DELTA_TIME;
+        float T = 0.01f;
+        Velocity = T * PlanedVelocity + (1 - T) * Velocity;
+        PredictedPosition += Velocity * DELTA_TIME;
     }
 }
 
@@ -31,7 +32,7 @@ void Agent::CorrectPosition()
 {
     if (DeltaPositionCounter > 0)
     {
-        PredictedPosition += 1.2f * DeltaPosition / static_cast<float>(DeltaPositionCounter);
+        PredictedPosition += DeltaPosition / static_cast<float>(DeltaPositionCounter);
         DeltaPosition = VEC_ZERO;
         DeltaPositionCounter = 0;
     }

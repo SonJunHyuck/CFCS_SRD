@@ -40,11 +40,10 @@ void ClampVec3(glm::vec3 &InVec3, const float MaxValue)
 	}
 }
 
-void ProjectOnVec3(const glm::vec3 &InVec3, const glm::vec3 &InUnitVec3, glm::vec3 &OutVec3)
+void ProjectOnVec3(const glm::vec3 &InFromVec3, const glm::vec3 &InUnitVec3, glm::vec3 &OutVec3)
 {
-	float Length = glm::dot(InVec3, InUnitVec3);
+	float Length = glm::dot(InFromVec3, InUnitVec3);
     OutVec3 = InUnitVec3 * Length;
-	OutVec3.y = 0.0f;
 }
 
 float Deg2Rad(float InDegree)

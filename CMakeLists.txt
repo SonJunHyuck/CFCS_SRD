@@ -12,7 +12,7 @@
 cmake_minimum_required(VERSION 3.13)
 
 # 변수명 : PROJECT_NAME, 값 : cmake_project_example
-set(PROJECT_NAME CrowndFormationControlScheme)
+set(PROJECT_NAME CFCS)
 
 # C++ 17버전 쓸것이다.
 set(CMAKE_CXX_STANDARD 17)

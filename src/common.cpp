@@ -37,6 +37,7 @@ void ClampVec3(glm::vec3 &InVec3, const float MaxValue)
 	{
 		float Multi = (MaxValue / Length);
         InVec3 *= Multi;
+		InVec3.y = 0;  // clear trash
 	}
 }
 

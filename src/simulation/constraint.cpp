@@ -159,10 +159,11 @@ void AvoidConstraint(Agent& OutAgent1, Agent& OutAgent2)
 {
     glm::vec3 Correction1 = VEC_ZERO;
     glm::vec3 Correction2 = VEC_ZERO;
-
+    
     if(OutAgent1.GroupId == OutAgent2.GroupId)
     {
-        return;
+        if(!OutAgent1.bIsConnected || !OutAgent2.bIsConnected)
+            return;
     }
 
     const float Distance = glm::distance(OutAgent1.Position, OutAgent2.Position);
@@ -288,6 +289,12 @@ void StabilityConstraint(Agent& OutAgent1, Agent& OutAgent2)
 
 void SRDConstraint(Agent& OutAgent)
 {
+    if(!OutAgent.bIsConnected)
+    {
+        // SPDLOG_INFO("return");
+        return;
+    }
+
     glm::vec3 Correction = VEC_ZERO;
 
     const float Coefficient = -0.5f;

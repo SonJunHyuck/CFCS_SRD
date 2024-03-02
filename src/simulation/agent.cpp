@@ -1,4 +1,5 @@
 #include "agent.h"
+#include "grid.h"
 
 void Agent::Init(const float InMass, const float InRadius, const float InPreferedSpeed, const glm::vec3& InPosition)
 {
@@ -9,6 +10,7 @@ void Agent::Init(const float InMass, const float InRadius, const float InPrefere
     Position = InPosition;
     PredictedPosition = InPosition;
     SRD = InPosition;
+    bIsConnected = true;
 }
 
 void Agent::PlanVelocity()
@@ -24,10 +26,20 @@ void Agent::PlanVelocity()
 
         float T = 0.01f;
         Velocity = T * PlanedVelocity + (1 - T) * Velocity;
+        Velocity.y = 0;  // clear trash
         PredictedPosition += Velocity * DELTA_TIME;
-        PredictedPosition.y = 0;  // clear trash
     }
 }
+
+void Agent::DetermineBehavior(const int8_t InState)
+{
+    Grid::Cell::STATE State = static_cast<Grid::Cell::STATE>(InState);
+    
+    if(State == Grid::Cell::STATE::MIXED)
+        bIsConnected = false;
+    else
+        bIsConnected = true;
+}       
 
 void Agent::CorrectPosition()
 {

@@ -48,6 +48,7 @@ private:
 	void PathFinding();
 	void CalcPredictedPosition();
 	void UpdateLocalInformation();
+	void DetermineBehavior();
 	void TriggerAvoidanceConstraint();
 	void TriggerFrictionConstraint();
 	void TriggerSRDConstraint();

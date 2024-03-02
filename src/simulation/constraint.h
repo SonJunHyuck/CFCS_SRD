@@ -18,5 +18,5 @@ void StabilityConstraint(Agent& OutAgent1, Agent& OutAgent2);
 
 const float SRD_STIFFNESS = 1.0f;
 const float SRD_HoldingDistance = 0.1f;
-const float SRD_LimitAccel = MAX_ACCEL * DELTA_TIME;
+const float SRD_LimitAccel = MAX_ACCEL * DELTA_TIME * DELTA_TIME;
 void SRDConstraint(Agent& OutAgent);

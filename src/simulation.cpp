@@ -65,7 +65,7 @@ bool Simulation::Init(const uint8_t& InNumGroups, const std::vector<uint32_t>& I
 		// Create Group (Init Group SRD)
 		float GroupSpeed = 1.0f;
 		Groups.push_back(GroupFactory::Create(GroupId, GroupPositions[GroupId], GroupSpeed, GroupColors[GroupId]));
-		FormationUPtr TempFormation = Formation::CreateRectFormation(CreateAgentCount, Groups[GroupId].GetPosition(), 8, GRID_DENSITY - 1.1f, FormationDirection[GroupId]);
+		FormationUPtr TempFormation = Formation::CreateRectFormation(CreateAgentCount, Groups[GroupId].GetPosition(), 8, GRID_DENSITY + 1.0f, FormationDirection[GroupId]);
 
 		glm::vec3 NewGroupPosition = VEC_ZERO;
 		for (uint32_t AgentId = NumAgents; AgentId < NumAgents + CreateAgentCount; AgentId++)
@@ -202,6 +202,16 @@ void Simulation::UpdateLocalInformation()
 {	
 	GridField->Update(Agents);
 }
+void Simulation::DetermineBehavior()
+{
+	for (Agent &IterAgent : Agents)
+	{
+		int32_t CellId = IterAgent.CellId;
+		Grid::Cell::STATE State = static_cast<Grid::Cell::STATE>( GridField->GetCellState(CellId) );
+		
+		IterAgent.DetermineBehavior(State);
+	}
+}
 void Simulation::TriggerAvoidanceConstraint()
 {
 	InitAgentDelta();
@@ -224,7 +234,7 @@ void Simulation::TriggerAvoidanceConstraint()
 }
 void Simulation::TriggerFrictionConstraint()
 {
-	for (int i = 1; i < IterateCount + 1; i++)
+	for (int i = 1; i < IterateCount + 3; i++)
 	{
 		CalcStiffness(i);
 
@@ -345,6 +355,9 @@ void Simulation::Update()
 	// 2. searching neighboring
     UpdateLocalInformation();
 
+	// 
+	DetermineBehavior();
+
 	// 3. long_range constraint (Avoidance) (4.4, 4.5)
 	TriggerAvoidanceConstraint();
 
@@ -352,7 +365,7 @@ void Simulation::Update()
     TriggerFrictionConstraint();
 
 	// 4-1. SRD Constraint
-	//TriggerSRDConstraint();
+	TriggerSRDConstraint();
 
     // 5. Real Translate Agent Position
 	UpdateFinalPosition();

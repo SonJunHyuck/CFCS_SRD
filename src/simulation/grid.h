@@ -9,16 +9,6 @@ class Grid
 {
 public:
     const static uint16_t MaxPerCell = 10;
-
-    Grid();
-    Grid(float InCellSize, glm::vec3 InMinBound, glm::vec3 InMaxBound);
-    ~Grid();
-
-    void GetNeighborAgents(const Agent& InAgent, const uint8_t InRange, std::vector<int32_t>& OutNeighbors);
-
-    void Update(std::vector<Agent>& Agents);
-
-public:
     struct Cell
     {
         enum STATE
@@ -29,7 +19,7 @@ public:
 
         uint32_t Counter;
         int32_t Guests[MaxPerCell];
-        int32_t Congestion;
+        int8_t Congestion;
 
         Cell()
         {
@@ -38,6 +28,17 @@ public:
             std::fill_n(Guests, MaxPerCell, -1);
         }
     };
+
+public:
+
+    Grid();
+    Grid(float InCellSize, glm::vec3 InMinBound, glm::vec3 InMaxBound);
+    ~Grid();
+
+    void GetNeighborAgents(const Agent& InAgent, const uint8_t InRange, std::vector<int32_t>& OutNeighbors);
+    int8_t GetCellState(const uint32_t CellId);
+
+    void Update(std::vector<Agent>& Agents);
 
 private:
     uint32_t NumParticles;

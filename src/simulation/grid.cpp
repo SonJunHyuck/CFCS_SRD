@@ -36,7 +36,7 @@ void Grid::GetNeighborAgents(const Agent& InAgent, const uint8_t InRange, std::v
                 const int CurZ = InAgent.CellZ + Z;
                 if (CurZ >= 0 && CurZ < NumRows)
                 {
-                    const int CurCellId = InAgent.CellId + X + (Z * NumRows);
+                    const uint32_t CurCellId = InAgent.CellId + X + (Z * NumRows);
                     const Cell CurCell = Cells[CurCellId];
 
                     if (CurCell.Counter > 0)
@@ -57,6 +57,11 @@ void Grid::GetNeighborAgents(const Agent& InAgent, const uint8_t InRange, std::v
     }
 }
 
+int8_t Grid::GetCellState(const uint32_t InCellId)
+{
+    return Cells[InCellId].Congestion;
+}
+
 bool Grid::IsConquerableCell(uint32_t InCellId, uint8_t InGroupId)
 {
     if(Cells[InCellId].Congestion == Cell::STATE::EMPTY)
@@ -67,7 +72,6 @@ bool Grid::IsConquerableCell(uint32_t InCellId, uint8_t InGroupId)
 
     return false;
 }
-
 
 void Grid::Update(std::vector<Agent>& InAgents)
 {

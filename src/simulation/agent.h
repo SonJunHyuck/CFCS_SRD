@@ -42,13 +42,14 @@ public:
     glm::vec3 FinalDestination;
 
 	// grid
-	int CellId;
-	int CellX;
-	int CellZ;
+	uint32_t CellId;
+	uint32_t CellX;
+	uint32_t CellZ;
 
 	bool bIsConnected;
 
 	void PlanVelocity();
+	void DetermineBehavior(const int8_t InState);
 	void CorrectPosition();
 };
 

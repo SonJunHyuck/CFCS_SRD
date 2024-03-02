@@ -182,8 +182,8 @@ bool Context::Init()
     uint8_t NumGroups = 2;
 
     std::vector<uint32_t> Agents;
-    Agents.push_back(2);
-    Agents.push_back(2);
+    Agents.push_back(100);
+    Agents.push_back(100);
 
     std::vector<uint8_t> FormationIds;
     FormationIds.push_back(0);

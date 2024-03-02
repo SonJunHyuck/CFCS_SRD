@@ -35,7 +35,6 @@ void FrictionConstraint(Agent& OutAgent1, Agent& OutAgent2, const float& InStiff
 
         float WeightedDeltaDistance = distance(PredictedWeightedDelta1, PredictedWeightedDelta2);
         ContactNormal.x = -(PredictedWeightedDelta1.z - PredictedWeightedDelta2.z) / WeightedDeltaDistance;
-        ContactNormal.y = 0;
         ContactNormal.z = (PredictedWeightedDelta1.x - PredictedWeightedDelta2.x) / WeightedDeltaDistance;
 
         CollisionTangent = (PredictedWeightedDelta1 - OutAgent1.Position) - (PredictedWeightedDelta2 - OutAgent2.Position);
@@ -141,6 +140,9 @@ void FrictionConstraint(Agent& OutAgent1, Agent& OutAgent2, const float& InStiff
                     Correction1 += -Out * WeightedCoefficient1;
                     Correction2 += -Out * WeightedCoefficient2;
 
+                    ClampVec3(Correction1, FRICTION_LimitAccel);
+                    ClampVec3(Correction2, FRICTION_LimitAccel);
+
                     OutAgent1.DeltaPosition += Correction1;
                     OutAgent2.DeltaPosition += Correction2;
 
@@ -150,6 +152,7 @@ void FrictionConstraint(Agent& OutAgent1, Agent& OutAgent2, const float& InStiff
             }
         }
     }
+
 }
 
 void AvoidConstraint(Agent& OutAgent1, Agent& OutAgent2)
@@ -175,7 +178,7 @@ void AvoidConstraint(Agent& OutAgent1, Agent& OutAgent2)
     }
 
     // Avoidance Model (Weiss)
-    glm::vec3 V = ( (OutAgent1.PredictedPosition - OutAgent1.Position) / DELTA_TIME ) - ( (OutAgent2.PredictedPosition - OutAgent2.Position) / DELTA_TIME ); 
+    glm::vec3 V = ( (OutAgent1.PredictedPosition - OutAgent1.Position) / DELTA_TIME ) - ( (OutAgent2.PredictedPosition - OutAgent2.Position) / DELTA_TIME );
     glm::vec3 P = OutAgent1.Position - OutAgent2.Position;
 
     // Root Equation
@@ -235,10 +238,11 @@ void AvoidConstraint(Agent& OutAgent1, Agent& OutAgent2)
                     glm::vec3 AvoidanceTangent = AvoidanceDelta - AvoidanceDeltaNormal;
 
                     Correction1 += AvoidanceTangent * OutAgent1.PreferedSpeed * DELTA_TIME;
-                    Correction2 += AvoidanceTangent * OutAgent2.PreferedSpeed * DELTA_TIME;
+                    Correction2 -= AvoidanceTangent * OutAgent2.PreferedSpeed * DELTA_TIME;
 
-                    ClampVec3(Correction1, AVOIDANCE_LimitAccel);
-                    ClampVec3(Correction2, AVOIDANCE_LimitAccel);
+                    float Avoidance_Weight = 1.0f;
+                    ClampVec3(Correction1, AVOIDANCE_LimitAccel * Avoidance_Weight);
+                    ClampVec3(Correction2, AVOIDANCE_LimitAccel * Avoidance_Weight);
 
                     OutAgent1.DeltaPosition += Correction1;
                     OutAgent2.DeltaPosition += Correction2;

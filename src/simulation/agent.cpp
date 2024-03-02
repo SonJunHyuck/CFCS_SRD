@@ -25,6 +25,7 @@ void Agent::PlanVelocity()
         float T = 0.01f;
         Velocity = T * PlanedVelocity + (1 - T) * Velocity;
         PredictedPosition += Velocity * DELTA_TIME;
+        PredictedPosition.y = 0;  // clear trash
     }
 }
 

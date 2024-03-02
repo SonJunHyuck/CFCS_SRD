@@ -352,7 +352,7 @@ void Simulation::Update()
     TriggerFrictionConstraint();
 
 	// 4-1. SRD Constraint
-	TriggerSRDConstraint();
+	//TriggerSRDConstraint();
 
     // 5. Real Translate Agent Position
 	UpdateFinalPosition();

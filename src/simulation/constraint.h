@@ -2,10 +2,6 @@
 
 #include "../common.h"
 
-// extern float DELTA_TIME;
-// extern float MAX_ACCEL;
-// extern bool ON_AVOIDANCE_MODEL;
-
 class Agent;
 
 const float FRICTION_MUI_STATIC = 0.00026f;
@@ -21,6 +17,6 @@ void AvoidConstraint(Agent& OutAgent1, Agent& OutAgent2);
 void StabilityConstraint(Agent& OutAgent1, Agent& OutAgent2);
 
 const float SRD_STIFFNESS = 1.0f;
-const float SRD_HoldingDistance = 1.2f;
+const float SRD_HoldingDistance = 0.1f;
 const float SRD_LimitAccel = MAX_ACCEL * DELTA_TIME;
 void SRDConstraint(Agent& OutAgent);

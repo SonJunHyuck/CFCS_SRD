@@ -12,7 +12,7 @@ FormationUPtr Formation::CreateRectFormation(const uint32_t InAmount, const glm:
     {   
         for (int z = 0 ; z < InRow; z++)
         {
-            glm::vec3 TempPosition = InStart + glm::vec3(x, 0, z * InSpace);
+            glm::vec3 TempPosition = InStart + glm::vec3(x, 0.0f, z * InSpace);
             OutFormation->Positions.push_back(TempPosition);
             Amount++;
             

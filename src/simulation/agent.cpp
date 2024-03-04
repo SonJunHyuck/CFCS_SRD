@@ -45,7 +45,7 @@ void Agent::CorrectPosition()
 {
     if (DeltaPositionCounter > 0)
     {
-        PredictedPosition += DeltaPosition / static_cast<float>(DeltaPositionCounter);
+        PredictedPosition += 1.2f * DeltaPosition / static_cast<float>(DeltaPositionCounter);
         DeltaPosition = VEC_ZERO;
         DeltaPositionCounter = 0;
     }

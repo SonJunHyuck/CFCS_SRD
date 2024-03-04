@@ -234,7 +234,7 @@ void Simulation::TriggerAvoidanceConstraint()
 }
 void Simulation::TriggerFrictionConstraint()
 {
-	for (int i = 1; i < IterateCount + 3; i++)
+	for (int i = 1; i < IterateCount + 1; i++)
 	{
 		CalcStiffness(i);
 

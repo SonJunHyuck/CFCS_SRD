@@ -355,7 +355,7 @@ void Simulation::Update()
 	// 2. searching neighboring
     UpdateLocalInformation();
 
-	// 
+	// 2-1. 
 	DetermineBehavior();
 
 	// 3. long_range constraint (Avoidance) (4.4, 4.5)

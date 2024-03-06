@@ -48,7 +48,6 @@ void Grid::GetNeighborAgents(const Agent& InAgent, const uint8_t InRange, std::v
                             {
                                 OutNeighbors.push_back(Guest);
                             }
-                            
                         }
                     }
                 }

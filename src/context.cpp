@@ -191,13 +191,6 @@ bool Context::Init()
 
     m_simulation = Simulation::Create(NumGroups, Agents);
 
-    // Set Formation
-    for(int i = 0; i < FormationIds.size(); i++)
-    {
-        uint8_t FormationId = FormationIds[i];
-       // m_simulation->SetFormation(RectFormation->GetPositions(), i, VEC_ZERO, 1.0f);
-    }
-
     glClearColor(m_clearColor.r, m_clearColor.g, m_clearColor.b, m_clearColor.a);
 
     return true;

@@ -9,7 +9,7 @@ https://www.youtube.com/watch?v=8RGSI7724wI
 
 ## cmake configuration
 - Window : Clang 16.0.5 (GNU CLI) for MSCV 17.8.34xxx (Visual Studio Tools 2022 Release - amd64)
-  다운로드 링크 : https://visualstudio.microsoft.com/ko/visual-cpp-build-tools/
+- 다운로드 링크 : https://visualstudio.microsoft.com/ko/visual-cpp-build-tools/
   
 - Mac : Clang 13.1.6 arm64-apple-darwin21.5.0
 

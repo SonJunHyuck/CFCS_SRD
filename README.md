@@ -13,7 +13,7 @@ https://www.youtube.com/watch?v=8RGSI7724wI
   
 - Mac : Clang 13.1.6 arm64-apple-darwin21.5.0
 
-## Refactoring
+## Refactoring (2024. 02)
 - 재구성 전의 코드는 old branch에서 볼 수 있습니다.
 - 퍼포먼스를 높이기보다, 코드 가독성을 위해 Refactoring을 진행하였습니다.
 

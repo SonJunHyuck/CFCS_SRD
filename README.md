@@ -1,5 +1,5 @@
 # Position-Based Formation Control Scheme for Crowd Simulation using Short Range Destination (SRD)
-## 위치 기반 동역학(Position based Dyanmics)을 이용한 군중 대형 제어 연구
+### 위치 기반 동역학(Position based Dyanmics)을 이용한 군중 대형 제어 연구
 
 ## Video
 https://www.youtube.com/watch?v=8RGSI7724wI

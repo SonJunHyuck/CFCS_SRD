@@ -22,6 +22,9 @@ if(APPLE)
     set(CMAKE_CXX_FLAGS "-framework Cocoa -framework IOKit -framework OpenGL")
 endif()
 
+set(CMAKE_CXX_FLAGS "/utf-8")
+set(CMAKE_C_FLAGS "/utf-8")
+
 # glfw 변수 정의
 set(WINDOW_NAME "Crowd Formation Control Scheme Project")
 set(WINDOW_WIDTH 640)

@@ -7,6 +7,16 @@ https://www.youtube.com/watch?v=8RGSI7724wI
 <p align="center"> :arrow_down::arrow_down::arrow_down::arrow_down::arrow_down::arrow_down::arrow_down::arrow_down: </p>
 <p align="center"> <img src="https://github.com/SonJunHyuck/CFCS_SRD/blob/main/images/New.png" width="600" height="336"> </p>
 
+### How to build
+그림 설명 : https://sonnysmile.notion.site/Wind-Simulation-ece1ff331abe444eb23320a7842c3d56?pvs=4
+(실행화면든 다르지만, 동일한 과정으로 빌드가 가능)
+
+요약
+1. Cmake -> Configure -> Visual Studio 17 2022 -> x64
+2. Generate
+3. Open Project (wind_simulatio.sln)
+7. build
+
 ## cmake configuration
 - Window : Clang 16.0.5 (GNU CLI) for MSCV 17.8.34xxx (Visual Studio Tools 2022 Release - amd64)
 - 다운로드 링크 : https://visualstudio.microsoft.com/ko/visual-cpp-build-tools/

@@ -9,7 +9,8 @@ https://www.youtube.com/watch?v=8RGSI7724wI
 
 ### How to build
 그림 설명 : https://sonnysmile.notion.site/Wind-Simulation-ece1ff331abe444eb23320a7842c3d56?pvs=4
-(실행화면든 다르지만, 동일한 과정으로 빌드가 가능)
+
+(다른 프로젝트지만, 동일한 과정으로 빌드가 가능)
 
 요약
 1. Cmake -> Configure -> Visual Studio 17 2022 -> x64
